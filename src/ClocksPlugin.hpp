@@ -1,5 +1,6 @@
+#include <PluginInterface.h>
+
 #include "Config.hpp"
-#include "PluginInterface.h"
 
 class ClocksPlugin : public ITMPlugin {
  private:

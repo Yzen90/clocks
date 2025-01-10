@@ -10,6 +10,7 @@ target('clocks')
   set_kind('shared')
   add_files('src/ClocksPlugin.cpp')
   add_includedirs('extern/TrafficMonitor/include')
+  add_includedirs('vcpkg_installed/x64-windows/include')
 
   set_configvar('NAME', 'Clocks')
   set_configvar('DESCRIPTION', 'World clocks plugin for TrafficMonitor.')

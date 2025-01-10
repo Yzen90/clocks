@@ -9,18 +9,18 @@ ClocksPlugin& ClocksPlugin::Instance() { return m_instance; }
 const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
   switch (index) {
     case TMI_NAME:
-      return (wchar_t*)NAME;
+      return NAME;
     case TMI_DESCRIPTION:
-      return (wchar_t*)DESCRIPTION;
+      return DESCRIPTION;
     case TMI_AUTHOR:
-      return (wchar_t*)AUTHOR;
+      return AUTHOR;
     case TMI_COPYRIGHT:
-      return (wchar_t*)COPYRIGHT;
+      return COPYRIGHT;
     case TMI_URL:
-      return (wchar_t*)URL;
+      return URL;
       break;
     case TMI_VERSION:
-      return (wchar_t*)VERSION;
+      return VERSION;
     default:
       break;
   }

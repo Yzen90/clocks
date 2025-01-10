@@ -1,6 +1,6 @@
-${define NAME}
-${define VERSION}
-${define DESCRIPTION}
-${define AUTHOR}
-${define COPYRIGHT}
-${define URL}
+#define NAME L"${NAME}"
+#define VERSION L"${VERSION}"
+#define DESCRIPTION L"${DESCRIPTION}"
+#define AUTHOR L"${AUTHOR}"
+#define COPYRIGHT L"${COPYRIGHT}"
+#define URL L"${URL}"
