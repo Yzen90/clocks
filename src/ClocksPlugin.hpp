@@ -1,12 +1,20 @@
 #include <PluginInterface.h>
 
-#include "Config.hpp"
+#include <vector>
+
+#include "ClockItem.hpp"
+#include "config.hpp"
+
+using std::vector;
 
 class ClocksPlugin : public ITMPlugin {
  private:
   ClocksPlugin();
 
-  static ClocksPlugin m_instance;
+  vector<ClockItem> clocks;
+  int items;
+
+  static ClocksPlugin instance;
 
  public:
   static ClocksPlugin &Instance();

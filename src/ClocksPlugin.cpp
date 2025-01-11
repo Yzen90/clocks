@@ -1,10 +1,30 @@
 #include "ClocksPlugin.hpp"
 
-// #include <chrono>
+#include <cstdint>
 
-ClocksPlugin ClocksPlugin::m_instance;
-ClocksPlugin::ClocksPlugin() {}
-ClocksPlugin& ClocksPlugin::Instance() { return m_instance; }
+#include "state.hpp"
+
+ClocksPlugin::ClocksPlugin() {
+  init_state();
+  items = item_count();
+  clocks.reserve(items);
+
+  for (uint8_t index = 0; index < items; index++) {
+    clocks[index] = ClockItem{index};
+  }
+}
+
+ClocksPlugin ClocksPlugin::instance;
+ClocksPlugin& ClocksPlugin::Instance() { return instance; }
+
+IPluginItem* ClocksPlugin::GetItem(int index) {
+  if (index == items)
+    return nullptr;
+  else
+    return &clocks[index];
+}
+
+void ClocksPlugin::DataRequired() {}
 
 const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
   switch (index) {

@@ -1,8 +1,13 @@
 #include <PluginInterface.h>
 
-class Clock : public IPluginItem {
+#include <cstdint>
+
+class ClockItem : public IPluginItem {
+ private:
+  uint8_t index;
+
  public:
-  Clock();
+  ClockItem(uint8_t index);
 
   virtual const wchar_t* GetItemName() const override;
   virtual const wchar_t* GetItemId() const override;
