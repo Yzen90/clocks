@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "boost",
-    "xxhash"
+    "xxhash",
+    "plog"
   ]
 }

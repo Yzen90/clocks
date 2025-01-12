@@ -47,3 +47,5 @@ const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
 
   return nullptr;
 }
+
+ITMPlugin* TMPluginGetInstance() { return &ClocksPlugin::Instance(); }
