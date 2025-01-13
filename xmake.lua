@@ -1,11 +1,13 @@
 set_project('clocks')
 set_version('0.1.0')
 
+
 set_languages('cxx23')
 set_config('toolchain', 'clang')
 add_cxxflags("-stdlib=libc++")
 
 add_rules('mode.debug', 'mode.release')
+
 
 target('clocks')
   set_kind('shared')
@@ -13,8 +15,6 @@ target('clocks')
   add_files('src/*.cpp')
   add_includedirs('extern/TrafficMonitor/include')
   add_includedirs('vcpkg_installed/x64-windows/include')
-  add_linkdirs('vcpkg_installed/x64-windows/lib')
-  add_links('xxhash')
 
   add_configfiles('config.hpp.in')
   set_configdir('src')
@@ -23,3 +23,13 @@ target('clocks')
   set_configvar('AUTHOR', 'Edgar Montiel Cruz')
   set_configvar('COPYRIGHT', '©2025 Edgar Montiel Cruz')
   set_configvar('URL', 'https://github.com/Yzen90/clocks')
+
+
+target('tester')
+  set_kind('binary')
+
+  add_files('tester.cpp')
+  add_includedirs('extern/TrafficMonitor/include')
+  add_includedirs('vcpkg_installed/x64-windows/include')
+  add_linkdirs('build/windows/x64/debug')
+  add_links('clocks')

@@ -1,5 +1,6 @@
 #pragma once
 
+#define XXH_INLINE_ALL
 #include <xxhash.h>
 
 #include <boost/nowide/convert.hpp>

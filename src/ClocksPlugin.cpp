@@ -38,14 +38,11 @@ const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
       return COPYRIGHT;
     case TMI_URL:
       return URL;
-      break;
     case TMI_VERSION:
       return VERSION;
     default:
-      break;
+      return nullptr;
   }
-
-  return nullptr;
 }
 
 ITMPlugin* TMPluginGetInstance() { return &ClocksPlugin::Instance(); }
