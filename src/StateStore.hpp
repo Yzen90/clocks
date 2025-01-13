@@ -4,7 +4,6 @@
 #include <xxhash.h>
 
 #include <boost/nowide/convert.hpp>
-#include <cstdint>
 #include <format>
 #include <map>
 #include <memory>
@@ -12,11 +11,14 @@
 
 using boost::nowide::widen;
 using std::format;
+using std::make_unique;
 using std::map;
 using std::string;
 using std::to_string;
 using std::unique_ptr;
 using std::wstring;
+
+struct State;
 
 struct ClockData {
   string time_zone;
@@ -26,8 +28,21 @@ struct ClockData {
   const wchar_t* time;
 };
 
-void init_state();
-int item_count();
-const wchar_t* sample_text();
+typedef unsigned char Index;
+typedef map<Index, ClockData> Clocks;
 
-ClockData* get_item(uint8_t index);
+class StateStore {
+ private:
+  static unique_ptr<State> state;
+  static unique_ptr<Clocks> clocks;
+
+  void add_clock(string time_zone, wstring label);
+
+ public:
+  StateStore();
+
+  unsigned short int item_count() const;
+  const wchar_t* sample_text() const;
+
+  ClockData* get_item(Index index) const;
+};

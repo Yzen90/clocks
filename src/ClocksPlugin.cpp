@@ -1,16 +1,13 @@
 #include "ClocksPlugin.hpp"
 
-#include <cstdint>
-
-#include "state.hpp"
+unique_ptr<StateStore> ClocksPlugin::state{};
 
 ClocksPlugin::ClocksPlugin() {
-  init_state();
-  items = item_count();
-  clocks.reserve(items);
+  item_count = state->item_count();
+  clocks.reserve(item_count);
 
-  for (uint8_t index = 0; index < items; index++) {
-    clocks[index] = ClockItem{index};
+  for (Index index = 0; index < item_count; index++) {
+    clocks.push_back(ClockItem{index, *state});
   }
 }
 
@@ -18,7 +15,7 @@ ClocksPlugin ClocksPlugin::instance;
 ClocksPlugin& ClocksPlugin::Instance() { return instance; }
 
 IPluginItem* ClocksPlugin::GetItem(int index) {
-  if (index == items)
+  if (index == item_count)
     return nullptr;
   else
     return &clocks[index];

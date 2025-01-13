@@ -1,13 +1,14 @@
 #include <PluginInterface.h>
 
-#include <cstdint>
+#include "StateStore.hpp"
 
 class ClockItem : public IPluginItem {
  private:
-  uint8_t index;
+  const Index index;
+  const StateStore& store;
 
  public:
-  ClockItem(uint8_t index);
+  ClockItem(Index index, const StateStore& store);
 
   virtual const wchar_t* GetItemName() const override;
   virtual const wchar_t* GetItemId() const override;
