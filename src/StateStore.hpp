@@ -1,34 +1,50 @@
 #pragma once
 
+#include <easylogging++.h>
+#include <winrt/Windows.Globalization.DateTimeFormatting.h>
+#include <winrt/base.h>
+
 #define XXH_INLINE_ALL
 #include <xxhash.h>
 
-#include <boost/nowide/convert.hpp>
-#include <format>
+#include <chrono>
+#include <filesystem>
 #include <map>
-#include <memory>
+#include <nowide/convert.hpp>
 #include <string>
 
-using boost::nowide::widen;
+using el::Logger;
+using el::Loggers;
+using nowide::narrow;
+using nowide::widen;
 using std::format;
 using std::make_unique;
 using std::map;
 using std::string;
-using std::to_string;
 using std::unique_ptr;
 using std::wstring;
+using std::filesystem::exists;
+using std::filesystem::path;
+using winrt::clock;
 
+using namespace std::chrono;
+using namespace winrt::Windows::Globalization::DateTimeFormatting;
+
+struct Configuration;
 struct State;
 
 struct ClockData {
-  string time_zone;
-  const wchar_t* id;
-  const wchar_t* label;
-  const wchar_t* name;
-  const wchar_t* time;
+  const time_zone* tz;
+  wstring timezone;
+  wstring id;
+  wstring label;
+  wstring name;
+  wstring time;
+  wstring sample;
 };
 
 typedef unsigned char Index;
+typedef unsigned short ItemCount;
 typedef map<Index, ClockData> Clocks;
 
 class StateStore {
@@ -36,13 +52,20 @@ class StateStore {
   static unique_ptr<State> state;
   static unique_ptr<Clocks> clocks;
 
-  void add_clock(string time_zone, wstring label);
+  static void save_configuration();
+  static void add_clock(const time_zone* tz, wstring time_zone, wstring label);
 
  public:
   StateStore();
 
-  unsigned short int item_count() const;
-  const wchar_t* sample_text() const;
-
-  ClockData* get_item(Index index) const;
+  static void initialize(const wchar_t* config_dir);
+  static void refresh();
+  static ClockData* get_item(Index index);
+  static ItemCount item_count();
 };
+
+const string CONTEXT_STATE_INIT = "[State initialization]";
+const string CONTEXT_CONFIG_SAVE = "[Configuration save]";
+const string CONFIG_FILENAME = "clocks.dll.json";
+const wstring NEXT_DAY = L"↷";
+const wstring PREV_DAY = L"↶";

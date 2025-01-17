@@ -1,7 +1,9 @@
 {
   "dependencies": [
-    "boost",
+    "cppwinrt",
+    "easyloggingpp",
+    "nowide",
     "xxhash",
-    "plog"
+    "glaze"
   ]
 }

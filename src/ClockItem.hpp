@@ -4,8 +4,8 @@
 
 class ClockItem : public IPluginItem {
  private:
-  const Index index;
-  const StateStore& store;
+  Index index;
+  const StateStore* store;
 
  public:
   ClockItem(Index index, const StateStore& store);

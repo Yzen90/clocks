@@ -1,39 +1,88 @@
 #include "StateStore.hpp"
 
-#include <iostream>
+#include <glaze/glaze.hpp>
 
-using boost::nowide::narrow;
-using std::cout;
-using std::endl;
+static Logger* logger = Loggers::getLogger("state");
 
-struct State {
-  unsigned short int item_count;
-  const wchar_t* sample_text;
+enum ClockType { format_auto, format_24h, format_12h };
+
+struct Configuration {
+  ClockType clock_type = format_auto;
+  bool day_difference_indicator = true;
 };
 
-StateStore::StateStore() {
-  if (!state) {
-    state = make_unique<State>(State{0, L"Colabola"});
-    clocks = make_unique<Clocks>();
+struct State {
+  ItemCount item_count;
+  path configuration_path;
 
-    add_clock("UTC", L"UTC");
+  Configuration configuration;
+};
+
+StateStore::StateStore() { std::locale::global(std::locale(".utf-8")); }
+
+unique_ptr<State> StateStore::state;
+unique_ptr<Clocks> StateStore::clocks;
+
+void StateStore::initialize(const wchar_t* config_dir) {
+  state = make_unique<State>(State{0, path{config_dir} / CONFIG_FILENAME});
+
+  if (exists(state->configuration_path)) {
+    auto error = glz::read_file_json(state->configuration, state->configuration_path.string(), string{});
+
+    if (error) logger->warn(CONTEXT_STATE_INIT + " Default values will be used. Cause: " + glz::format_error(error));
+
+  } else {
+    save_configuration();
   }
+
+  clocks = make_unique<Clocks>();
+
+  add_clock(locate_zone("UTC"), L"UTC", L"UTC:");
+
+  logger->info(CONTEXT_STATE_INIT + " Completed.");
 }
 
-void StateStore::add_clock(string time_zone, wstring label) {
-  auto payload = to_string(state->item_count) + time_zone;
+void StateStore::save_configuration() {
+  auto error = glz::write_file_json(state->configuration, state->configuration_path.string(), string{});
+  if (error)
+    logger->error(CONTEXT_CONFIG_SAVE + " Cause: " + glz::format_error(error) +
+                  "\nConfiguration path: " + state->configuration_path.string());
+  else
+    logger->info(CONTEXT_STATE_INIT +
+                 " The configuration was saved. Configuration Path: " + state->configuration_path.string());
+}
+
+void StateStore::add_clock(const time_zone* tz, wstring timezone, wstring label) {
+  auto payload = std::to_string(state->item_count) + narrow(timezone);
   auto id = widen(format("{:x}", XXH3_64bits(&payload, payload.length())));
 
-  cout << payload << endl;
-  cout << narrow(id) << endl;
+  DateTimeFormatter formatter{L"shorttime"};
+  auto output = formatter.Format(clock::now());
 
-  (*clocks)[state->item_count] =
-      ClockData{time_zone, id.c_str(), label.c_str(), (L"🕜" + widen(time_zone)).c_str(), L""};
+  (*clocks)[state->item_count] = ClockData{tz, timezone, id, label, L"🕜 " + timezone, wstring(output), L"--:--"};
 
   state->item_count++;
 }
 
-unsigned short int StateStore::item_count() const { return state->item_count; }
-const wchar_t* StateStore::sample_text() const { return state->sample_text; }
+ItemCount StateStore::item_count() { return state->item_count; }
 
-ClockData* StateStore::get_item(uint8_t index) const { return &(*clocks)[index]; }
+ClockData* StateStore::get_item(Index index) { return &(*clocks)[index]; }
+
+void StateStore::refresh() {
+  auto now = system_clock::now();
+  auto minutes = hh_mm_ss{now - floor<days>(now)}.minutes();
+
+  for (auto& [_, clock] : *clocks) {
+    const zoned_time zoned_dt{clock.tz, now};
+    auto xd = format("{:%X}", zoned_dt);
+  }
+}
+
+/* inline wstring format_time(const State& state, const wstring& time_zone, const time_point<system_clock>& time) {
+  const zoned_time zoned{tz, now};
+
+  if (state.show_24h)
+    return widen(format("%X", zoned));
+  else
+    return widen(format("%r", zoned));
+} */
