@@ -11,7 +11,6 @@
 #include <filesystem>
 #include <map>
 #include <nowide/convert.hpp>
-#include <string>
 
 using el::Logger;
 using el::Loggers;
@@ -64,7 +63,8 @@ class StateStore {
   static ItemCount item_count();
 };
 
-const string CONTEXT_STATE_INIT = "[State initialization]";
+const string CONTEXT_STATE_INIT = "[Initialization]";
+const string CONTEXT_CONFIG_READ = "[Configuration read]";
 const string CONTEXT_CONFIG_SAVE = "[Configuration save]";
 const string CONFIG_FILENAME = "clocks.dll.json";
 const wstring NEXT_DAY = L"↷";
