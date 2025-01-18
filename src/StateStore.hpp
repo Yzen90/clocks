@@ -1,32 +1,15 @@
 #pragma once
 
-#include <easylogging++.h>
-#include <winrt/Windows.Globalization.DateTimeFormatting.h>
-#include <winrt/base.h>
+#include <chrono>
+#include <map>
+#include <memory>
 
-#define XXH_INLINE_ALL
-#include <xxhash.h>
-
-#include <filesystem>
-#include <nowide/convert.hpp>
-
-using el::Logger;
-using el::Loggers;
-using nowide::narrow;
-using nowide::widen;
-using std::format;
-using std::forward_list;
-using std::make_unique;
 using std::map;
 using std::string;
 using std::unique_ptr;
 using std::wstring;
-using std::filesystem::exists;
-using std::filesystem::path;
-using winrt::clock;
 
 using namespace std::chrono;
-using namespace winrt::Windows::Globalization::DateTimeFormatting;
 
 struct Configuration;
 struct State;
@@ -51,22 +34,17 @@ class StateStore {
   static unique_ptr<Clocks> clocks;
 
   static void save_configuration();
-  static void add_clock(const time_zone* tz, wstring time_zone, wstring label);
+  static void save_configuration_with_default_clock();
+  static void update_time_formatter();
+  static void refresh_time(const time_point<system_clock>& now);
+  inline static wstring get_time(const wstring& time_zone);
+  static void add_clock(const time_zone* tz, string time_zone, wstring label);
 
  public:
   StateStore();
 
   static void initialize(const wchar_t* config_dir);
   static void refresh();
-  static ClockData* get_item(Index index);
+  static ClockData* get_clock(Index index);
   static ItemCount item_count();
 };
-
-const string CONFIG_FILENAME = "clocks.dll.json";
-
-const string CONTEXT_STATE_INIT = "[Initialization]";
-const string CONTEXT_CONFIG_READ = "[Configuration read]";
-const string CONTEXT_CONFIG_SAVE = "[Configuration save]";
-
-const wstring NEXT_DAY = L"↷";
-const wstring PREV_DAY = L"↶";

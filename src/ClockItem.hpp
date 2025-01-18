@@ -1,3 +1,5 @@
+#pragma once
+
 #include <PluginInterface.h>
 
 #include "StateStore.hpp"

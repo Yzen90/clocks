@@ -23,6 +23,7 @@ set_config('toolchain', 'clang')
 add_rules('mode.debug', 'mode.release')
 
 
+add_defines('NOMINMAX')
 add_includedirs('extern/TrafficMonitor/include')
 add_includedirs('vcpkg_installed/x64-windows/include')
 add_links('WindowsApp')
@@ -33,8 +34,6 @@ target('clocks')
 
   add_files('src/*.cpp')
   add_files('clocks.rc')
-
-  add_defines('NOMINMAX')
 
 target('tester')
   set_kind('binary')

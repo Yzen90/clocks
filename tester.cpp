@@ -16,6 +16,7 @@ using nowide::narrow;
 using std::cout;
 using std::endl;
 using std::format;
+using std::string;
 using std::wcout;
 using winrt::clock;
 using namespace std::chrono;
@@ -124,6 +125,7 @@ int main() {
   now = system_clock::now();
   auto later = hh_mm_ss{now - floor<days>(now)}.minutes();
 
+  cout << std::boolalpha;
   cout << minutes << " - " << later << " - is equal: " << (later == minutes) << endl;
 
   std::this_thread::sleep_for(seconds(30));
