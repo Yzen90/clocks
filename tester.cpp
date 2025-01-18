@@ -26,6 +26,12 @@ int main() {
   std::locale::global(std::locale{".utf-8"});
   SetConsoleOutputCP(CP_UTF8);
 
+  try {
+    auto throws = locate_zone("Colabola");
+  } catch (...) {
+    cout << "Invalid timezone" << endl;
+  }
+
   TMPluginGetInstance()->OnExtenedInfo(ITMPlugin::EI_CONFIG_DIR, L"dummy");
 
   auto plug_name = TMPluginGetInstance()->GetInfo(ITMPlugin::TMI_NAME);
@@ -80,10 +86,14 @@ int main() {
   // ----------- WIN -----------
 
   DateTimeFormatter formatter{L"shorttime"};
-  DateTimeFormatter formatter_24h(L"shorttime", formatter.Languages(), formatter.GeographicRegion(),
-                                  formatter.Calendar(), ClockIdentifiers::TwentyFourHour());
-  DateTimeFormatter formatter_12h(L"shorttime", formatter.Languages(), formatter.GeographicRegion(),
-                                  formatter.Calendar(), ClockIdentifiers::TwelveHour());
+  DateTimeFormatter formatter_24h(
+      L"shorttime", formatter.Languages(), formatter.GeographicRegion(), formatter.Calendar(),
+      ClockIdentifiers::TwentyFourHour()
+  );
+  DateTimeFormatter formatter_12h(
+      L"shorttime", formatter.Languages(), formatter.GeographicRegion(), formatter.Calendar(),
+      ClockIdentifiers::TwelveHour()
+  );
 
   auto now_win = clock::now();
   auto now_converted = clock::from_sys(now);

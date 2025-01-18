@@ -7,9 +7,7 @@
 #define XXH_INLINE_ALL
 #include <xxhash.h>
 
-#include <chrono>
 #include <filesystem>
-#include <map>
 #include <nowide/convert.hpp>
 
 using el::Logger;
@@ -17,6 +15,7 @@ using el::Loggers;
 using nowide::narrow;
 using nowide::widen;
 using std::format;
+using std::forward_list;
 using std::make_unique;
 using std::map;
 using std::string;
@@ -63,9 +62,11 @@ class StateStore {
   static ItemCount item_count();
 };
 
+const string CONFIG_FILENAME = "clocks.dll.json";
+
 const string CONTEXT_STATE_INIT = "[Initialization]";
 const string CONTEXT_CONFIG_READ = "[Configuration read]";
 const string CONTEXT_CONFIG_SAVE = "[Configuration save]";
-const string CONFIG_FILENAME = "clocks.dll.json";
+
 const wstring NEXT_DAY = L"↷";
 const wstring PREV_DAY = L"↶";

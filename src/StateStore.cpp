@@ -11,9 +11,17 @@ struct glz::meta<ClockType> {
   static constexpr auto value = enumerate(FormatAuto, Format24h, Format12h);
 };
 
+struct Clock {
+  string timezone;
+  string label;
+};
+
+const Clock DEFAULT_CLOCK{"UTC", "UTC:"};
+
 struct Configuration {
   ClockType clock_type = ClockType::FormatAuto;
   bool show_day_difference = true;
+  forward_list<Clock> clocks = {DEFAULT_CLOCK};
 };
 
 struct State {
@@ -29,6 +37,7 @@ unique_ptr<State> StateStore::state;
 unique_ptr<Clocks> StateStore::clocks;
 
 void StateStore::initialize(const wchar_t* config_dir) {
+  clocks = make_unique<Clocks>();
   state = make_unique<State>(State{0, path{config_dir} / CONFIG_FILENAME});
   logger->info(CONTEXT_STATE_INIT + " Configuration path: " + state->configuration_path.string());
 
@@ -44,15 +53,28 @@ void StateStore::initialize(const wchar_t* config_dir) {
     logger->info(CONTEXT_STATE_INIT + " Using default configuration.");
   }
 
-  clocks = make_unique<Clocks>();
-  add_clock(locate_zone("UTC"), L"UTC", L"UTC:");
+  for (auto& clock : state->configuration.clocks) {
+    try {
+      add_clock(locate_zone(clock.timezone), widen(clock.timezone), widen(clock.label));
+    } catch (...) {
+    }
+  }
+
+  if (state->item_count == 0) {
+    logger->warn(CONTEXT_STATE_INIT + " No valid clocks found in the configuration, default clock will be used.");
+    state->configuration.clocks = {DEFAULT_CLOCK};
+    save_configuration();
+    add_clock(locate_zone(DEFAULT_CLOCK.timezone), widen(DEFAULT_CLOCK.timezone), widen(DEFAULT_CLOCK.label));
+  }
+  state->configuration.clocks.clear();
 
   logger->info(CONTEXT_STATE_INIT + " Plugin state initialized.");
 }
 
 void StateStore::save_configuration() {
-  auto error = glz::write_file_json<glz::opts{.prettify = true}>(state->configuration,
-                                                                 state->configuration_path.string(), string{});
+  auto error = glz::write_file_json<glz::opts{.prettify = true}>(
+      state->configuration, state->configuration_path.string(), string{}
+  );
   if (error)
     logger->error(CONTEXT_CONFIG_SAVE + " Cause: " + glz::format_error(error));
   else
@@ -64,7 +86,7 @@ void StateStore::add_clock(const time_zone* tz, wstring timezone, wstring label)
   auto id = widen(format("{:x}", XXH3_64bits(&payload, payload.length())));
 
   DateTimeFormatter formatter{L"shorttime"};
-  auto output = formatter.Format(clock::now());
+  auto output = formatter.Format(clock::now(), timezone);
 
   (*clocks)[state->item_count] = ClockData{tz, timezone, id, label, L"🕜 " + timezone, wstring(output), L"--:--"};
 
