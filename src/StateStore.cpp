@@ -15,6 +15,7 @@
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
 
+using el::ConfigurationType;
 using el::Logger;
 using el::Loggers;
 using nowide::widen;
@@ -33,6 +34,7 @@ static Logger* logger = Loggers::getLogger("state");
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
 const string CONFIG_FILENAME = "clocks.dll.json";
+const string LOG_FILENAME = "clocks.dll.log";
 
 const string CONTEXT_STATE_INIT = "[Initialization]";
 const string CONTEXT_CONFIG_READ = "[Configuration read]";
@@ -86,7 +88,10 @@ unique_ptr<Clocks> StateStore::clocks;
 
 void StateStore::initialize(const wchar_t* config_dir) {
   clocks = make_unique<Clocks>();
-  state = make_unique<State>(State{0, (path{config_dir} / CONFIG_FILENAME)});
+  state = make_unique<State>(State{0, path{config_dir} / CONFIG_FILENAME});
+
+  Loggers::reconfigureAllLoggers(ConfigurationType::Filename, (path{config_dir} / LOG_FILENAME).string());
+
   logger->info(CONTEXT_STATE_INIT + " Configuration path: " + state->configuration_path.string());
 
   if (exists(state->configuration_path)) {
@@ -132,7 +137,7 @@ void StateStore::initialize(const wchar_t* config_dir) {
   }
 
   state->configuration.clocks.clear();
-  logger->info(CONTEXT_STATE_INIT + " Plugin state initialized.");
+  logger->info(CONTEXT_STATE_INIT + " Plugin state initialized with " + std::to_string(state->item_count) + " clocks.");
 }
 
 void StateStore::save_configuration() {
