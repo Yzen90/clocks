@@ -37,8 +37,8 @@ class StateStore {
   static void save_configuration_with_default_clock();
   static void update_time_formatter();
   static void refresh_time(const time_point<system_clock>& now);
-  inline static wstring get_time(const wstring& time_zone);
-  static void add_clock(const time_zone* tz, string time_zone, wstring label);
+  inline static wstring get_time(const time_zone* tz, const wstring& timezone);
+  static void add_clock(const time_zone* tz, string timezone, wstring label);
 
  public:
   StateStore();

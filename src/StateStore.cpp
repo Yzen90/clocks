@@ -69,8 +69,8 @@ struct State {
   path configuration_path;
   DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
 
-  time_point<winrt::clock> win_time;
   time_point<system_clock> time;
+  time_point<winrt::clock> winrt_time;
 
   const time_zone* current_tz = current_zone();
   day current_day;
@@ -173,21 +173,27 @@ void StateStore::update_time_formatter() {
 void StateStore::refresh_time(const time_point<system_clock>& now) {
   if (state->configuration.show_day_difference) {
     state->time = now;
-    state->win_time = clock::from_sys(now);
+    state->winrt_time = clock::from_sys(now);
 
     state->current_day = year_month_day{floor<days>(zoned_time{state->current_tz, now}.get_local_time())}.day();
 
   } else {
-    state->win_time = clock::from_sys(now);
+    state->winrt_time = clock::from_sys(now);
   }
 
   state->current_minutes = hh_mm_ss{now - floor<days>(now)}.minutes();
 }
 
-inline wstring StateStore::get_time(const wstring& timezone) {
-  wstring time_string{state->time_formatter.Format(state->win_time, timezone)};
+inline wstring StateStore::get_time(const time_zone* tz, const wstring& timezone) {
+  wstring time_string{state->time_formatter.Format(state->winrt_time, timezone)};
 
   if (state->configuration.show_day_difference) {
+    auto day = year_month_day{floor<days>(zoned_time{tz, state->time}.get_local_time())}.day();
+
+    if (day > state->current_day)
+      time_string.append(L" " + NEXT_DAY);
+    else if (day < state->current_day)
+      time_string.append(L" " + PREV_DAY);
   }
 
   return time_string;
@@ -198,7 +204,7 @@ void StateStore::add_clock(const time_zone* tz, string timezone, wstring label) 
   auto id = widen(format("{:x}", XXH3_64bits(&payload, payload.length())));
   auto timezone_w = widen(timezone);
 
-  auto time = get_time(timezone_w);
+  auto time = get_time(tz, timezone_w);
 
   (*clocks)[state->item_count] = ClockData{tz, timezone_w, id, label, L"🕜 " + timezone_w, time, time};
 
@@ -211,6 +217,10 @@ void StateStore::refresh() {
 
   if (minutes != state->current_minutes) {
     refresh_time(now);
+
+    for (auto& [_, clock] : *clocks) {
+      clock.time = get_time(clock.tz, clock.timezone);
+    }
   }
 }
 
