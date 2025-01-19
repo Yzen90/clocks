@@ -2,8 +2,9 @@
   "dependencies": [
     "cppwinrt",
     "easyloggingpp",
+    "glaze",
     "nowide",
     "xxhash",
-    "glaze"
+    "imgui"
   ]
 }

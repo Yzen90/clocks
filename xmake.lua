@@ -35,8 +35,16 @@ target('clocks')
   add_files('src/*.cpp')
   add_files('clocks.rc')
 
+  if is_mode('release') then
+    add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
+  end
+
 target('tester')
   set_kind('binary')
 
   add_files('tester.cpp')
   add_deps('clocks')
+
+  if is_mode('release') then
+    set_enabled(false)
+  end
