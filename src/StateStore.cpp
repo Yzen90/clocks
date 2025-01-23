@@ -3,8 +3,6 @@
 #include <filesystem>
 #include <string>
 
-#include "utils.hpp"
-
 #define XXH_INLINE_ALL
 #include <easylogging++.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -14,6 +12,9 @@
 
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
+
+#include "i18n/l10n.hpp"
+#include "utils.hpp"
 
 using el::ConfigurationType;
 using el::Logger;
@@ -86,13 +87,17 @@ StateStore::StateStore() { std::locale::global(std::locale(".utf-8")); }
 unique_ptr<State> StateStore::state;
 unique_ptr<Clocks> StateStore::clocks;
 
+string get_context() { return "[" + l10n->state_store.contexts.initialization + "]"; }
+
 void StateStore::initialize(const wchar_t* config_dir) {
   clocks = make_unique<Clocks>();
   state = make_unique<State>(State{0, path{config_dir} / CONFIG_FILENAME});
 
   Loggers::reconfigureAllLoggers(ConfigurationType::Filename, (path{config_dir} / LOG_FILENAME).string());
 
-  logger->info(CONTEXT_STATE_INIT + " Configuration path: " + state->configuration_path.string());
+  load_locale();
+
+  logger->info(get_context() + " Configuration path: " + state->configuration_path.string());
 
   if (exists(state->configuration_path)) {
     auto error = glz::read_file_json(state->configuration, state->configuration_path.string(), string{});

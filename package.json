@@ -1,0 +1,10 @@
+{
+	"name": "clocks",
+	"description": "World clocks plugin for TrafficMonitor.",
+	"homepage": "https://github.com/Yzen90/clocks",
+	"author": "Edgar Montiel Cruz",
+	"devDependencies": {
+		"ajv-cli": "^5.0.0",
+		"node-jq": "^6.0.1"
+	}
+}

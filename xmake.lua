@@ -21,23 +21,32 @@ set_languages('cxx23')
 set_config('toolchain', 'clang')
 
 add_rules('mode.debug', 'mode.release')
+add_rules('plugin.compile_commands.autoupdate', {outputdir = 'build'})
 
 
 add_defines('NOMINMAX')
 add_includedirs('extern/TrafficMonitor/include')
-add_includedirs('vcpkg_installed/x64-windows/include')
+add_includedirs('vcpkg_installed/$(arch)-$(plat)/include')
 add_links('WindowsApp')
+
+includes('src/i18n')
 
 
 target('clocks')
   set_kind('shared')
 
   add_files('src/*.cpp')
+  add_files('src/i18n/l10n.cpp', 'src/i18n/locales.cpp')
   add_files('clocks.rc')
 
   if is_mode('release') then
     add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
   end
+
+  add_deps('schema-generate', { inherit = false })
+  add_deps('makeheaders', { inherit = false })
+  add_rules('i18n-codegen', 'i18n-validation')
+
 
 target('tester')
   set_kind('binary')

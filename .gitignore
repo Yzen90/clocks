@@ -1,6 +1,12 @@
 .cache/
 .xmake/
 build/
-vcpkg_installed/
-src/Config.hpp
+
+vcpkg_installed
+node_modules
+
 *.log
+
+locale/
+src/Config.hpp
+src/i18n/locales.*

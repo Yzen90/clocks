@@ -1,0 +1,49 @@
+{
+  "type": [
+    "object"
+  ],
+  "properties": {
+    "state_store": {
+      "$ref": "#/$defs/I18N::StateStore"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "I18N::StateStore": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "contexts": {
+          "$ref": "#/$defs/I18N::StateStore::Contexts"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "contexts"
+      ]
+    },
+    "I18N::StateStore::Contexts": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "initialization": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "initialization"
+      ]
+    },
+    "std::string": {
+      "type": [
+        "string"
+      ]
+    }
+  },
+  "required": [
+    "state_store"
+  ]
+}

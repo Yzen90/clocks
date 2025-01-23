@@ -1,3 +1,6 @@
 [submodule "TrafficMonitor"]
 	path = extern/TrafficMonitor
 	url = https://github.com/zhongyang219/TrafficMonitor.git
+[submodule "makeheaders"]
+	path = extern/makeheaders
+	url = https://github.com/cassepipe/makeheaders.git
