@@ -2,7 +2,7 @@
 
 using std::string;
 
-struct I18N {
+struct L10N {
   struct StateStore {
     struct Contexts {
       string initialization;

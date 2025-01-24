@@ -36,15 +36,13 @@ target('clocks')
   set_kind('shared')
 
   add_files('src/*.cpp')
-  add_files('src/i18n/l10n.cpp', 'src/i18n/locales.cpp')
+  add_files('src/i18n/l10n.cpp')
   add_files('clocks.rc')
 
   if is_mode('release') then
     add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
   end
 
-  add_deps('schema-generate', { inherit = false })
-  add_deps('makeheaders', { inherit = false })
   add_rules('i18n-codegen', 'i18n-validation')
 
 

@@ -19,7 +19,7 @@ using std::string_view;
 
 static Logger* logger = Loggers::getLogger("l10n");
 
-unique_ptr<I18N> l10n;
+unique_ptr<L10N> l10n;
 
 void load_locale() {
   string_view localization;
@@ -31,10 +31,10 @@ void load_locale() {
     localization = string_view{reinterpret_cast<char*>(locale_en_US), locale_en_US_len};
   }
 
-  auto result = glz::read_json<I18N>(localization);
+  auto result = glz::read_json<L10N>(localization);
 
   if (result.has_value()) {
-    l10n = std::make_unique<I18N>(result.value());
+    l10n = std::make_unique<L10N>(result.value());
     logger->verbose(0, "Localization loaded.");
   } else {
     logger->fatal("Unable to load localization.");

@@ -4,18 +4,18 @@
   ],
   "properties": {
     "state_store": {
-      "$ref": "#/$defs/I18N::StateStore"
+      "$ref": "#/$defs/L10N::StateStore"
     }
   },
   "additionalProperties": false,
   "$defs": {
-    "I18N::StateStore": {
+    "L10N::StateStore": {
       "type": [
         "object"
       ],
       "properties": {
         "contexts": {
-          "$ref": "#/$defs/I18N::StateStore::Contexts"
+          "$ref": "#/$defs/L10N::StateStore::Contexts"
         }
       },
       "additionalProperties": false,
@@ -23,7 +23,7 @@
         "contexts"
       ]
     },
-    "I18N::StateStore::Contexts": {
+    "L10N::StateStore::Contexts": {
       "type": [
         "object"
       ],
