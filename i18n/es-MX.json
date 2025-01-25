@@ -2,6 +2,7 @@
   "state_store": {
     "contexts": {
       "initialization": "Inicialización"
-    }
+    },
+    "logger_id": "estado"
   }
 }

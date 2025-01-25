@@ -30,7 +30,10 @@ using winrt::clock;
 using namespace winrt::Windows::Globalization::DateTimeFormatting;
 using namespace winrt::Windows::Globalization;
 
-static Logger* logger = Loggers::getLogger("state");
+static Logger* logger;
+
+L10N::StateStore::Contexts* contexts;
+string context(const string& context_string) { return "[" + context_string + "]"; }
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
@@ -82,12 +85,15 @@ struct State {
   Configuration configuration;
 };
 
-StateStore::StateStore() { std::locale::global(std::locale(".utf-8")); }
-
 unique_ptr<State> StateStore::state;
 unique_ptr<Clocks> StateStore::clocks;
 
-string get_context() { return "[" + l10n->state_store.contexts.initialization + "]"; }
+StateStore::StateStore() {
+  std::locale::global(std::locale(".utf-8"));
+  load_locale();
+  contexts = &l10n->state_store.contexts;
+  logger = Loggers::getLogger(l10n->state_store.logger_id);
+}
 
 void StateStore::initialize(const wchar_t* config_dir) {
   clocks = make_unique<Clocks>();
@@ -95,9 +101,7 @@ void StateStore::initialize(const wchar_t* config_dir) {
 
   Loggers::reconfigureAllLoggers(ConfigurationType::Filename, (path{config_dir} / LOG_FILENAME).string());
 
-  load_locale();
-
-  logger->info(get_context() + " Configuration path: " + state->configuration_path.string());
+  logger->info(context(contexts->initialization) + " Configuration path: " + state->configuration_path.string());
 
   if (exists(state->configuration_path)) {
     auto error = glz::read_file_json(state->configuration, state->configuration_path.string(), string{});

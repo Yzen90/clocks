@@ -1,10 +1,12 @@
-function _get_dependfile_path(file, target, tag)
-  if tag then
-    return 'build/.deps/' .. target:name() .. '/' .. file .. '.' .. tag .. '.d'
-  end
 
-  return 'build/.deps/' .. target:name() .. '/' .. file .. '.d'
+function _get_dependfile_path(file, target, tag)
+  local dependfile_base = 'build/.deps/' .. (type(target) == 'string' and target or target:name()) .. '/' .. file
+
+  if tag then return dependfile_base  .. '.' .. tag .. '.d' end
+
+  return dependfile_base .. '.d'
 end
+
 
 function any_files_changed(files, target, tag)
   for _, file in ipairs(files) do
@@ -15,6 +17,7 @@ function any_files_changed(files, target, tag)
 
   return false
 end
+
 
 function is_changed(file, target, tag)
   local dependfile = _get_dependfile_path(file, target, tag)
@@ -31,6 +34,7 @@ function is_changed(file, target, tag)
   return true
 end
 
+
 function save(file, target, tag)
   local mtime = os.mtime(file)
   if mtime == 0 then
@@ -39,6 +43,7 @@ function save(file, target, tag)
 
   io.save(_get_dependfile_path(file, target, tag), {files = {file}, lastmtime = mtime})
 end
+
 
 function save_only_changed(files, target, tag)
   for _, file in ipairs(files) do

@@ -1,10 +1,28 @@
-target('schemagen')
+
+local schema_source = 'src/i18n/schema.hpp'
+local schemagen_target = 'schemagen'
+
+target(schemagen_target)
   set_kind('binary')
 
   add_files('schemagen.cpp')
 
   add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
   add_rules('i18n-shared')
+
+  after_build(function ()
+    print('colabola build')
+    local depend = import('../../modules/depend')
+    local arch = vformat('$(arch)')
+    
+    if depend.is_changed(schema_source, schemagen_target, arch) then
+      depend.save(schema_source, schemagen_target, arch)
+    end
+  end)
+
+  after_link(function ()
+    print('colabola link')
+  end)
 
 
 target('makeheaders')
@@ -73,18 +91,17 @@ rule('i18n-codegen')
     end
 
 
-    local schemagen = '$(buildir)/$(plat)/$(arch)/schemagen.exe'
-    if not os.isfile(schemagen) then
-      raise('schemagen not found, run deps script.')
+    if depend.is_changed(schema_source, schemagen_target, vformat('$(arch)')) then
+      raise('schemagen needs rebuild, run deps script.')
     end
 
-    local schema_source = 'src/i18n/schema.hpp'
+
     if option.get('rebuild') or depend.is_changed(schema_source, target) then
       print('Running i18n schema codegen...')
       local temp_file = vformat('$(buildir)/tmp.json')
       local target_file = 'l10n.schema.json'
 
-      os.run(schemagen)
+      os.run('$(buildir)/$(plat)/$(arch)/schemagen.exe')
       os.execv('node_modules/node-jq/bin/jq', {'-f', 'require-all-fields.jq', target_file}, {stdout = temp_file})
       os.mv(temp_file, target_file)
 

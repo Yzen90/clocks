@@ -16,11 +16,15 @@
       "properties": {
         "contexts": {
           "$ref": "#/$defs/L10N::StateStore::Contexts"
+        },
+        "logger_id": {
+          "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "contexts"
+        "contexts",
+        "logger_id"
       ]
     },
     "L10N::StateStore::Contexts": {

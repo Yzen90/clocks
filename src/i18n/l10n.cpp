@@ -17,11 +17,12 @@ using el::Logger;
 using el::Loggers;
 using std::string_view;
 
-static Logger* logger = Loggers::getLogger("l10n");
+static Logger* logger;
 
 unique_ptr<L10N> l10n;
 
 void load_locale() {
+  logger = Loggers::getLogger("l10n");
   string_view localization;
 
   auto languages = GlobalizationPreferences::Languages();

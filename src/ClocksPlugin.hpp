@@ -1,4 +1,4 @@
-#define ELPP_DEFAULT_LOG_FILE "clocks.dll.log"
+#define ELPP_DEFAULT_LOG_FILE "plugins/clocks.dll.log"
 #include <easylogging++.h>
 
 #include <easylogging++.cc>
