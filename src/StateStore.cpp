@@ -14,7 +14,7 @@
 #include <nowide/convert.hpp>
 
 #include "i18n/l10n.hpp"
-#include "utils.hpp"
+#include "shared.hpp"
 
 using el::ConfigurationType;
 using el::Logger;
@@ -33,7 +33,6 @@ using namespace winrt::Windows::Globalization;
 static Logger* logger;
 
 L10N::StateStore::Contexts* contexts;
-string context(const string& context_string) { return "[" + context_string + "]"; }
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
@@ -90,6 +89,7 @@ unique_ptr<Clocks> StateStore::clocks;
 
 StateStore::StateStore() {
   std::locale::global(std::locale(".utf-8"));
+
   load_locale();
   contexts = &l10n->state_store.contexts;
   logger = Loggers::getLogger(l10n->state_store.logger_id);

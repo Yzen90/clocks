@@ -39,6 +39,8 @@ target('clocks')
   add_files('src/i18n/l10n.cpp')
   add_files('clocks.rc')
 
+  add_defines('ELPP_NO_LOG_TO_FILE')
+
   if is_mode('release') then
     add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
   end

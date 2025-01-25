@@ -11,17 +11,12 @@ target(schemagen_target)
   add_rules('i18n-shared')
 
   after_build(function ()
-    print('colabola build')
     local depend = import('../../modules/depend')
     local arch = vformat('$(arch)')
     
     if depend.is_changed(schema_source, schemagen_target, arch) then
       depend.save(schema_source, schemagen_target, arch)
     end
-  end)
-
-  after_link(function ()
-    print('colabola link')
   end)
 
 

@@ -1,8 +1,4 @@
-#pragma once
-
-#include <forward_list>
-
-using std::forward_list;
+#include "shared.hpp"
 
 template <typename T>
 size_t fl_count(const forward_list<T> &list) {
@@ -12,3 +8,5 @@ size_t fl_count(const forward_list<T> &list) {
 
   return count;
 };
+
+string context(const string &context_id) { return "[" + context_id + "] "; }

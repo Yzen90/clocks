@@ -1,4 +1,13 @@
 {
+  "i18n": {
+    "contexts": {
+      "load": "Carga"
+    },
+    "logger_id": "Localización",
+    "messages": {
+      "loaded": "Idioma cargado:"
+    }
+  },
   "state_store": {
     "contexts": {
       "initialization": "Inicialización"

@@ -20,6 +20,66 @@
 				<name>clocks</name>
 				<children>
 					<folder_node>
+						<name>i18n</name>
+						<children>
+							<folder_node>
+								<name>contexts</name>
+								<children>
+									<concept_node>
+										<name>load</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
+							<concept_node>
+								<name>logger_id</name>
+								<description/>
+								<comment/>
+								<translations>
+									<translation>
+										<language>en-US</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>es-MX</language>
+										<approved>false</approved>
+									</translation>
+								</translations>
+							</concept_node>
+							<folder_node>
+								<name>messages</name>
+								<children>
+									<concept_node>
+										<name>loaded</name>
+										<description/>
+										<comment/>
+										<translations>
+											<translation>
+												<language>en-US</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+										</translations>
+									</concept_node>
+								</children>
+							</folder_node>
+						</children>
+					</folder_node>
+					<folder_node>
 						<name>state_store</name>
 						<children>
 							<folder_node>

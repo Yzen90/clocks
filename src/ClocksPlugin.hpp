@@ -1,6 +1,3 @@
-#define ELPP_DEFAULT_LOG_FILE "plugins/clocks.dll.log"
-#include <easylogging++.h>
-
 #include <easylogging++.cc>
 // NOLINTNEXTLINE
 INITIALIZE_EASYLOGGINGPP
