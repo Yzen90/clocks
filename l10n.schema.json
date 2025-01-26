@@ -3,12 +3,82 @@
     "object"
   ],
   "properties": {
+    "generic": {
+      "$ref": "#/$defs/L10N::Generic"
+    },
+    "i18n": {
+      "$ref": "#/$defs/L10N::I18N"
+    },
     "state_store": {
       "$ref": "#/$defs/L10N::StateStore"
     }
   },
   "additionalProperties": false,
   "$defs": {
+    "L10N::Generic": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "auto_option": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "auto_option"
+      ]
+    },
+    "L10N::I18N": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "contexts": {
+          "$ref": "#/$defs/L10N::I18N::Contexts"
+        },
+        "logger_id": {
+          "$ref": "#/$defs/std::string"
+        },
+        "messages": {
+          "$ref": "#/$defs/L10N::I18N::Messages"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "contexts",
+        "logger_id",
+        "messages"
+      ]
+    },
+    "L10N::I18N::Contexts": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "load": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "load"
+      ]
+    },
+    "L10N::I18N::Messages": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "loaded": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "loaded"
+      ]
+    },
     "L10N::StateStore": {
       "type": [
         "object"
@@ -19,12 +89,16 @@
         },
         "logger_id": {
           "$ref": "#/$defs/std::string"
+        },
+        "messages": {
+          "$ref": "#/$defs/L10N::StateStore::Messages"
         }
       },
       "additionalProperties": false,
       "required": [
         "contexts",
-        "logger_id"
+        "logger_id",
+        "messages"
       ]
     },
     "L10N::StateStore::Contexts": {
@@ -32,13 +106,35 @@
         "object"
       ],
       "properties": {
+        "config_load": {
+          "$ref": "#/$defs/std::string"
+        },
+        "config_save": {
+          "$ref": "#/$defs/std::string"
+        },
         "initialization": {
           "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
+        "config_load",
+        "config_save",
         "initialization"
+      ]
+    },
+    "L10N::StateStore::Messages": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "eager_confirmed": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "eager_confirmed"
       ]
     },
     "std::string": {
@@ -48,6 +144,8 @@
     }
   },
   "required": [
+    "generic",
+    "i18n",
     "state_store"
   ]
 }

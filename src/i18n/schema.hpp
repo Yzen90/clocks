@@ -8,7 +8,12 @@ struct L10N {
   struct StateStore {
     struct Contexts {
       string initialization;
+      string config_load;
+      string config_save;
     } contexts;
+    struct Messages {
+      string eager_confirmed;
+    } messages;
     string logger_id;
   } state_store;
   struct I18N {
@@ -20,4 +25,7 @@ struct L10N {
       string loaded;
     } messages;
   } i18n;
+  struct Generic {
+    string auto_option;
+  } generic;
 };

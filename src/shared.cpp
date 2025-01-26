@@ -10,3 +10,9 @@ size_t fl_count(const forward_list<T> &list) {
 };
 
 string context(const string &context_id) { return "[" + context_id + "] "; }
+
+void halt(el::Logger *logger, const string &message) {
+  logger->fatal(message);
+  logger->flush();
+  std::abort();
+};

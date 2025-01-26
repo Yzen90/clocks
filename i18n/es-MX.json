@@ -1,4 +1,7 @@
 {
+  "generic": {
+    "auto_option": "Automático"
+  },
   "i18n": {
     "contexts": {
       "load": "Carga"
@@ -10,8 +13,13 @@
   },
   "state_store": {
     "contexts": {
+      "config_load": "Carga de la configuración",
+      "config_save": "Guardado de la configuración",
       "initialization": "Inicialización"
     },
-    "logger_id": "estado"
+    "logger_id": "estado",
+    "messages": {
+      "eager_confirmed": "La configuración fue obtenida de forma anticipada desde el mismo directorio indicado por TrafficMonitor."
+    }
   }
 }

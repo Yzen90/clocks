@@ -1,4 +1,7 @@
 {
+  "generic": {
+    "auto_option": "Auto"
+  },
   "i18n": {
     "contexts": {
       "load": "Load"
@@ -10,8 +13,13 @@
   },
   "state_store": {
     "contexts": {
+      "config_load": "Configuration load",
+      "config_save": "Configuration save",
       "initialization": "Initialization"
     },
-    "logger_id": "state"
+    "logger_id": "state",
+    "messages": {
+      "eager_confirmed": "Configuration has been eagerly loaded from the same directory provided by TrafficMonitor."
+    }
   }
 }

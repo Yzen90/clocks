@@ -56,7 +56,7 @@ const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
 
 void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
   if (index == ITMPlugin::EI_CONFIG_DIR) {
-    state->initialize(data);
+    state->set_config_dir(data);
     sync();
   }
 }

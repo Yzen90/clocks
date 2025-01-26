@@ -1,7 +1,8 @@
 #include "StateStore.hpp"
 
-#include <filesystem>
 #include <string>
+
+#include "i18n/schema.hpp"
 
 #define XXH_INLINE_ALL
 #include <easylogging++.h>
@@ -13,8 +14,10 @@
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
 
-#include "i18n/l10n.hpp"
 #include "shared.hpp"
+
+using namespace winrt::Windows::Globalization::DateTimeFormatting;
+using namespace winrt::Windows::Globalization;
 
 using el::ConfigurationType;
 using el::Logger;
@@ -24,27 +27,25 @@ using std::format;
 using std::make_unique;
 using std::string;
 using std::filesystem::exists;
-using std::filesystem::path;
 using winrt::clock;
-
-using namespace winrt::Windows::Globalization::DateTimeFormatting;
-using namespace winrt::Windows::Globalization;
 
 static Logger* logger;
 
-L10N::StateStore::Contexts* contexts;
-
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
+const path EAGER_PATH{"plugins/clocks.dll.dat"};
 const string CONFIG_FILENAME = "clocks.dll.json";
 const string LOG_FILENAME = "clocks.dll.log";
 
-const string CONTEXT_STATE_INIT = "[Initialization]";
-const string CONTEXT_CONFIG_READ = "[Configuration read]";
-const string CONTEXT_CONFIG_SAVE = "[Configuration save]";
-
 const wstring NEXT_DAY = L"↷";
 const wstring PREV_DAY = L"↶";
+
+enum class LogLevel { TRACE, DEBUG, VERBOSE, INFO, WARNING, ERROR, FATAL };
+template <>
+struct glz::meta<LogLevel> {
+  using enum LogLevel;
+  static constexpr auto value = enumerate(TRACE, DEBUG, VERBOSE, INFO, WARNING, ERROR, FATAL);
+};
 
 enum class ClockType { FormatAuto, Format24h, Format12h };
 template <>
@@ -82,24 +83,45 @@ struct State {
   minutes current_minutes;
 
   Configuration configuration;
+  bool eager_flag = false;
 };
 
 unique_ptr<State> StateStore::state;
 unique_ptr<Clocks> StateStore::clocks;
 
-StateStore::StateStore() {
-  std::locale::global(std::locale(".utf-8"));
+Contexts* StateStore::contexts;
+Messages* StateStore::messages;
 
-  load_locale();
-  contexts = &l10n->state_store.contexts;
-  logger = Loggers::getLogger(l10n->state_store.logger_id);
+StateStore::StateStore() {
+  if (!state) {
+    std::locale::global(std::locale(".utf-8"));
+
+    clocks = make_unique<Clocks>();
+    state = make_unique<State>(State{0});
+
+    use_l10n(contexts);
+    use_l10n(messages);
+
+    load_locale();
+
+    logger = Loggers::getLogger(l10n->state_store.logger_id);
+  }
 }
 
-void StateStore::initialize(const wchar_t* config_dir) {
-  clocks = make_unique<Clocks>();
-  state = make_unique<State>(State{0, path{config_dir} / CONFIG_FILENAME});
+void StateStore::load_configuration(path config_dir) {
+  auto configuration_path = path{config_dir} / CONFIG_FILENAME;
 
-  Loggers::reconfigureAllLoggers(ConfigurationType::Filename, (path{config_dir} / LOG_FILENAME).string());
+  if (state->eager_flag) {
+    if (state->configuration_path == configuration_path) {
+      logger->verbose(0, context(contexts->config_load));
+      return;
+    }
+    state->eager_flag = false;
+  }
+
+  state->configuration_path = configuration_path;
+
+  /* Loggers::reconfigureAllLoggers(ConfigurationType::Filename, (path{config_dir} / LOG_FILENAME).string());
 
   logger->info(context(contexts->initialization) + " Configuration path: " + state->configuration_path.string());
 
@@ -147,16 +169,19 @@ void StateStore::initialize(const wchar_t* config_dir) {
 
   state->configuration.clocks.clear();
   logger->info(CONTEXT_STATE_INIT + " Plugin state initialized with " + std::to_string(state->item_count) + " clocks.");
+*/
 }
+
+void StateStore::set_config_dir(const wchar_t* config_dir) {}
 
 void StateStore::save_configuration() {
   auto error = glz::write_file_json<glz::opts{.prettify = true}>(
       state->configuration, state->configuration_path.string(), string{}
   );
   if (error)
-    logger->error(CONTEXT_CONFIG_SAVE + " Cause: " + glz::format_error(error));
+    logger->error(context(contexts->config_save) + "Cause: " + glz::format_error(error));
   else
-    logger->info(CONTEXT_CONFIG_SAVE + " The configuration was saved.");
+    logger->info(context(contexts->config_save) + "The configuration was saved.");
 }
 
 void StateStore::save_configuration_with_default_clock() {
