@@ -18,29 +18,38 @@ using namespace winrt::Windows::System::UserProfile;
 using std::invalid_argument;
 using std::string_view;
 
-static el::Logger* logger = el::Loggers::getLogger("l10n");
+template <>
+struct glz::meta<Locale> {
+  using enum Locale;
+  static constexpr auto value = enumerate(Auto, EN, ES);
+};
+
+static el::Logger* logger;
 
 unique_ptr<L10N> l10n;
 
-static L10N::StateStore::Contexts** ss_contexts;
-static L10N::StateStore::Messages** ss_messages;
+static const L10N::StateStore::Contexts** ss_contexts;
+static const L10N::StateStore::Messages** ss_messages;
 
 const Locale DEFAULT_LOCALE = Locale::EN;
 
-const std::map<Locale, string> LOCALE_NAMES = {{Locale::EN, "English"}, {Locale::ES, "Español"}};
+typedef std::map<Locale, string> LocaleNames;
+const LocaleNames& locale_names() {
+  static const LocaleNames locale_names{{Locale::EN, "English"}, {Locale::ES, "Español"}};
+  return locale_names;
+};
 
 Locale get_prefered_locale() {
   auto languages = GlobalizationPreferences::Languages();
   auto prefered = languages.Size();
 
-  logger->verbose(0, "System prefered languages count: " + std::to_string(prefered));
+  logger->verbose(0, "System prefered languages: " + std::to_string(prefered));
 
   if (prefered > 0) {
     for (const auto language : languages) {
       if (language.starts_with(L"es")) return Locale::ES;
     }
   }
-
   return DEFAULT_LOCALE;
 }
 
@@ -57,6 +66,8 @@ string_view get_localization(Locale locale) {
 }
 
 void load_locale(Locale locale) {
+  if (logger == nullptr) logger = el::Loggers::getLogger("l10n");
+
   if (locale == Locale::Auto) locale = get_prefered_locale();
 
   auto localization = get_localization(locale);
@@ -68,20 +79,22 @@ void load_locale(Locale locale) {
     if (ss_contexts) *ss_contexts = &l10n->state_store.contexts;
     if (ss_messages) *ss_messages = &l10n->state_store.messages;
 
-    logger->verbose(0, context(l10n->i18n.contexts.load) + l10n->i18n.messages.loaded);
+    logger->verbose(
+        0, context(l10n->i18n.contexts.load) + l10n->i18n.messages.loaded + " " + locale_names().at(locale)
+    );
   } else {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }
 }
 
-void use_l10n(L10N::StateStore::Contexts*& reference) {
+void use_l10n(const L10N::StateStore::Contexts*& reference) {
   if (ss_contexts == nullptr)
     ss_contexts = &reference;
   else
     throw invalid_argument("Unexpected use of use_l10n for StateStore::Contexts, it should only be called once.");
 };
 
-void use_l10n(L10N::StateStore::Messages*& reference) {
+void use_l10n(const L10N::StateStore::Messages*& reference) {
   if (ss_messages == nullptr)
     ss_messages = &reference;
   else

@@ -1,8 +1,10 @@
 #include "ClocksPlugin.hpp"
 
+#include <easylogging++.cc>
+
 #include "config.hpp"
 
-unique_ptr<StateStore> ClocksPlugin::state = make_unique<StateStore>();
+StateStore* ClocksPlugin::state = &StateStore::Instance();
 vector<ClockItem> ClocksPlugin::clocks;
 ItemCount ClocksPlugin::item_count = 0;
 

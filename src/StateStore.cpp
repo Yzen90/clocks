@@ -1,10 +1,5 @@
 #include "StateStore.hpp"
 
-#include <string>
-
-#include "i18n/schema.hpp"
-
-#define XXH_INLINE_ALL
 #include <easylogging++.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
@@ -13,11 +8,14 @@
 
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
+#include <string>
 
+#include "i18n/schema.hpp"
 #include "shared.hpp"
 
 using namespace winrt::Windows::Globalization::DateTimeFormatting;
 using namespace winrt::Windows::Globalization;
+using namespace std::filesystem;
 
 using el::ConfigurationType;
 using el::Logger;
@@ -26,14 +24,14 @@ using nowide::widen;
 using std::format;
 using std::make_unique;
 using std::string;
-using std::filesystem::exists;
 using winrt::clock;
 
 static Logger* logger;
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
-const path EAGER_PATH{"plugins/clocks.dll.dat"};
+const path EAGER_PATH{"plugins/"};
+const string EAGER_FILENAME = "clocks.dll.dat";
 const string CONFIG_FILENAME = "clocks.dll.json";
 const string LOG_FILENAME = "clocks.dll.log";
 
@@ -46,6 +44,12 @@ struct glz::meta<LogLevel> {
   using enum LogLevel;
   static constexpr auto value = enumerate(TRACE, DEBUG, VERBOSE, INFO, WARNING, ERROR, FATAL);
 };
+
+#ifdef NOT_RELEASE_MODE
+const LogLevel DEFAULT_LOG_LEVEL = LogLevel::DEBUG;
+#else
+const LogLevel DEFAULT_LOG_LEVEL = LogLevel::INFO;
+#endif
 
 enum class ClockType { FormatAuto, Format24h, Format12h };
 template <>
@@ -65,6 +69,8 @@ struct Configuration {
   ClockType clock_type = ClockType::FormatAuto;
   bool show_day_difference = true;
   forward_list<Clock> clocks;
+  Locale locale = Locale::Auto;
+  LogLevel log_level = DEFAULT_LOG_LEVEL;
 };
 
 const wstring DEFAULT_TIME_FORMAT = L"shorttime";
@@ -89,23 +95,55 @@ struct State {
 unique_ptr<State> StateStore::state;
 unique_ptr<Clocks> StateStore::clocks;
 
-Contexts* StateStore::contexts;
-Messages* StateStore::messages;
-
 StateStore::StateStore() {
-  if (!state) {
-    std::locale::global(std::locale(".utf-8"));
+  std::locale::global(std::locale(".utf-8"));
 
-    clocks = make_unique<Clocks>();
-    state = make_unique<State>(State{0});
+  clocks = make_unique<Clocks>();
+  state = make_unique<State>(State{0});
 
-    use_l10n(contexts);
-    use_l10n(messages);
+  use_l10n(contexts);
+  use_l10n(messages);
 
-    load_locale();
+  set_log_level();
+  set_locale();
 
-    logger = Loggers::getLogger(l10n->state_store.logger_id);
+  logger->info("Eager Path: " + EAGER_PATH.string());
+}
+
+StateStore StateStore::instance;
+StateStore& StateStore::Instance() { return instance; }
+
+const Contexts* StateStore::contexts;
+const Messages* StateStore::messages;
+
+void StateStore::set_log_level() {
+  el::Configurations log_config{*el::Loggers::defaultConfigurations()};
+
+  log_config.setGlobally(ConfigurationType::Enabled, "false");
+
+  switch (state->configuration.log_level) {
+    case LogLevel::TRACE:
+      log_config.set(el::Level::Trace, ConfigurationType::Enabled, "true");
+    case LogLevel::DEBUG:
+      log_config.set(el::Level::Debug, ConfigurationType::Enabled, "true");
+    case LogLevel::VERBOSE:
+      log_config.set(el::Level::Verbose, ConfigurationType::Enabled, "true");
+    case LogLevel::INFO:
+      log_config.set(el::Level::Info, ConfigurationType::Enabled, "true");
+    case LogLevel::WARNING:
+      log_config.set(el::Level::Warning, ConfigurationType::Enabled, "true");
+    case LogLevel::ERROR:
+      log_config.set(el::Level::Error, ConfigurationType::Enabled, "true");
+    case LogLevel::FATAL:
+      log_config.set(el::Level::Fatal, ConfigurationType::Enabled, "true");
   }
+
+  el::Loggers::setDefaultConfigurations(log_config, true);
+}
+
+void StateStore::set_locale() {
+  load_locale(state->configuration.locale);
+  logger = Loggers::getLogger(l10n->state_store.logger_id);
 }
 
 void StateStore::load_configuration(path config_dir) {

@@ -41,7 +41,9 @@ rule('i18n-shared')
   end)
 
 
-local codegen_target = "src/i18n/locales.cpp"
+local codegen_target = 'src/i18n/locales.cpp'
+local schema = 'l10n.schema.json'
+local localization_files = 'i18n/*.json'
 
 rule('i18n-codegen')
   on_load(function (target)
@@ -61,7 +63,7 @@ rule('i18n-codegen')
       raise('makeheaders not found, run deps script.')
     end
 
-    local localizations = os.files('i18n/*.json')
+    local localizations = os.files(localization_files)
 
     if option.get('rebuild') or not os.isfile('src/i18n/locales.hpp')
       or depend.any_files_changed(localizations, target) then
@@ -90,15 +92,14 @@ rule('i18n-codegen')
       raise('schemagen needs rebuild, run deps script.')
     end
 
-
-    if option.get('rebuild') or depend.is_changed(schema_source, target) then
+    if option.get('rebuild') or not os.isfile(schema) or depend.is_changed(schema_source, target) then
       print('Running i18n schema codegen...')
       local temp_file = vformat('$(buildir)/tmp.json')
-      local target_file = 'l10n.schema.json'
 
       os.run('$(buildir)/$(plat)/$(arch)/schemagen.exe')
-      os.execv('node_modules/node-jq/bin/jq', {'-f', 'require-all-fields.jq', target_file}, {stdout = temp_file})
-      os.mv(temp_file, target_file)
+      os.execv('node_modules/node-jq/bin/jq', {'-f', 'require-all-fields.jq', schema}, {stdout = temp_file})
+      os.run('node node_modules/lec/cmd-runner.js ' .. temp_file .. ' --eolc LF')
+      os.mv(temp_file, schema)
 
       depend.save(schema_source, target)
     end
@@ -111,18 +112,15 @@ rule('i18n-validation')
   before_build(function (target)
     local depend = import('../../modules/depend')
 
-    local localizations = 'i18n/*.json'
-    local schema = 'l10n.schema.json'
-
-    local dependencies = os.files(localizations)
-    table.insert(dependencies, schema)
+    local localizations = os.files(localization_files)
+    table.insert(localizations, schema)
 
     local tag = 'validation'
 
-    if depend.any_files_changed(dependencies, target, tag) then
+    if depend.any_files_changed(localizations, target, tag) then
       print('Running i18n validation...')
-      os.run('node node_modules/ajv-cli/dist/index.js -s ' .. schema .. ' -d ' .. localizations .. ' --errors=text')
+      os.run('node node_modules/@jirutka/ajv-cli/lib/main.js validate --strict-schema -s ' .. schema .. ' ' .. localization_files)
 
-      depend.save_only_changed(dependencies, target, tag)
+      depend.save_only_changed(localizations, target, tag)
     end
   end)

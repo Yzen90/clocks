@@ -39,10 +39,14 @@ target('clocks')
   add_files('src/i18n/l10n.cpp')
   add_files('clocks.rc')
 
-  add_defines('ELPP_NO_LOG_TO_FILE')
+  add_defines('AUTO_INITIALIZE_EASYLOGGINGPP')
+  add_defines('ELPP_DEFAULT_LOG_FILE="plugins/clocks.dll.log"')
+  add_defines('XXH_INLINE_ALL')
 
   if is_mode('release') then
     add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
+  else
+    add_defines('NOT_RELEASE_MODE')
   end
 
   add_rules('i18n-codegen', 'i18n-validation')

@@ -1,7 +1,3 @@
-#include <easylogging++.cc>
-// NOLINTNEXTLINE
-INITIALIZE_EASYLOGGINGPP
-
 #include <PluginInterface.h>
 
 #include <vector>
@@ -9,8 +5,6 @@ INITIALIZE_EASYLOGGINGPP
 #include "ClockItem.hpp"
 #include "StateStore.hpp"
 
-using std::make_unique;
-using std::unique_ptr;
 using std::vector;
 
 class ClocksPlugin : public ITMPlugin {
@@ -18,7 +12,7 @@ class ClocksPlugin : public ITMPlugin {
   ClocksPlugin();
   static ClocksPlugin instance;
 
-  static unique_ptr<StateStore> state;
+  static StateStore *state;
   static vector<ClockItem> clocks;
   static ItemCount item_count;
 

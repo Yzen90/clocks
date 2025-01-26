@@ -8,9 +8,9 @@ using std::unique_ptr;
 
 extern unique_ptr<L10N> l10n;
 
-enum class Locale { Auto, ES, EN };
+enum class Locale { Auto, EN, ES };
 
-void load_locale(Locale locale = Locale::Auto);
+void load_locale(Locale locale);
 
-void use_l10n(L10N::StateStore::Contexts*& reference);
-void use_l10n(L10N::StateStore::Messages*& reference);
+void use_l10n(const L10N::StateStore::Contexts*& reference);
+void use_l10n(const L10N::StateStore::Messages*& reference);

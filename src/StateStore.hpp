@@ -18,6 +18,7 @@ using std::filesystem::path;
 using Contexts = L10N::StateStore::Contexts;
 using Messages = L10N::StateStore::Messages;
 
+enum class LogLevel;
 struct Configuration;
 struct State;
 
@@ -37,8 +38,14 @@ typedef map<Index, ClockData> Clocks;
 
 class StateStore {
  private:
+  StateStore();
+  static StateStore instance;
+
   static unique_ptr<State> state;
   static unique_ptr<Clocks> clocks;
+
+  static void set_log_level();
+  static void set_locale();
 
   static void load_configuration(path config_dir);
   static void save_configuration();
@@ -48,11 +55,11 @@ class StateStore {
   inline static wstring get_time(const time_zone* tz, const wstring& timezone);
   static void add_clock(const time_zone* tz, string timezone, wstring label);
 
-  static Contexts* contexts;
-  static Messages* messages;
+  static const Contexts* contexts;
+  static const Messages* messages;
 
  public:
-  StateStore();
+  static StateStore& Instance();
 
   static void set_config_dir(const wchar_t* config_dir);
   static void refresh();

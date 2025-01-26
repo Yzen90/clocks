@@ -4,7 +4,7 @@
   },
   "i18n": {
     "contexts": {
-      "load": "Carga"
+      "load": "Carga de idioma"
     },
     "logger_id": "Localización",
     "messages": {
