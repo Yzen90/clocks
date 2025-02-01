@@ -9,6 +9,7 @@
 
 using namespace std::chrono;
 
+using std::forward_list;
 using std::map;
 using std::optional;
 using std::string;
@@ -19,9 +20,29 @@ using std::filesystem::path;
 using Contexts = L10N::StateStore::Contexts;
 using Messages = L10N::StateStore::Messages;
 
-enum class LogLevel;
-struct Configuration;
 struct State;
+
+enum class ClockType { FormatAuto, Format24h, Format12h };
+
+struct Clock {
+  string timezone;
+  string label;
+};
+
+enum class LogLevel { TRACE, DEBUG, VERBOSE, INFO, WARNING, ERROR, FATAL };
+#ifdef NOT_RELEASE_MODE
+const LogLevel DEFAULT_LOG_LEVEL = LogLevel::DEBUG;
+#else
+const LogLevel DEFAULT_LOG_LEVEL = LogLevel::INFO;
+#endif
+
+struct Configuration {
+  ClockType clock_type = ClockType::FormatAuto;
+  bool show_day_difference = true;
+  forward_list<Clock> clocks;
+  Locale locale = Locale::Auto;
+  LogLevel log_level = DEFAULT_LOG_LEVEL;
+};
 
 struct ClockData {
   const time_zone* tz;
@@ -45,7 +66,8 @@ class StateStore {
   static unique_ptr<State> state;
   static unique_ptr<Clocks> clocks;
 
-  static void logger_config(path log_file);
+  static void set_log_level();
+  static void set_log_file(path log_file);
   static void set_locale();
 
   static void load_configuration(optional<Configuration> configuration);
