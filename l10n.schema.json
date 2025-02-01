@@ -22,11 +22,15 @@
       "properties": {
         "auto_option": {
           "$ref": "#/$defs/std::string"
+        },
+        "cause": {
+          "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "auto_option"
+        "auto_option",
+        "cause"
       ]
     },
     "L10N::I18N": {
@@ -128,13 +132,33 @@
         "object"
       ],
       "properties": {
-        "eager_confirmed": {
+        "eager_config_load": {
+          "$ref": "#/$defs/std::string"
+        },
+        "eager_load_confirmed": {
+          "$ref": "#/$defs/std::string"
+        },
+        "no_eager_config_load": {
+          "$ref": "#/$defs/std::string"
+        },
+        "using_default_config": {
+          "$ref": "#/$defs/std::string"
+        },
+        "warn_default_config": {
+          "$ref": "#/$defs/std::string"
+        },
+        "warn_no_clocks": {
           "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "eager_confirmed"
+        "eager_config_load",
+        "eager_load_confirmed",
+        "no_eager_config_load",
+        "using_default_config",
+        "warn_default_config",
+        "warn_no_clocks"
       ]
     },
     "std::string": {

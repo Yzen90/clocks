@@ -5,6 +5,7 @@
 #include "ClockItem.hpp"
 #include "StateStore.hpp"
 
+using std::unique_ptr;
 using std::vector;
 
 class ClocksPlugin : public ITMPlugin {
@@ -12,7 +13,7 @@ class ClocksPlugin : public ITMPlugin {
   ClocksPlugin();
   static ClocksPlugin instance;
 
-  static StateStore *state;
+  static unique_ptr<StateStore> state;
   static vector<ClockItem> clocks;
   static ItemCount item_count;
 

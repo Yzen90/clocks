@@ -6,10 +6,14 @@
 #include <winrt/base.h>
 #include <xxhash.h>
 
+#include <filesystem>
+#include <format>
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
 #include <string>
+#include <vector>
 
+#include "i18n/l10n.hpp"
 #include "i18n/schema.hpp"
 #include "shared.hpp"
 
@@ -20,18 +24,26 @@ using namespace std::filesystem;
 using el::ConfigurationType;
 using el::Logger;
 using el::Loggers;
+using nowide::narrow;
 using nowide::widen;
 using std::format;
 using std::make_unique;
 using std::string;
+using std::vector;
 using winrt::clock;
 
 static Logger* logger;
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
+const string MAX_ITEM = std::to_string(ITEM_MAX);
 
 const path EAGER_PATH{"plugins/"};
 const string EAGER_FILENAME = "clocks.dll.dat";
+const path EAGER_DATA_PATH = EAGER_PATH / EAGER_FILENAME;
+struct EagerData {
+  string config_location;
+};
+
 const string CONFIG_FILENAME = "clocks.dll.json";
 const string LOG_FILENAME = "clocks.dll.log";
 
@@ -78,7 +90,7 @@ const DateTimeFormatter DEFAULT_TIME_FORMATTER{DEFAULT_TIME_FORMAT};
 
 struct State {
   ItemCount item_count;
-  path configuration_path;
+  path configuration_location;
   DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
 
   time_point<system_clock> time;
@@ -89,7 +101,7 @@ struct State {
   minutes current_minutes;
 
   Configuration configuration;
-  bool eager_flag = false;
+  bool eager_initialization = false;
 };
 
 unique_ptr<State> StateStore::state;
@@ -104,10 +116,23 @@ StateStore::StateStore() {
   use_l10n(contexts);
   use_l10n(messages);
 
-  set_log_level();
-  set_locale();
+  if (is_regular_file(EAGER_DATA_PATH)) {
+    EagerData data;
+    std::ignore = glz::read_file_beve_untagged(data, EAGER_DATA_PATH.string(), vector<std::byte>{});
 
-  logger->info("Eager Path: " + EAGER_PATH.string());
+    if (data.config_location.length() > 0) {
+      state->configuration_location = path{data.config_location};
+      state->eager_initialization = true;
+
+      load_configuration({});
+
+      logger->verbose(
+          0, context(contexts->initialization) +
+                 (state->eager_initialization ? messages->eager_config_load : messages->no_eager_config_load) + " " +
+                 state->configuration_location.string()
+      );
+    }
+  }
 }
 
 StateStore StateStore::instance;
@@ -116,67 +141,34 @@ StateStore& StateStore::Instance() { return instance; }
 const Contexts* StateStore::contexts;
 const Messages* StateStore::messages;
 
-void StateStore::set_log_level() {
-  el::Configurations log_config{*el::Loggers::defaultConfigurations()};
+void StateStore::load_configuration(optional<Configuration> configuration) {
+  if (!configuration) {
+    auto configuration_path = state->configuration_location / CONFIG_FILENAME;
 
-  log_config.setGlobally(ConfigurationType::Enabled, "false");
+    if (exists(configuration_path)) {
+      auto error = glz::read_file_json(state->configuration, state->configuration_path.string(), string{});
+      if (error) {
+        logger->error(context(contexts->config_load) + l10n->generic.cause + " " + glz::format_error(error));
+        logger->warn(context(contexts->config_load) + messages->warn_default_config);
+        save_configuration_with_default_clock();
 
-  switch (state->configuration.log_level) {
-    case LogLevel::TRACE:
-      log_config.set(el::Level::Trace, ConfigurationType::Enabled, "true");
-    case LogLevel::DEBUG:
-      log_config.set(el::Level::Debug, ConfigurationType::Enabled, "true");
-    case LogLevel::VERBOSE:
-      log_config.set(el::Level::Verbose, ConfigurationType::Enabled, "true");
-    case LogLevel::INFO:
-      log_config.set(el::Level::Info, ConfigurationType::Enabled, "true");
-    case LogLevel::WARNING:
-      log_config.set(el::Level::Warning, ConfigurationType::Enabled, "true");
-    case LogLevel::ERROR:
-      log_config.set(el::Level::Error, ConfigurationType::Enabled, "true");
-    case LogLevel::FATAL:
-      log_config.set(el::Level::Fatal, ConfigurationType::Enabled, "true");
-  }
+      } else if (fl_count(state->configuration.clocks) == 0) {
+        logger->warn(context(contexts->config_load) + messages->warn_no_clocks);
+        save_configuration_with_default_clock();
+      }
 
-  el::Loggers::setDefaultConfigurations(log_config, true);
-}
-
-void StateStore::set_locale() {
-  load_locale(state->configuration.locale);
-  logger = Loggers::getLogger(l10n->state_store.logger_id);
-}
-
-void StateStore::load_configuration(path config_dir) {
-  auto configuration_path = path{config_dir} / CONFIG_FILENAME;
-
-  if (state->eager_flag) {
-    if (state->configuration_path == configuration_path) {
-      logger->verbose(0, context(contexts->config_load));
-      return;
+    } else {
+      save_configuration_with_default_clock();
+      logger->info(context(contexts->config_load) + messages->using_default_config);
     }
-    state->eager_flag = false;
   }
 
-  state->configuration_path = configuration_path;
+  logger_config(state->configuration_location / LOG_FILENAME);
+  set_locale();
 
-  /* Loggers::reconfigureAllLoggers(ConfigurationType::Filename, (path{config_dir} / LOG_FILENAME).string());
-
+  /*
   logger->info(context(contexts->initialization) + " Configuration path: " + state->configuration_path.string());
 
-  if (exists(state->configuration_path)) {
-    auto error = glz::read_file_json(state->configuration, state->configuration_path.string(), string{});
-    if (error) {
-      logger->error(CONTEXT_CONFIG_READ + " Cause: " + glz::format_error(error));
-      logger->warn(CONTEXT_STATE_INIT + " Default configuration values will be used.");
-      save_configuration_with_default_clock();
-    } else if (fl_count(state->configuration.clocks) == 0) {
-      logger->warn(CONTEXT_CONFIG_READ + " No clocks were defined in the configuration, default clock will be used.");
-      save_configuration_with_default_clock();
-    }
-  } else {
-    save_configuration_with_default_clock();
-    logger->info(CONTEXT_STATE_INIT + " Using default configuration.");
-  }
 
   if (state->configuration.clock_type != ClockType::FormatAuto) update_time_formatter();
 
@@ -210,16 +202,65 @@ void StateStore::load_configuration(path config_dir) {
 */
 }
 
-void StateStore::set_config_dir(const wchar_t* config_dir) {}
+void StateStore::logger_config(path log_file) {
+  el::Configurations log_config{*el::Loggers::defaultConfigurations()};
+  log_config.setGlobally(ConfigurationType::Enabled, "false");
+
+  switch (state->configuration.log_level) {
+    case LogLevel::TRACE:
+      log_config.set(el::Level::Trace, ConfigurationType::Enabled, "true");
+    case LogLevel::DEBUG:
+      log_config.set(el::Level::Debug, ConfigurationType::Enabled, "true");
+    case LogLevel::VERBOSE:
+      log_config.set(el::Level::Verbose, ConfigurationType::Enabled, "true");
+    case LogLevel::INFO:
+      log_config.set(el::Level::Info, ConfigurationType::Enabled, "true");
+    case LogLevel::WARNING:
+      log_config.set(el::Level::Warning, ConfigurationType::Enabled, "true");
+    case LogLevel::ERROR:
+      log_config.set(el::Level::Error, ConfigurationType::Enabled, "true");
+    case LogLevel::FATAL:
+      log_config.set(el::Level::Fatal, ConfigurationType::Enabled, "true");
+  }
+
+  log_config.setGlobally(ConfigurationType::Filename, log_file.string());
+  el::Loggers::setDefaultConfigurations(log_config, true);
+}
+
+void StateStore::set_locale() {
+  load_locale(state->configuration.locale);
+  logger = Loggers::getLogger(l10n->state_store.logger_id);
+}
+
+void StateStore::set_config_dir(const wchar_t* config_dir) {
+  path configuration_location{config_dir};
+
+  if (state->eager_initialization) {
+    state->eager_initialization = false;
+    std::error_code ignore{};
+
+    if (equivalent(state->configuration_location / CONFIG_FILENAME, configuration_location / CONFIG_FILENAME, ignore)) {
+      logger->verbose(0, context(contexts->config_load) + messages->eager_load_confirmed);
+      return;
+    }
+  }
+
+  state->configuration_location = configuration_location;
+  load_configuration({});
+
+  std::ignore = glz::write_file_beve_untagged(
+      EagerData{configuration_location.string()}, EAGER_DATA_PATH.string(), vector<std::byte>{}
+  );
+}
 
 void StateStore::save_configuration() {
   auto error = glz::write_file_json<glz::opts{.prettify = true}>(
       state->configuration, state->configuration_path.string(), string{}
   );
   if (error)
-    logger->error(context(contexts->config_save) + "Cause: " + glz::format_error(error));
+    logger->error(context(contexts->config_save) + l10n->generic.cause + " " + glz::format_error(error));
   else
-    logger->info(context(contexts->config_save) + "The configuration was saved.");
+    logger->info(context(contexts->config_save) + messages->config_saved);
 }
 
 void StateStore::save_configuration_with_default_clock() {

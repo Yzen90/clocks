@@ -10,6 +10,7 @@
 using namespace std::chrono;
 
 using std::map;
+using std::optional;
 using std::string;
 using std::unique_ptr;
 using std::wstring;
@@ -44,12 +45,13 @@ class StateStore {
   static unique_ptr<State> state;
   static unique_ptr<Clocks> clocks;
 
-  static void set_log_level();
+  static void logger_config(path log_file);
   static void set_locale();
 
-  static void load_configuration(path config_dir);
+  static void load_configuration(optional<Configuration> configuration);
   static void save_configuration();
   static void save_configuration_with_default_clock();
+
   static void update_time_formatter();
   static void refresh_time(const time_point<system_clock>& now);
   inline static wstring get_time(const time_zone* tz, const wstring& timezone);

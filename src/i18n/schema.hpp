@@ -13,7 +13,14 @@ struct L10N {
     } contexts;
 
     struct Messages {
-      string eager_confirmed;
+      string eager_config_load;
+      string no_eager_config_load;
+      string eager_load_confirmed;
+      string warn_default_config;
+      string warn_no_clocks;
+      string using_default_config;
+      string config_saved;
+      string too_many_clocks;
     } messages;
 
     string logger_id;
@@ -33,5 +40,6 @@ struct L10N {
 
   struct Generic {
     string auto_option;
+    string cause;
   } generic;
 };

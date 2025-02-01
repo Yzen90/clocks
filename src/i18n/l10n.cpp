@@ -65,7 +65,11 @@ string_view get_localization(Locale locale) {
   }
 }
 
+static Locale* current_locale;
+
 void load_locale(Locale locale) {
+  if (current_locale != nullptr && *current_locale == locale) return;
+
   if (logger == nullptr) logger = el::Loggers::getLogger("l10n");
 
   if (locale == Locale::Auto) locale = get_prefered_locale();
@@ -85,6 +89,8 @@ void load_locale(Locale locale) {
   } else {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }
+
+  current_locale = &locale;
 }
 
 void use_l10n(const L10N::StateStore::Contexts*& reference) {

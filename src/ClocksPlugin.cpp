@@ -4,7 +4,7 @@
 
 #include "config.hpp"
 
-StateStore* ClocksPlugin::state = &StateStore::Instance();
+unique_ptr<StateStore> ClocksPlugin::state = std::make_unique<StateStore>(StateStore::Instance());
 vector<ClockItem> ClocksPlugin::clocks;
 ItemCount ClocksPlugin::item_count = 0;
 

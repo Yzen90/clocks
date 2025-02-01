@@ -1,6 +1,7 @@
 {
   "generic": {
-    "auto_option": "Automático"
+    "auto_option": "Automático",
+    "cause": "Causa:"
   },
   "i18n": {
     "contexts": {
@@ -19,7 +20,14 @@
     },
     "logger_id": "estado",
     "messages": {
-      "eager_confirmed": "La configuración fue obtenida de forma anticipada desde el mismo directorio indicado por TrafficMonitor."
+      "config_saved": "La configuración fue guardada.",
+      "eager_config_load": "Configuración obtenida anticipadamente desde la ruta:",
+      "eager_load_confirmed": "La configuración fue obtenida de forma anticipada desde el mismo directorio indicado por TrafficMonitor.",
+      "no_eager_config_load": "Intento de obtención anticipada de la configuración sin éxito desde la ruta:",
+      "too_many_clocks": "Mas de {} relojes fueron proporcionados, se ignorará el resto.",
+      "using_default_config": "Se utilizará la configuración por defecto.",
+      "warn_default_config": "Se utilizarán valores por defecto de la configuración.",
+      "warn_no_clocks": "No se definió algún reloj en la configuración, se utilizará el reloj por defecto."
     }
   }
 }

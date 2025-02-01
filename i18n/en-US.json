@@ -1,6 +1,7 @@
 {
   "generic": {
-    "auto_option": "Auto"
+    "auto_option": "Auto",
+    "cause": "Cause:"
   },
   "i18n": {
     "contexts": {
@@ -19,7 +20,14 @@
     },
     "logger_id": "state",
     "messages": {
-      "eager_confirmed": "Configuration has been eagerly loaded from the same directory provided by TrafficMonitor."
+      "config_saved": "The configuration was saved.",
+      "eager_config_load": "Configuration eagerly preloaded from path:",
+      "eager_load_confirmed": "Configuration was previously eagerly loaded from the same directory provided by TrafficMonitor.",
+      "no_eager_config_load": "Configuration eager load attempt was not successful from path:",
+      "too_many_clocks": "More clocks than {} where provided, ignoring the rest.",
+      "using_default_config": "Using default configuration.",
+      "warn_default_config": "Default configuration values will be used.",
+      "warn_no_clocks": "No clocks were defined in the configuration, default clock will be used."
     }
   }
 }
