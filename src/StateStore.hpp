@@ -1,13 +1,15 @@
 #pragma once
 
+#include <winrt/Windows.Globalization.DateTimeFormatting.h>
+
 #include <chrono>
 #include <filesystem>
 #include <map>
-#include <memory>
 
 #include "i18n/l10n.hpp"
 
 using namespace std::chrono;
+using namespace winrt::Windows::Globalization::DateTimeFormatting;
 
 using std::forward_list;
 using std::map;
@@ -20,7 +22,9 @@ using std::filesystem::path;
 using Contexts = L10N::StateStore::Contexts;
 using Messages = L10N::StateStore::Messages;
 
-struct State;
+const path EAGER_LOCATION{"plugins/"};
+const wstring DEFAULT_TIME_FORMAT = L"shorttime";
+const DateTimeFormatter DEFAULT_TIME_FORMATTER{DEFAULT_TIME_FORMAT};
 
 enum class ClockType { FormatAuto, Format24h, Format12h };
 
@@ -39,9 +43,9 @@ const LogLevel DEFAULT_LOG_LEVEL = LogLevel::INFO;
 struct Configuration {
   ClockType clock_type = ClockType::FormatAuto;
   bool show_day_difference = true;
-  forward_list<Clock> clocks;
   Locale locale = Locale::Auto;
   LogLevel log_level = DEFAULT_LOG_LEVEL;
+  forward_list<Clock> clocks;
 };
 
 struct ClockData {
@@ -58,35 +62,52 @@ typedef unsigned char Index;
 typedef unsigned short ItemCount;
 typedef map<Index, ClockData> Clocks;
 
+struct State {
+  ItemCount item_count = 0;
+  path configuration_location = EAGER_LOCATION;
+  DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
+
+  time_point<system_clock> time;
+  time_point<winrt::clock> winrt_time;
+
+  const time_zone* current_tz = current_zone();
+  sys_days local_days;
+  minutes current_minutes;
+
+  Configuration configuration;
+  bool eager_initialization = false;
+};
+
 class StateStore {
  private:
   StateStore();
-  static StateStore instance;
 
-  static unique_ptr<State> state;
-  static unique_ptr<Clocks> clocks;
+  StateStore(const StateStore&) = delete;
+  StateStore& operator=(const StateStore&) = delete;
 
-  static void set_log_file(path log_file);
-  static void set_log_level();
-  static void set_locale();
-  static void set_time_formatter();
+  const Contexts* contexts;
+  const Messages* messages;
+  State state;
+  Clocks clocks;
 
-  static void load_configuration(optional<Configuration> configuration);
-  static void use_configuration();
-  static void save_configuration();
+  void set_log_file(path log_file);
+  void set_log_level();
+  void set_locale();
+  void set_time_formatter();
 
-  static void refresh_time(const time_point<system_clock>& now);
-  inline static wstring get_time(const time_zone* tz, const wstring& timezone);
-  static void add_clock(const time_zone* tz, string timezone, wstring label);
+  void load_configuration(optional<Configuration> configuration);
+  void use_configuration();
+  void save_configuration();
 
-  static const Contexts* contexts;
-  static const Messages* messages;
+  void refresh_time(const time_point<system_clock>& now);
+  inline wstring get_time(const time_zone* tz, const wstring& timezone);
+  void add_clock(const time_zone* tz, string timezone, wstring label);
 
  public:
-  static StateStore& Instance();
+  static StateStore& instance();
 
-  static void set_config_dir(const wchar_t* config_dir);
-  static void refresh();
-  static ClockData* get_clock(Index index);
-  static ItemCount item_count();
+  void set_config_dir(const wchar_t* config_dir);
+  void refresh();
+  ClockData* get_clock(Index index);
+  ItemCount item_count();
 };

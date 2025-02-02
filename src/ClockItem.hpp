@@ -7,10 +7,10 @@
 class ClockItem : public IPluginItem {
  private:
   Index index;
-  const StateStore* store;
+  StateStore* state;
 
  public:
-  ClockItem(Index index, const StateStore& store);
+  ClockItem(Index index, StateStore& state);
 
   virtual const wchar_t* GetItemName() const override;
   virtual const wchar_t* GetItemId() const override;
