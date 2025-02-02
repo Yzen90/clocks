@@ -66,15 +66,15 @@ class StateStore {
   static unique_ptr<State> state;
   static unique_ptr<Clocks> clocks;
 
-  static void set_log_level();
   static void set_log_file(path log_file);
+  static void set_log_level();
   static void set_locale();
+  static void set_time_formatter();
 
   static void load_configuration(optional<Configuration> configuration);
+  static void use_configuration();
   static void save_configuration();
-  static void save_configuration_with_default_clock();
 
-  static void update_time_formatter();
   static void refresh_time(const time_point<system_clock>& now);
   inline static wstring get_time(const time_zone* tz, const wstring& timezone);
   static void add_clock(const time_zone* tz, string timezone, wstring label);

@@ -24,18 +24,18 @@ using namespace std::filesystem;
 using el::ConfigurationType;
 using el::Logger;
 using el::Loggers;
-using nowide::narrow;
 using nowide::widen;
 using std::format;
+using std::make_format_args;
 using std::make_unique;
 using std::string;
 using std::vector;
+using std::vformat;
 using winrt::clock;
 
 static Logger* logger;
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
-const string MAX_ITEM = std::to_string(ITEM_MAX);
 
 const path EAGER_LOCATION{"plugins/"};
 const string EAGER_FILENAME = "clocks.dll.dat";
@@ -60,6 +60,12 @@ template <>
 struct glz::meta<ClockType> {
   using enum ClockType;
   static constexpr auto value = enumerate(FormatAuto, Format24h, Format12h);
+};
+
+template <>
+struct glz::meta<Locale> {
+  using enum Locale;
+  static constexpr auto value = enumerate(Auto, EN, ES);
 };
 
 const Clock DEFAULT_CLOCK{"UTC", "UTC:"};
@@ -95,8 +101,6 @@ StateStore::StateStore() {
   use_l10n(contexts);
   use_l10n(messages);
 
-  set_locale();
-
   if (is_regular_file(EAGER_PATH)) {
     EagerData data;
     std::ignore = glz::read_file_beve_untagged(data, EAGER_PATH.string(), vector<std::byte>{});
@@ -125,49 +129,45 @@ const Messages* StateStore::messages;
 void StateStore::load_configuration(optional<Configuration> configuration) {
   bool save = true;
 
-  if (!configuration) {
+  if (configuration) {
+    state->configuration = configuration.value();
+    use_configuration();
+  } else {
     path configuration_path = state->configuration_location / CONFIG_FILENAME;
     set_log_file(state->configuration_location / LOG_FILENAME);
 
     if (exists(configuration_path)) {
       string buffer{};
       auto error = glz::read_file_json(state->configuration, configuration_path.string(), buffer);
+      use_configuration();
 
       if (error) {
-        logger->error(context(contexts->config_load) + l10n->generic.cause + " " + glz::format_error(error, buffer));
-        logger->warn(context(contexts->config_load) + messages->warn_default_config);
+        logger->error(context(contexts->configuration) + l10n->generic.cause + " " + glz::format_error(error, buffer));
+        logger->warn(context(contexts->configuration) + messages->warn_default_config);
       } else {
-        set_locale();
-
-        if (state->configuration.clocks.empty()) {
-          logger->warn(context(contexts->config_load) + messages->warn_no_clocks);
-        } else {
+        if (state->configuration.clocks.empty())
+          logger->warn(context(contexts->configuration) + messages->warn_no_clocks);
+        else
           save = false;
-        }
       }
-
       buffer.clear();
 
     } else {
-      logger->info(context(contexts->config_load) + messages->using_default_config);
+      use_configuration();
+      logger->info(context(contexts->configuration) + messages->using_default_config);
     }
 
-    logger->info(context(contexts->initialization) + " Configuration path: " + configuration_path.string());
+    if (state->item_count == 0)
+      logger->info(context(contexts->initialization) + messages->config_file + " " + configuration_path.string());
   }
 
-  set_log_level();
-  set_locale();
-
-  if (state->configuration.clock_type != ClockType::FormatAuto) update_time_formatter();
-
   refresh_time(system_clock::now());
+  state->item_count = 0;
+  clocks->clear();
 
   for (auto& clock : state->configuration.clocks) {
     if (state->item_count == ITEM_MAX) {
-      logger->warn(
-          context(contexts->initialization) + " More clocks than " + std::to_string(ITEM_MAX) +
-          " where provided, ignoring the rest."
-      );
+      logger->warn(context(contexts->configuration) + vformat(messages->too_many_clocks, make_format_args(ITEM_MAX)));
       break;
     }
 
@@ -175,24 +175,38 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
       add_clock(locate_zone(clock.timezone), clock.timezone, widen(clock.label));
     } catch (...) {
       logger->warn(
-          context(contexts->initialization) + " Ignoring clock with invalid timezone \"" + clock.timezone + "\"."
+          context(contexts->configuration) + vformat(messages->invalid_timezone, make_format_args(clock.timezone))
       );
     }
   }
 
   if (state->item_count == 0) {
-    logger->warn(
-        context(contexts->initialization) +
-        " No valid clocks were defined in the configuration, default clock will be used."
-    );
-    save_configuration_with_default_clock();
+    state->configuration.clocks = {DEFAULT_CLOCK};
     add_clock(locate_zone(DEFAULT_CLOCK.timezone), DEFAULT_CLOCK.timezone, widen(DEFAULT_CLOCK.label));
+
+    if (!save) {
+      save = true;
+      logger->warn(context(contexts->configuration) + messages->warn_no_valid_clocks);
+    }
   }
 
+  if (save) save_configuration();
+
   logger->info(
-      context(contexts->initialization) + " Plugin state initialized with " + std::to_string(state->item_count) +
-      " clocks."
+      context(contexts->configuration) + vformat(messages->config_loaded, make_format_args(state->item_count))
   );
+}
+
+void StateStore::use_configuration() {
+  set_log_level();
+  set_locale();
+  set_time_formatter();
+}
+
+void StateStore::set_log_file(path log_file) {
+  el::Configurations log_config{*el::Loggers::defaultConfigurations()};
+  log_config.setGlobally(ConfigurationType::Filename, log_file.string());
+  el::Loggers::setDefaultConfigurations(log_config, true);
 }
 
 void StateStore::set_log_level() {
@@ -219,54 +233,12 @@ void StateStore::set_log_level() {
   el::Loggers::setDefaultConfigurations(log_config, true);
 }
 
-void StateStore::set_log_file(path log_file) {
-  el::Configurations log_config{*el::Loggers::defaultConfigurations()};
-  log_config.setGlobally(ConfigurationType::Filename, log_file.string());
-  el::Loggers::setDefaultConfigurations(log_config, true);
-}
-
 void StateStore::set_locale() {
   load_locale(state->configuration.locale);
   logger = Loggers::getLogger(l10n->state_store.logger_id);
 }
 
-void StateStore::set_config_dir(const wchar_t* config_dir) {
-  path configuration_location{config_dir};
-
-  if (state->eager_initialization) {
-    state->eager_initialization = false;
-    std::error_code ignore{};
-
-    if (equivalent(state->configuration_location / CONFIG_FILENAME, configuration_location / CONFIG_FILENAME, ignore)) {
-      logger->verbose(0, context(contexts->config_load) + messages->eager_load_confirmed);
-      return;
-    }
-  }
-
-  state->configuration_location = configuration_location;
-  load_configuration({});
-
-  std::ignore = glz::write_file_beve_untagged(
-      EagerData{configuration_location.string()}, EAGER_PATH.string(), vector<std::byte>{}
-  );
-}
-
-void StateStore::save_configuration() {
-  auto error = glz::write_file_json<glz::opts{.prettify = true}>(
-      state->configuration, state->configuration_path.string(), string{}
-  );
-  if (error)
-    logger->error(context(contexts->config_save) + l10n->generic.cause + " " + glz::format_error(error));
-  else
-    logger->info(context(contexts->config_save) + messages->config_saved);
-}
-
-void StateStore::save_configuration_with_default_clock() {
-  state->configuration.clocks = {DEFAULT_CLOCK};
-  save_configuration();
-}
-
-void StateStore::update_time_formatter() {
+void StateStore::set_time_formatter() {
   switch (state->configuration.clock_type) {
     case ClockType::FormatAuto:
       state->time_formatter = DEFAULT_TIME_FORMATTER;
@@ -284,6 +256,16 @@ void StateStore::update_time_formatter() {
       };
       return;
   }
+}
+
+void StateStore::save_configuration() {
+  auto error = glz::write_file_json<glz::opts{.prettify = true}>(
+      state->configuration, (state->configuration_location / CONFIG_FILENAME).string(), string{}
+  );
+  if (error)
+    logger->error(context(contexts->configuration) + l10n->generic.cause + " " + glz::format_error(error));
+  else
+    logger->info(context(contexts->configuration) + messages->config_saved);
 }
 
 void StateStore::refresh_time(const time_point<system_clock>& now) {
@@ -329,6 +311,27 @@ void StateStore::add_clock(const time_zone* tz, string timezone, wstring label) 
   state->item_count++;
 }
 
+void StateStore::set_config_dir(const wchar_t* config_dir) {
+  path configuration_location{config_dir};
+
+  if (state->eager_initialization) {
+    state->eager_initialization = false;
+    std::error_code ignore{};
+
+    if (equivalent(state->configuration_location / CONFIG_FILENAME, configuration_location / CONFIG_FILENAME, ignore)) {
+      logger->verbose(0, context(contexts->configuration) + messages->eager_load_confirmed);
+      return;
+    }
+  }
+
+  state->configuration_location = configuration_location;
+  load_configuration({});
+
+  std::ignore = glz::write_file_beve_untagged(
+      EagerData{configuration_location.string()}, EAGER_PATH.string(), vector<std::byte>{}
+  );
+}
+
 void StateStore::refresh() {
   auto now = system_clock::now();
   auto minutes = hh_mm_ss{now - floor<days>(now)}.minutes();
@@ -342,6 +345,6 @@ void StateStore::refresh() {
   }
 }
 
-ItemCount StateStore::item_count() { return state->item_count; }
-
 ClockData* StateStore::get_clock(Index index) { return &(*clocks)[index]; }
+
+ItemCount StateStore::item_count() { return state->item_count; }

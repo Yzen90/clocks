@@ -18,12 +18,6 @@ using namespace winrt::Windows::System::UserProfile;
 using std::invalid_argument;
 using std::string_view;
 
-template <>
-struct glz::meta<Locale> {
-  using enum Locale;
-  static constexpr auto value = enumerate(Auto, EN, ES);
-};
-
 static el::Logger* logger;
 
 unique_ptr<L10N> l10n;
@@ -43,7 +37,10 @@ Locale get_prefered_locale() {
   auto languages = GlobalizationPreferences::Languages();
   auto prefered = languages.Size();
 
-  logger->verbose(0, "System prefered languages: " + std::to_string(prefered));
+  if (logger == nullptr) {
+    logger = el::Loggers::getLogger("l10n");
+    logger->verbose(0, "System prefered languages: " + std::to_string(prefered));
+  }
 
   if (prefered > 0) {
     for (const auto language : languages) {
@@ -65,14 +62,11 @@ string_view get_localization(Locale locale) {
   }
 }
 
-static Locale* current_locale;
+static Locale loaded_locale = Locale::Auto;
 
 void load_locale(Locale locale) {
-  if (current_locale != nullptr && *current_locale == locale) return;
-
-  if (logger == nullptr) logger = el::Loggers::getLogger("l10n");
-
   if (locale == Locale::Auto) locale = get_prefered_locale();
+  if (loaded_locale == locale) return;
 
   auto localization = get_localization(locale);
   auto result = glz::read_json<L10N>(localization);
@@ -83,14 +77,15 @@ void load_locale(Locale locale) {
     if (ss_contexts) *ss_contexts = &l10n->state_store.contexts;
     if (ss_messages) *ss_messages = &l10n->state_store.messages;
 
+    logger = el::Loggers::getLogger(l10n->l10n.logger_id);
     logger->verbose(
-        0, context(l10n->i18n.contexts.load) + l10n->i18n.messages.loaded + " " + locale_names().at(locale)
+        0, context(l10n->l10n.contexts.load) + l10n->l10n.messages.loaded + " " + locale_names().at(locale)
     );
   } else {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }
 
-  current_locale = &locale;
+  loaded_locale = locale;
 }
 
 void use_l10n(const L10N::StateStore::Contexts*& reference) {

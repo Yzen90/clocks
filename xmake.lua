@@ -1,7 +1,7 @@
 set_project('clocks')
 
 clocks_version_major = 0
-clocks_version_minor = 1
+clocks_version_minor = 2
 clocks_version_patch = 0
 set_version(clocks_version_major .. '.' .. clocks_version_minor .. '.' .. clocks_version_patch)
 

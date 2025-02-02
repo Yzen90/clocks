@@ -3,31 +3,34 @@
     "auto_option": "Automático",
     "cause": "Causa:"
   },
-  "i18n": {
+  "l10n": {
     "contexts": {
-      "load": "Carga de idioma"
+      "load": "Carga"
     },
-    "logger_id": "Localización",
+    "logger_id": "idioma",
     "messages": {
       "loaded": "Idioma cargado:"
     }
   },
   "state_store": {
     "contexts": {
-      "config_load": "Carga de la configuración",
-      "config_save": "Guardado de la configuración",
+      "configuration": "Configuración",
       "initialization": "Inicialización"
     },
     "logger_id": "estado",
     "messages": {
+      "config_file": "Archivo de configuración:",
+      "config_loaded": "🕜Clocks cargó {} reloj(es).",
       "config_saved": "La configuración fue guardada.",
       "eager_config_load": "Configuración obtenida anticipadamente desde la ruta:",
       "eager_load_confirmed": "La configuración fue obtenida de forma anticipada desde el mismo directorio indicado por TrafficMonitor.",
+      "invalid_timezone": "La zona horaria \"{}\" es inválida, el reloj fue ignorado.",
       "no_eager_config_load": "Intento de obtención anticipada de la configuración sin éxito desde la ruta:",
       "too_many_clocks": "Mas de {} relojes fueron proporcionados, se ignorará el resto.",
       "using_default_config": "Se utilizará la configuración por defecto.",
       "warn_default_config": "Se utilizarán valores por defecto de la configuración.",
-      "warn_no_clocks": "No se definió algún reloj en la configuración, se utilizará el reloj por defecto."
+      "warn_no_clocks": "Ningún reloj fue definido en la configuración, se utilizará el reloj por defecto.",
+      "warn_no_valid_clocks": "Ningún reloj válido fue definido en la configuración, se utilizará el reloj por defecto."
     }
   }
 }

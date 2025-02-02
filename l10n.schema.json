@@ -6,8 +6,8 @@
     "generic": {
       "$ref": "#/$defs/L10N::Generic"
     },
-    "i18n": {
-      "$ref": "#/$defs/L10N::I18N"
+    "l10n": {
+      "$ref": "#/$defs/L10N::Localization"
     },
     "state_store": {
       "$ref": "#/$defs/L10N::StateStore"
@@ -33,19 +33,19 @@
         "cause"
       ]
     },
-    "L10N::I18N": {
+    "L10N::Localization": {
       "type": [
         "object"
       ],
       "properties": {
         "contexts": {
-          "$ref": "#/$defs/L10N::I18N::Contexts"
+          "$ref": "#/$defs/L10N::Localization::Contexts"
         },
         "logger_id": {
           "$ref": "#/$defs/std::string"
         },
         "messages": {
-          "$ref": "#/$defs/L10N::I18N::Messages"
+          "$ref": "#/$defs/L10N::Localization::Messages"
         }
       },
       "additionalProperties": false,
@@ -55,7 +55,7 @@
         "messages"
       ]
     },
-    "L10N::I18N::Contexts": {
+    "L10N::Localization::Contexts": {
       "type": [
         "object"
       ],
@@ -69,7 +69,7 @@
         "load"
       ]
     },
-    "L10N::I18N::Messages": {
+    "L10N::Localization::Messages": {
       "type": [
         "object"
       ],
@@ -110,10 +110,7 @@
         "object"
       ],
       "properties": {
-        "config_load": {
-          "$ref": "#/$defs/std::string"
-        },
-        "config_save": {
+        "configuration": {
           "$ref": "#/$defs/std::string"
         },
         "initialization": {
@@ -122,8 +119,7 @@
       },
       "additionalProperties": false,
       "required": [
-        "config_load",
-        "config_save",
+        "configuration",
         "initialization"
       ]
     },
@@ -132,13 +128,28 @@
         "object"
       ],
       "properties": {
+        "config_file": {
+          "$ref": "#/$defs/std::string"
+        },
+        "config_loaded": {
+          "$ref": "#/$defs/std::string"
+        },
+        "config_saved": {
+          "$ref": "#/$defs/std::string"
+        },
         "eager_config_load": {
           "$ref": "#/$defs/std::string"
         },
         "eager_load_confirmed": {
           "$ref": "#/$defs/std::string"
         },
+        "invalid_timezone": {
+          "$ref": "#/$defs/std::string"
+        },
         "no_eager_config_load": {
+          "$ref": "#/$defs/std::string"
+        },
+        "too_many_clocks": {
           "$ref": "#/$defs/std::string"
         },
         "using_default_config": {
@@ -149,16 +160,25 @@
         },
         "warn_no_clocks": {
           "$ref": "#/$defs/std::string"
+        },
+        "warn_no_valid_clocks": {
+          "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
+        "config_file",
+        "config_loaded",
+        "config_saved",
         "eager_config_load",
         "eager_load_confirmed",
+        "invalid_timezone",
         "no_eager_config_load",
+        "too_many_clocks",
         "using_default_config",
         "warn_default_config",
-        "warn_no_clocks"
+        "warn_no_clocks",
+        "warn_no_valid_clocks"
       ]
     },
     "std::string": {
@@ -169,7 +189,7 @@
   },
   "required": [
     "generic",
-    "i18n",
+    "l10n",
     "state_store"
   ]
 }

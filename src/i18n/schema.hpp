@@ -7,26 +7,29 @@ using std::string;
 struct L10N {
   struct StateStore {
     struct Contexts {
+      string configuration;
       string initialization;
-      string config_load;
-      string config_save;
     } contexts;
 
     struct Messages {
+      string config_file;
+      string config_loaded;
+      string config_saved;
       string eager_config_load;
-      string no_eager_config_load;
       string eager_load_confirmed;
+      string invalid_timezone;
+      string no_eager_config_load;
+      string too_many_clocks;
+      string using_default_config;
       string warn_default_config;
       string warn_no_clocks;
-      string using_default_config;
-      string config_saved;
-      string too_many_clocks;
+      string warn_no_valid_clocks;
     } messages;
 
     string logger_id;
   } state_store;
 
-  struct I18N {
+  struct Localization {
     string logger_id;
 
     struct Contexts {
@@ -36,7 +39,7 @@ struct L10N {
     struct Messages {
       string loaded;
     } messages;
-  } i18n;
+  } l10n;
 
   struct Generic {
     string auto_option;
