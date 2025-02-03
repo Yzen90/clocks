@@ -7,5 +7,5 @@ class ClocksConfig {
  public:
   ClocksConfig(Configuration configuration);
 
-  optional<Configuration> open();
+  optional<Configuration> open(void*& window_handle);
 };

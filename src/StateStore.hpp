@@ -107,4 +107,6 @@ class StateStore {
   void refresh();
   ClockData* get_clock(Index index);
   ItemCount item_count();
+  Configuration get_configuration();
+  void set_configuration(Configuration configuration);
 };

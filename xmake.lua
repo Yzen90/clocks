@@ -26,6 +26,7 @@ add_rules('plugin.compile_commands.autoupdate', {outputdir = 'build'})
 
 add_defines('NOMINMAX')
 add_includedirs('extern/TrafficMonitor/include')
+add_includedirs('extern/imgui')
 add_includedirs('vcpkg_installed/$(arch)-$(plat)/include')
 add_links('WindowsApp')
 
@@ -37,6 +38,7 @@ target('clocks')
 
   add_files('src/*.cpp')
   add_files('src/i18n/l10n.cpp')
+  add_files('src/ui/*.cpp')
   add_files('clocks.rc')
 
   add_defines('AUTO_INITIALIZE_EASYLOGGINGPP')

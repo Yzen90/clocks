@@ -273,3 +273,10 @@ void StateStore::refresh() {
 ClockData* StateStore::get_clock(Index index) { return &(clocks[index]); }
 
 ItemCount StateStore::item_count() { return state.item_count; }
+
+Configuration StateStore::get_configuration() {
+  Configuration copy = state.configuration;
+  return copy;
+}
+
+void StateStore::set_configuration(Configuration configuration) { load_configuration({configuration}); }

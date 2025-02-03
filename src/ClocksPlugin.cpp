@@ -3,6 +3,7 @@
 #include <easylogging++.cc>
 
 #include "config.hpp"
+#include "ui/ClocksConfig.hpp"
 
 ClocksPlugin::ClocksPlugin() : state(StateStore::instance()), item_count(0) {}
 
@@ -43,6 +44,21 @@ void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
   if (index == ITMPlugin::EI_CONFIG_DIR) {
     state.set_config_dir(data);
     sync();
+  }
+}
+
+ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* hParent) {
+  ClocksConfig dialog{state.get_configuration()};
+
+  auto configuration = dialog.open(hParent);
+
+  if (configuration) {
+    state.set_configuration(configuration.value());
+    sync();
+    return OptionReturn::OR_OPTION_CHANGED;
+
+  } else {
+    return OptionReturn::OR_OPTION_UNCHANGED;
   }
 }
 
