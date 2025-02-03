@@ -4,29 +4,12 @@
 
 #include "config.hpp"
 
-unique_ptr<StateStore> ClocksPlugin::state = std::make_unique<StateStore>(StateStore::Instance());
-vector<ClockItem> ClocksPlugin::clocks;
-ItemCount ClocksPlugin::item_count = 0;
+ClocksPlugin::ClocksPlugin() : state(StateStore::instance()), item_count(0) {}
 
-ClocksPlugin::ClocksPlugin() {}
-
-void ClocksPlugin::sync() {
-  auto current_count = state->item_count();
-
-  if (current_count != item_count) {
-    if (current_count > item_count) {
-      clocks.reserve(current_count);
-      for (Index index = item_count; index < current_count; index++) clocks.push_back(ClockItem{index, *state});
-    } else {
-      clocks.erase(clocks.begin() + item_count, clocks.end());
-    }
-
-    item_count = current_count;
-  }
+ClocksPlugin& ClocksPlugin::instance() {
+  static ClocksPlugin instance;
+  return instance;
 }
-
-ClocksPlugin ClocksPlugin::instance;
-ClocksPlugin& ClocksPlugin::Instance() { return instance; }
 
 IPluginItem* ClocksPlugin::GetItem(int index) {
   if (index == item_count)
@@ -35,7 +18,7 @@ IPluginItem* ClocksPlugin::GetItem(int index) {
     return &clocks[index];
 }
 
-void ClocksPlugin::DataRequired() { state->refresh(); }
+void ClocksPlugin::DataRequired() { state.refresh(); }
 
 const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
   switch (index) {
@@ -58,9 +41,24 @@ const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
 
 void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
   if (index == ITMPlugin::EI_CONFIG_DIR) {
-    state->set_config_dir(data);
+    state.set_config_dir(data);
     sync();
   }
 }
 
-ITMPlugin* TMPluginGetInstance() { return &ClocksPlugin::Instance(); }
+ITMPlugin* TMPluginGetInstance() { return &ClocksPlugin::instance(); }
+
+void ClocksPlugin::sync() {
+  auto count = state.item_count();
+
+  if (count != item_count) {
+    if (count > item_count) {
+      clocks.reserve(count);
+      for (Index index = item_count; index < count; index++) clocks.push_back(ClockItem{index, state});
+    } else {
+      clocks.erase(clocks.begin() + item_count, clocks.end());
+    }
+
+    item_count = count;
+  }
+}

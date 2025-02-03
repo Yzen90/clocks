@@ -11,16 +11,17 @@ using std::vector;
 class ClocksPlugin : public ITMPlugin {
  private:
   ClocksPlugin();
-  static ClocksPlugin instance;
+  ClocksPlugin(const ClocksPlugin &) = delete;
+  ClocksPlugin &operator=(const ClocksPlugin &) = delete;
 
-  static unique_ptr<StateStore> state;
-  static vector<ClockItem> clocks;
-  static ItemCount item_count;
+  StateStore &state;
+  vector<ClockItem> clocks;
+  ItemCount item_count;
 
-  static void sync();
+  void sync();
 
  public:
-  static ClocksPlugin &Instance();
+  static ClocksPlugin &instance();
 
   virtual IPluginItem *GetItem(int index) override;
   virtual void DataRequired() override;
