@@ -10,7 +10,6 @@
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
 #include <string>
-#include <vector>
 
 #include "i18n/l10n.hpp"
 #include "i18n/schema.hpp"
@@ -26,19 +25,12 @@ using nowide::widen;
 using std::format;
 using std::make_format_args;
 using std::string;
-using std::vector;
 using std::vformat;
 using winrt::clock;
 
 static Logger* logger;
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
-
-const string EAGER_FILENAME = "clocks.dll.dat";
-const path EAGER_PATH = EAGER_LOCATION / EAGER_FILENAME;
-struct EagerData {
-  string config_location;
-};
 
 const string CONFIG_FILENAME = "clocks.dll.json";
 const string LOG_FILENAME = "clocks.dll.log";
@@ -71,24 +63,6 @@ StateStore::StateStore() {
 
   use_l10n(contexts);
   use_l10n(messages);
-
-  if (is_regular_file(EAGER_PATH)) {
-    EagerData data;
-    std::ignore = glz::read_file_beve_untagged(data, EAGER_PATH.string(), vector<std::byte>{});
-
-    if (data.config_location.length() > 0) {
-      state.configuration_location = path{data.config_location};
-      state.eager_initialization = true;
-
-      load_configuration({});
-
-      logger->verbose(
-          0, context(contexts->initialization) +
-                 (state.eager_initialization ? messages->eager_config_load : messages->no_eager_config_load) + " " +
-                 state.configuration_location.string()
-      );
-    }
-  }
 }
 
 StateStore& StateStore::instance() {
@@ -161,7 +135,6 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
   }
 
   if (save) save_configuration();
-
   logger->info(context(contexts->configuration) + vformat(messages->config_loaded, make_format_args(state.item_count)));
 }
 
@@ -269,35 +242,19 @@ inline wstring StateStore::get_time(const time_zone* tz, const wstring& timezone
 
 void StateStore::add_clock(const time_zone* tz, string timezone, wstring label) {
   auto payload = std::to_string(state.item_count) + timezone;
-  auto id = widen(format("{:x}", XXH3_64bits(&payload, payload.length())));
+  auto id = widen(format("{:x}", XXH3_64bits(payload.data(), payload.size())));
   auto timezone_w = widen(timezone);
 
   auto time = get_time(tz, timezone_w);
 
-  clocks[state.item_count] = ClockData{tz, timezone_w, id, label, L"🕜 " + timezone_w, time, time};
+  clocks[state.item_count] = ClockData{tz, timezone_w, id, label, L"🕜" + timezone_w, time, time};
 
   state.item_count++;
 }
 
 void StateStore::set_config_dir(const wchar_t* config_dir) {
-  path configuration_location{config_dir};
-
-  if (state.eager_initialization) {
-    state.eager_initialization = false;
-    std::error_code ignore{};
-
-    if (equivalent(state.configuration_location / CONFIG_FILENAME, configuration_location / CONFIG_FILENAME, ignore)) {
-      logger->verbose(0, context(contexts->configuration) + messages->eager_load_confirmed);
-      return;
-    }
-  }
-
-  state.configuration_location = configuration_location;
+  state.configuration_location = path{config_dir};
   load_configuration({});
-
-  std::ignore = glz::write_file_beve_untagged(
-      EagerData{configuration_location.string()}, EAGER_PATH.string(), vector<std::byte>{}
-  );
 }
 
 void StateStore::refresh() {

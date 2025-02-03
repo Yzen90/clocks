@@ -216,52 +216,7 @@
 										</translations>
 									</concept_node>
 									<concept_node>
-										<name>eager_config_load</name>
-										<description/>
-										<comment/>
-										<translations>
-											<translation>
-												<language>en-US</language>
-												<approved>false</approved>
-											</translation>
-											<translation>
-												<language>es-MX</language>
-												<approved>false</approved>
-											</translation>
-										</translations>
-									</concept_node>
-									<concept_node>
-										<name>eager_load_confirmed</name>
-										<description/>
-										<comment/>
-										<translations>
-											<translation>
-												<language>en-US</language>
-												<approved>false</approved>
-											</translation>
-											<translation>
-												<language>es-MX</language>
-												<approved>false</approved>
-											</translation>
-										</translations>
-									</concept_node>
-									<concept_node>
 										<name>invalid_timezone</name>
-										<description/>
-										<comment/>
-										<translations>
-											<translation>
-												<language>en-US</language>
-												<approved>false</approved>
-											</translation>
-											<translation>
-												<language>es-MX</language>
-												<approved>false</approved>
-											</translation>
-										</translations>
-									</concept_node>
-									<concept_node>
-										<name>no_eager_config_load</name>
 										<description/>
 										<comment/>
 										<translations>

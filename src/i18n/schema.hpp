@@ -15,10 +15,7 @@ struct L10N {
       string config_file;
       string config_loaded;
       string config_saved;
-      string eager_config_load;
-      string eager_load_confirmed;
       string invalid_timezone;
-      string no_eager_config_load;
       string too_many_clocks;
       string using_default_config;
       string warn_default_config;

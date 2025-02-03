@@ -22,7 +22,6 @@ using std::filesystem::path;
 using Contexts = L10N::StateStore::Contexts;
 using Messages = L10N::StateStore::Messages;
 
-const path EAGER_LOCATION{"plugins/"};
 const wstring DEFAULT_TIME_FORMAT = L"shorttime";
 const DateTimeFormatter DEFAULT_TIME_FORMATTER{DEFAULT_TIME_FORMAT};
 
@@ -64,7 +63,7 @@ typedef map<Index, ClockData> Clocks;
 
 struct State {
   ItemCount item_count = 0;
-  path configuration_location = EAGER_LOCATION;
+  path configuration_location;
   DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
 
   time_point<system_clock> time;
@@ -75,13 +74,11 @@ struct State {
   minutes current_minutes;
 
   Configuration configuration;
-  bool eager_initialization = false;
 };
 
 class StateStore {
  private:
   StateStore();
-
   StateStore(const StateStore&) = delete;
   StateStore& operator=(const StateStore&) = delete;
 
