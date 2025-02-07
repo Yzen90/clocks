@@ -29,5 +29,19 @@
       "warn_no_clocks": "No clocks were defined in the configuration, default clock will be used.",
       "warn_no_valid_clocks": "No valid clocks were defined in the configuration, default clock will be used."
     }
+  },
+  "ui": {
+    "errors": {
+      "sdl_claim_window": "SDL was unable to claim window for GPU device:",
+      "sdl_create_gpu_device": "SDL was unable to create the GPU device:",
+      "sdl_create_window": "SDL was unable to create the window:",
+      "sdl_get_handle": "SDL was unable to get the new window handle.",
+      "sdl_init": "Unable to initialize SDL:"
+    },
+    "messages": {
+      "setup_complete": "SDL and ImGui setup completed.",
+      "warn_no_parent": "Unable to set as child window."
+    },
+    "title": "🕜Clocks"
   }
 }

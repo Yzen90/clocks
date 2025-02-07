@@ -39,10 +39,13 @@ const LogLevel DEFAULT_LOG_LEVEL = LogLevel::DEBUG;
 const LogLevel DEFAULT_LOG_LEVEL = LogLevel::INFO;
 #endif
 
+enum class Theme { Auto, Dark, Light };
+
 struct Configuration {
   ClockType clock_type = ClockType::FormatAuto;
   bool show_day_difference = true;
   Locale locale = Locale::Auto;
+  Theme theme = Theme::Auto;
   LogLevel log_level = DEFAULT_LOG_LEVEL;
   forward_list<Clock> clocks;
 };

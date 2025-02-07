@@ -11,6 +11,9 @@
     },
     "state_store": {
       "$ref": "#/$defs/L10N::StateStore"
+    },
+    "ui": {
+      "$ref": "#/$defs/L10N::UI"
     }
   },
   "additionalProperties": false,
@@ -169,6 +172,76 @@
         "warn_no_valid_clocks"
       ]
     },
+    "L10N::UI": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "errors": {
+          "$ref": "#/$defs/L10N::UI::Errors"
+        },
+        "messages": {
+          "$ref": "#/$defs/L10N::UI::Messages"
+        },
+        "title": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "errors",
+        "messages",
+        "title"
+      ]
+    },
+    "L10N::UI::Errors": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "sdl_claim_window": {
+          "$ref": "#/$defs/std::string"
+        },
+        "sdl_create_gpu_device": {
+          "$ref": "#/$defs/std::string"
+        },
+        "sdl_create_window": {
+          "$ref": "#/$defs/std::string"
+        },
+        "sdl_get_handle": {
+          "$ref": "#/$defs/std::string"
+        },
+        "sdl_init": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sdl_claim_window",
+        "sdl_create_gpu_device",
+        "sdl_create_window",
+        "sdl_get_handle",
+        "sdl_init"
+      ]
+    },
+    "L10N::UI::Messages": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "setup_complete": {
+          "$ref": "#/$defs/std::string"
+        },
+        "warn_no_parent": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "setup_complete",
+        "warn_no_parent"
+      ]
+    },
     "std::string": {
       "type": [
         "string"
@@ -178,6 +251,7 @@
   "required": [
     "generic",
     "l10n",
-    "state_store"
+    "state_store",
+    "ui"
   ]
 }

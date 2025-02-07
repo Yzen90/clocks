@@ -26,6 +26,23 @@ struct L10N {
     string logger_id;
   } state_store;
 
+  struct UI {
+    struct Errors {
+      string sdl_claim_window;
+      string sdl_create_gpu_device;
+      string sdl_create_window;
+      string sdl_get_handle;
+      string sdl_init;
+    } errors;
+
+    struct Messages {
+      string setup_complete;
+      string warn_no_parent;
+    } messages;
+
+    string title;
+  } ui;
+
   struct Localization {
     string logger_id;
 

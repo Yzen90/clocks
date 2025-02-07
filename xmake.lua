@@ -24,11 +24,12 @@ add_rules('mode.debug', 'mode.release')
 add_rules('plugin.compile_commands.autoupdate', {outputdir = 'build'})
 
 
-add_defines('NOMINMAX')
 add_includedirs('extern/TrafficMonitor/include')
-add_includedirs('extern/imgui')
-add_includedirs('vcpkg_installed/$(arch)-$(plat)/include')
-add_links('WindowsApp')
+add_includedirs('vcpkg_installed/$(arch)-$(plat)-static/include')
+add_linkdirs('vcpkg_installed/$(arch)-$(plat)-static/lib')
+add_syslinks('WindowsApp')
+add_defines('NOMINMAX')
+add_defines('WIN32_LEAN_AND_MEAN')
 
 includes('src/i18n')
 
@@ -40,6 +41,18 @@ target('clocks')
   add_files('src/i18n/l10n.cpp')
   add_files('src/ui/*.cpp')
   add_files('clocks.rc')
+  add_files('vcpkg_installed/$(arch)-$(plat)-static/include/easylogging++.cc')
+
+  add_syslinks('User32')
+  add_syslinks('Ole32')
+  add_syslinks('Gdi32')
+  add_syslinks('Shell32')
+  add_syslinks('Setupapi')
+  add_syslinks('Version')
+  add_syslinks('Imm32')
+
+  add_deps('imgui')
+  add_links('SDL3-static')
 
   add_defines('AUTO_INITIALIZE_EASYLOGGINGPP')
   add_defines('ELPP_DEFAULT_LOG_FILE="plugins/clocks.dll.log"')
@@ -54,6 +67,14 @@ target('clocks')
   add_rules('i18n-codegen', 'i18n-validation')
 
 
+target('imgui')
+    set_kind('static')
+    add_files('extern/imgui/*.cpp')
+    add_files('extern/imgui/backends/imgui_impl_sdl3.cpp')
+    add_files('extern/imgui/backends/imgui_impl_sdlgpu3.cpp')
+    add_includedirs('extern/imgui', {public = true})
+
+
 target('tester')
   set_kind('binary')
 
@@ -63,3 +84,5 @@ target('tester')
   if is_mode('release') then
     set_enabled(false)
   end
+
+

@@ -2,14 +2,11 @@
 
 #include <easylogging++.h>
 #include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/base.h>
 #include <xxhash.h>
 
-#include <filesystem>
 #include <format>
 #include <glaze/glaze.hpp>
 #include <nowide/convert.hpp>
-#include <string>
 
 #include "i18n/l10n.hpp"
 #include "i18n/schema.hpp"
@@ -42,6 +39,12 @@ template <>
 struct glz::meta<LogLevel> {
   using enum LogLevel;
   static constexpr auto value = enumerate(TRACE, DEBUG, VERBOSE, INFO, WARNING, ERROR, FATAL);
+};
+
+template <>
+struct glz::meta<Theme> {
+  using enum Theme;
+  static constexpr auto value = enumerate(Auto, Dark, Light);
 };
 
 template <>
@@ -231,9 +234,9 @@ inline wstring StateStore::get_time(const time_zone* tz, const wstring& timezone
 
     if (tz_days != state.local_days) {
       if (tz_days > state.local_days)
-        time_string.append(L" " + NEXT_DAY);
+        time_string.append(L" " + NEXT_DAY + L" ");
       else
-        time_string.append(L" " + PREV_DAY);
+        time_string.append(L" " + PREV_DAY + L" ");
     }
   }
 

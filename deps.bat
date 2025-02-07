@@ -1,7 +1,8 @@
 @echo off
-vcpkg install --no-print-usage
+vcpkg install --triplet x64-windows-static --no-print-usage
 yq --version > nul 2>&1 || winget install MikeFarah.yq
 clang --version > nul 2>&1 || winget install LLVM.LLVM
+xmake config --arch=x64
 xmake build schemagen
 xmake build makeheaders
 git submodule init

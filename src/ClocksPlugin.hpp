@@ -5,7 +5,6 @@
 #include "ClockItem.hpp"
 #include "StateStore.hpp"
 
-using std::unique_ptr;
 using std::vector;
 
 class ClocksPlugin : public ITMPlugin {
@@ -27,7 +26,7 @@ class ClocksPlugin : public ITMPlugin {
   virtual void DataRequired() override;
   virtual const wchar_t *GetInfo(PluginInfoIndex index) override;
   virtual void OnExtenedInfo(ExtendedInfoIndex index, const wchar_t *data) override;
-  virtual OptionReturn ShowOptionsDialog(void *hParent) override;
+  virtual OptionReturn ShowOptionsDialog(void *parent) override;
 };
 
 extern "C" __declspec(dllexport) ITMPlugin *TMPluginGetInstance();

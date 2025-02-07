@@ -1,11 +1,8 @@
-#include <easylogging++.cc>
-#define ELPP_NO_LOG_TO_FILE
-INITIALIZE_EASYLOGGINGPP
-
 #include <Windows.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
 #include <winrt/base.h>
+#undef ERROR
 
 #include <chrono>
 #include <iostream>
@@ -44,6 +41,8 @@ int main() {
 
   cout << "Plugin name: " + narrow(plug_name) << endl;
   cout << "Item name: " + narrow(item_name) << endl;
+
+  TMPluginGetInstance()->ShowOptionsDialog(GetConsoleWindow());
 
   // ----------- STD -----------
 

@@ -1,13 +1,5 @@
 {
 	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-	"dependencies": [
-		"cppwinrt",
-		"easyloggingpp",
-		"glaze",
-		"nowide",
-		"xxhash",
-		"sdl3"
-	],
 	"vcpkg-configuration": {
 		"default-registry": {
 			"kind": "git",
@@ -21,5 +13,13 @@
 				"name": "microsoft"
 			}
 		]
-	}
+	},
+	"dependencies": [
+		"cppwinrt",
+		"easyloggingpp",
+		"glaze",
+		"nowide",
+		"xxhash",
+		"sdl3"
+	]
 }

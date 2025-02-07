@@ -1,7 +1,5 @@
 #include "ClocksPlugin.hpp"
 
-#include <easylogging++.cc>
-
 #include "config.hpp"
 #include "ui/ClocksConfig.hpp"
 
@@ -47,10 +45,10 @@ void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
   }
 }
 
-ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* hParent) {
-  ClocksConfig dialog{state.get_configuration()};
+ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* parent) {
+  ClocksConfig window{state.get_configuration()};
 
-  auto configuration = dialog.open(hParent);
+  auto configuration = window.open(parent);
 
   if (configuration) {
     state.set_configuration(configuration.value());
