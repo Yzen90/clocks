@@ -31,13 +31,11 @@ struct L10N {
       string sdl_claim_window;
       string sdl_create_gpu_device;
       string sdl_create_window;
-      string sdl_get_handle;
       string sdl_init;
     } errors;
 
     struct Messages {
       string setup_complete;
-      string warn_no_parent;
     } messages;
 
     string title;

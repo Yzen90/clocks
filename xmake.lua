@@ -27,7 +27,7 @@ add_rules('plugin.compile_commands.autoupdate', {outputdir = 'build'})
 add_includedirs('extern/TrafficMonitor/include')
 add_includedirs('vcpkg_installed/$(arch)-$(plat)-static/include')
 add_linkdirs('vcpkg_installed/$(arch)-$(plat)-static/lib')
-add_syslinks('WindowsApp')
+add_syslinks('WindowsApp', 'User32')
 add_defines('NOMINMAX')
 add_defines('WIN32_LEAN_AND_MEAN')
 
@@ -43,16 +43,10 @@ target('clocks')
   add_files('clocks.rc')
   add_files('vcpkg_installed/$(arch)-$(plat)-static/include/easylogging++.cc')
 
-  add_syslinks('User32')
-  add_syslinks('Ole32')
-  add_syslinks('Gdi32')
-  add_syslinks('Shell32')
-  add_syslinks('Setupapi')
-  add_syslinks('Version')
-  add_syslinks('Imm32')
-
+  add_packages('sdl')
   add_deps('imgui')
-  add_links('SDL3-static')
+
+  add_syslinks('kernel32', 'gdi32', 'winmm', 'imm32', 'ole32', 'oleaut32', 'version', 'uuid', 'advapi32', 'setupapi', 'shell32')
 
   add_defines('AUTO_INITIALIZE_EASYLOGGINGPP')
   add_defines('ELPP_DEFAULT_LOG_FILE="plugins/clocks.dll.log"')
@@ -68,11 +62,26 @@ target('clocks')
 
 
 target('imgui')
-    set_kind('static')
-    add_files('extern/imgui/*.cpp')
-    add_files('extern/imgui/backends/imgui_impl_sdl3.cpp')
-    add_files('extern/imgui/backends/imgui_impl_sdlgpu3.cpp')
-    add_includedirs('extern/imgui', {public = true})
+  set_kind('static')
+  add_files('extern/imgui/*.cpp')
+  add_files('extern/imgui/backends/imgui_impl_sdl3.cpp')
+  add_files('extern/imgui/backends/imgui_impl_sdlgpu3.cpp')
+  add_includedirs('extern/imgui', {public = true})
+  add_packages('sdl')
+
+
+package('sdl')
+  add_deps('cmake')
+  set_sourcedir('extern/SDL')
+  on_install(function (package) 
+    import('package.tools.cmake').install(package, {
+      shared = false,
+      SDL_SHARED = 'OFF',
+      SDL_STATIC = 'ON'
+    })
+  end)
+package_end()
+add_requires('sdl')
 
 
 target('tester')
@@ -84,5 +93,3 @@ target('tester')
   if is_mode('release') then
     set_enabled(false)
   end
-
-

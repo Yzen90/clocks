@@ -1,13 +1,11 @@
 #include "imgui.hpp"
 
-/* #include <Windows.h> */
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlgpu3.h>
 #include <easylogging++.h>
 #include <imgui.h>
 
 #include "../i18n/l10n.hpp"
-#include "SDL3/SDL_gpu.h"
 #include "dialogs.hpp"
 
 bool apps_use_light_theme() { return false; }
@@ -32,22 +30,13 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
 
-  /* auto sdl_window = static_cast<HWND>(
-      SDL_GetPointerProperty(SDL_GetWindowProperties(resources.window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)
-  );
-  if (!sdl_window) {
-    logger->error(l10n->ui.errors.sdl_get_handle);
-    error_message(l10n->ui.errors.sdl_get_handle, l10n->ui.title, window_handle);
-    cleanup(resources);
-    return {};
-  }
+#ifdef NOT_RELEASE_MODE
+  bool debug_mode = true;
+#else
+  bool debug_mode = false;
+#endif
 
-  if (SetParent(sdl_window, static_cast<HWND>(window_handle)) == NULL) logger->warn(l10n->ui.messages.warn_no_parent);
-  if (!SDL_ShowWindow(resources.window)) {
-    logger->debug(string{"NOT SHOWN: "} + SDL_GetError());
-  } */
-
-  resources.gpu = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXBC, true, nullptr);
+  resources.gpu = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL, debug_mode, nullptr);
   if (!resources.gpu) {
     logger->error(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError(), l10n->ui.title, window_handle);
@@ -70,20 +59,24 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+  set_theme(theme);
+
+  ImGui_ImplSDL3_InitForSDLGPU(resources.window);
+
+  ImGui_ImplSDLGPU3_InitInfo init_info{
+      resources.gpu, SDL_GetGPUSwapchainTextureFormat(resources.gpu, resources.window), SDL_GPU_SAMPLECOUNT_1
+  };
+  ImGui_ImplSDLGPU3_Init(&init_info);
+
+  logger->verbose(0, l10n->ui.messages.setup_complete);
+  return {resources};
+}
+
+void set_theme(Theme theme) {
   if ((theme == Theme::Auto && apps_use_light_theme()) || theme == Theme::Light)
     ImGui::StyleColorsLight();
   else
     ImGui::StyleColorsDark();
-
-  ImGui_ImplSDL3_InitForSDLGPU(resources.window);
-
-  ImGui_ImplSDLGPU3_InitInfo init_info = {};
-  init_info.Device = resources.gpu;
-  init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(resources.gpu, resources.window);
-  init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;
-  ImGui_ImplSDLGPU3_Init(&init_info);
-
-  return {resources};
 }
 
 bool keep_open(const Resources& resources) {
@@ -146,6 +139,11 @@ bool is_minimized(const Resources& resources) {
 void cleanup(const Resources& resources) {
   if (resources.gpu) {
     SDL_WaitForGPUIdle(resources.gpu);
+
+    ImGui_ImplSDL3_Shutdown();
+    ImGui_ImplSDLGPU3_Shutdown();
+    ImGui::DestroyContext();
+
     SDL_ReleaseWindowFromGPUDevice(resources.gpu, resources.window);
     SDL_DestroyGPUDevice(resources.gpu);
   }

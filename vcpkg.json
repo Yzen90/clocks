@@ -14,12 +14,5 @@
 			}
 		]
 	},
-	"dependencies": [
-		"cppwinrt",
-		"easyloggingpp",
-		"glaze",
-		"nowide",
-		"xxhash",
-		"sdl3"
-	]
+	"dependencies": ["cppwinrt", "easyloggingpp", "glaze", "nowide", "xxhash"]
 }

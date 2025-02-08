@@ -35,12 +35,10 @@
       "sdl_claim_window": "SLD no pudo reclamar la ventana para el dispositivo GPU:",
       "sdl_create_gpu_device": "SDL no pudo crear el dispositivo GPU:",
       "sdl_create_window": "SDL no pudo crear la ventana:",
-      "sdl_get_handle": "SDL no pudo obtener el handle de la nueva ventana.",
       "sdl_init": "No se pudo inicializar SDL:"
     },
     "messages": {
-      "setup_complete": "La preparación de SDL y ImGui fue completada.",
-      "warn_no_parent": "No se pudo establecer como ventana hijo."
+      "setup_complete": "SDL y Dear ImGui están listos."
     },
     "title": "🕜Clocks"
   }

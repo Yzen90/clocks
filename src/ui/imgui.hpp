@@ -15,6 +15,8 @@ struct Resources {
 
 optional<Resources> setup(void*& window_handle, Theme theme);
 
+void set_theme(Theme theme);
+
 bool keep_open(const Resources& resources);
 
 bool is_minimized(const Resources& resources);
