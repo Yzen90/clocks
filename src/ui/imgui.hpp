@@ -1,17 +1,20 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <imgui.h>
 
 #include <optional>
+
+#include "../StateStore.hpp"
 
 using std::optional;
 
 struct Resources {
   SDL_Window* window;
   SDL_GPUDevice* gpu;
+  ImGuiIO* io;
+  string driver;
 };
-
-#include "../StateStore.hpp"
 
 optional<Resources> setup(void*& window_handle, Theme theme);
 

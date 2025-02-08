@@ -51,7 +51,7 @@ ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* parent) {
   auto configuration = window.open(parent);
 
   if (configuration) {
-    state.set_configuration(configuration.value());
+    state.set_configuration(*configuration);
     sync();
     return OptionReturn::OR_OPTION_CHANGED;
 

@@ -11,10 +11,7 @@ ClocksConfig::ClocksConfig(Configuration configuration) : configuration(configur
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
     if (auto resources = setup(window_handle, configuration.theme)) {
-      ImGuiIO& io = ImGui::GetIO();
       current_theme = configuration.theme;
-
-      static float f = 0.0f;
 
       while (keep_open(*resources)) {
         if (is_minimized(*resources)) continue;
@@ -26,9 +23,22 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
         new_frame();
 
-        ImGui::Begin(l10n->ui.title.data());
-        ImGui::Text("avg %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(resources->io->DisplaySize);
+
+        ImGui::Begin(
+            "Clocks", nullptr,
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                ImGuiWindowFlags_NoCollapse
+        );
+
+        ImGui::Text("x: %.1f y: %.1f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
+        ImGui::Text("scale: %.2f", resources->io->FontGlobalScale);
+        ImGui::Text("%.1f FPS", resources->io->Framerate);
+
         ImGui::End();
+        ImGui::PopStyleVar();
 
         render(*resources);
       }

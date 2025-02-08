@@ -71,8 +71,8 @@ void load_locale(Locale locale) {
   auto localization = get_localization(locale);
   auto result = glz::read_json<L10N>(localization);
 
-  if (result.has_value()) {
-    l10n = std::make_unique<L10N>(result.value());
+  if (result) {
+    l10n = std::make_unique<L10N>(*result);
 
     if (ss_contexts) *ss_contexts = &l10n->state_store.contexts;
     if (ss_messages) *ss_messages = &l10n->state_store.messages;

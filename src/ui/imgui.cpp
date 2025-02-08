@@ -1,21 +1,24 @@
 #include "imgui.hpp"
 
+#include <Windows.H>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlgpu3.h>
 #include <easylogging++.h>
-#include <imgui.h>
 
 #include "../i18n/l10n.hpp"
-#include "SDL3/SDL_gpu.h"
 #include "dialogs.hpp"
+
+using std::make_format_args;
+using std::vformat;
 
 const int MIN_WIDTH = 640;
 const int MIN_HEIGHT = 480;
 
-bool apps_use_light_theme() { return false; }
+static el::Logger* logger;
 
 optional<Resources> setup(void*& window_handle, Theme theme) {
-  el::Logger* logger = el::Loggers::getLogger("ui");
+  if (logger == nullptr) logger = el::Loggers::getLogger("ui");
+
   Resources resources;
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -26,8 +29,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   }
 
   resources.window = SDL_CreateWindow(
-      l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT,
-      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_UTILITY
+      l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
   );
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
@@ -36,8 +38,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
 
-  if (!SDL_SetWindowMinimumSize(resources.window, MIN_WIDTH, MIN_HEIGHT)) {
-  }
+  SDL_SetWindowMinimumSize(resources.window, MIN_WIDTH, MIN_HEIGHT);
 
 #ifdef NOT_RELEASE_MODE
   bool debug_mode = true;
@@ -70,6 +71,20 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.IniFilename = nullptr;
+  io.LogFilename = nullptr;
+
+  {
+    UINT dpi = GetDpiForWindow(static_cast<HWND>(window_handle));
+    if (dpi == 0) {
+      HDC hdc = GetDC(nullptr);
+      dpi = static_cast<UINT>(GetDeviceCaps(hdc, LOGPIXELSX));
+      ReleaseDC(nullptr, hdc);
+    }
+    io.FontGlobalScale = dpi / 96.0;
+  }
+
+  resources.io = &io;
 
   set_theme(theme);
 
@@ -80,8 +95,29 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   };
   ImGui_ImplSDLGPU3_Init(&init_info);
 
-  logger->verbose(0, l10n->ui.messages.setup_complete + " " + SDL_GetGPUDeviceDriver(resources.gpu));
+  resources.driver = SDL_GetGPUDeviceDriver(resources.gpu);
+  logger->verbose(0, vformat(l10n->ui.messages.setup_complete, make_format_args(resources.driver, io.FontGlobalScale)));
   return {resources};
+}
+
+bool apps_use_light_theme() {
+  HKEY key;
+
+  LONG result = RegOpenKeyExW(
+      HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &key
+  );
+
+  if (result == ERROR_SUCCESS) {
+    DWORD value = 1;
+    DWORD dataSize = sizeof(value);
+
+    result = RegQueryValueExW(key, L"AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &dataSize);
+    RegCloseKey(key);
+
+    if (result == ERROR_SUCCESS) return (value == 1);
+  }
+
+  return true;
 }
 
 void set_theme(Theme theme) {

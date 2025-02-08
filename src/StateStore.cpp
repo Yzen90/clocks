@@ -77,7 +77,7 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
   bool save = true;
 
   if (configuration) {
-    state.configuration = configuration.value();
+    state.configuration = *configuration;
     use_configuration();
   } else {
     path configuration_path = state.configuration_location / CONFIG_FILENAME;

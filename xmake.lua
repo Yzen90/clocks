@@ -49,7 +49,7 @@ target('clocks')
   add_syslinks('kernel32', 'gdi32', 'winmm', 'imm32', 'ole32', 'oleaut32', 'version', 'uuid', 'advapi32', 'setupapi', 'shell32')
 
   add_defines('AUTO_INITIALIZE_EASYLOGGINGPP')
-  add_defines('ELPP_DEFAULT_LOG_FILE="plugins/clocks.dll.log"')
+  add_defines('ELPP_NO_DEFAULT_LOG_FILE')
   add_defines('XXH_INLINE_ALL')
 
   if is_mode('release') then
