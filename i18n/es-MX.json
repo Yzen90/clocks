@@ -38,7 +38,7 @@
       "sdl_init": "No se pudo inicializar SDL:"
     },
     "messages": {
-      "setup_complete": "SDL y Dear ImGui están listos."
+      "setup_complete": "SDL y Dear ImGui están listos. Driver:"
     },
     "title": "🕜Clocks"
   }

@@ -6,7 +6,11 @@
 #include <imgui.h>
 
 #include "../i18n/l10n.hpp"
+#include "SDL3/SDL_gpu.h"
 #include "dialogs.hpp"
+
+const int MIN_WIDTH = 640;
+const int MIN_HEIGHT = 480;
 
 bool apps_use_light_theme() { return false; }
 
@@ -21,13 +25,18 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
 
-  resources.window =
-      SDL_CreateWindow(l10n->ui.title.data(), 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+  resources.window = SDL_CreateWindow(
+      l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT,
+      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_UTILITY
+  );
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_window + " " + SDL_GetError(), l10n->ui.title, window_handle);
     cleanup(resources);
     return {};
+  }
+
+  if (!SDL_SetWindowMinimumSize(resources.window, MIN_WIDTH, MIN_HEIGHT)) {
   }
 
 #ifdef NOT_RELEASE_MODE
@@ -51,7 +60,10 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
   SDL_SetGPUSwapchainParameters(
-      resources.gpu, resources.window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_MAILBOX
+      resources.gpu, resources.window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR,
+      SDL_WindowSupportsGPUPresentMode(resources.gpu, resources.window, SDL_GPU_PRESENTMODE_MAILBOX)
+          ? SDL_GPU_PRESENTMODE_MAILBOX
+          : SDL_GPU_PRESENTMODE_VSYNC
   );
 
   IMGUI_CHECKVERSION();
@@ -68,7 +80,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   };
   ImGui_ImplSDLGPU3_Init(&init_info);
 
-  logger->verbose(0, l10n->ui.messages.setup_complete);
+  logger->verbose(0, l10n->ui.messages.setup_complete + " " + SDL_GetGPUDeviceDriver(resources.gpu));
   return {resources};
 }
 
@@ -105,7 +117,7 @@ void render(const Resources& resources) {
   SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(resources.gpu);
 
   SDL_GPUTexture* swapchain_texture;
-  SDL_AcquireGPUSwapchainTexture(command_buffer, resources.window, &swapchain_texture, nullptr, nullptr);
+  SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, resources.window, &swapchain_texture, nullptr, nullptr);
 
   if (swapchain_texture != nullptr && !is_minimized) {
     Imgui_ImplSDLGPU3_PrepareDrawData(draw_data, command_buffer);  // Mandatory!

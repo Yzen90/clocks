@@ -208,9 +208,6 @@
         "sdl_create_window": {
           "$ref": "#/$defs/std::string"
         },
-        "sdl_get_handle": {
-          "$ref": "#/$defs/std::string"
-        },
         "sdl_init": {
           "$ref": "#/$defs/std::string"
         }
@@ -220,7 +217,6 @@
         "sdl_claim_window",
         "sdl_create_gpu_device",
         "sdl_create_window",
-        "sdl_get_handle",
         "sdl_init"
       ]
     },
@@ -231,15 +227,11 @@
       "properties": {
         "setup_complete": {
           "$ref": "#/$defs/std::string"
-        },
-        "warn_no_parent": {
-          "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "setup_complete",
-        "warn_no_parent"
+        "setup_complete"
       ]
     },
     "std::string": {

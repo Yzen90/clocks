@@ -11,7 +11,10 @@ ClocksConfig::ClocksConfig(Configuration configuration) : configuration(configur
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
     if (auto resources = setup(window_handle, configuration.theme)) {
+      ImGuiIO& io = ImGui::GetIO();
       current_theme = configuration.theme;
+
+      static float f = 0.0f;
 
       while (keep_open(*resources)) {
         if (is_minimized(*resources)) continue;
@@ -23,7 +26,9 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
         new_frame();
 
-        ImGui::ShowDemoWindow();
+        ImGui::Begin(l10n->ui.title.data());
+        ImGui::Text("avg %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::End();
 
         render(*resources);
       }
