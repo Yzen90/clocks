@@ -40,6 +40,26 @@
     "messages": {
       "setup_complete": "SDL y Dear ImGui están listos. Driver: {}, escala de visualización: {}"
     },
+    "sections": {
+      "log": {
+        "level": {
+          "debug": "Depuración",
+          "error": "Error",
+          "fatal": "Fatal",
+          "info": "Informativo",
+          "title": "Nivel de registro",
+          "trace": "Traza",
+          "verbose": "Detallado",
+          "warning": "Advertencia"
+        },
+        "title": "Registro"
+      }
+    },
+    "theme": {
+      "dark": "Oscuro",
+      "light": "Claro",
+      "title": "Tema"
+    },
     "title": "🕜Clocks"
   }
 }

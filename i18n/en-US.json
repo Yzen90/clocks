@@ -40,6 +40,26 @@
     "messages": {
       "setup_complete": "SDL and Dear ImGui setup completed. Driver: {}, display scale: {}"
     },
+    "sections": {
+      "log": {
+        "level": {
+          "debug": "Debug",
+          "error": "Error",
+          "fatal": "Fatal",
+          "info": "Info",
+          "title": "Log level",
+          "trace": "Trace",
+          "verbose": "Verbose",
+          "warning": "Warning"
+        },
+        "title": "Log"
+      }
+    },
+    "theme": {
+      "dark": "Dark",
+      "light": "Light",
+      "title": "Theme"
+    },
     "title": "🕜Clocks"
   }
 }

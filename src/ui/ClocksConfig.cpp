@@ -33,9 +33,10 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
                 ImGuiWindowFlags_NoCollapse
         );
 
-        ImGui::Text("x: %.1f y: %.1f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
+        ImGui::Text("%s", resources->driver.data());
+        ImGui::Text("%.1f fps", resources->io->Framerate);
+        ImGui::Text("%.0f×%.0f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
         ImGui::Text("scale: %.2f", resources->io->FontGlobalScale);
-        ImGui::Text("%.1f FPS", resources->io->Framerate);
 
         ImGui::End();
         ImGui::PopStyleVar();

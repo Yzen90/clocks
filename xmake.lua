@@ -17,7 +17,7 @@ set_configvar('C_SYMBOL', '\\xa9')
 set_configvar('COPYRIGHT', '2025 Edgar Montiel Cruz')
 set_configvar('URL', 'https://github.com/Yzen90/clocks')
 
-set_languages('cxx23')
+set_languages('cxx23', 'c23')
 set_config('toolchain', 'clang')
 
 add_rules('mode.debug', 'mode.release')
@@ -40,6 +40,7 @@ target('clocks')
   add_files('src/*.cpp')
   add_files('src/i18n/l10n.cpp')
   add_files('src/ui/*.cpp')
+  add_files('src/ui/splash.c')
   add_files('clocks.rc')
   add_files('vcpkg_installed/$(arch)-$(plat)-static/include/easylogging++.cc')
 
@@ -82,6 +83,21 @@ package('sdl')
   end)
 package_end()
 add_requires('sdl')
+
+
+--[[ package('sdl-image')
+  add_deps('cmake')
+  add_deps('sdl')
+  set_sourcedir('extern/SDL_image')
+  on_install(function (package) 
+    import('package.tools.cmake').install(package, {
+      shared = false,
+    }, {
+      CMAKE_PREFIX_PATH = package:dep('sdl'):installdir()
+    })
+  end)
+package_end()
+add_requires('sdl-image') ]]
 
 
 target('tester')

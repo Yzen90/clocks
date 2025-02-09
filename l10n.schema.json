@@ -183,6 +183,12 @@
         "messages": {
           "$ref": "#/$defs/L10N::UI::Messages"
         },
+        "sections": {
+          "$ref": "#/$defs/L10N::UI::Sections"
+        },
+        "theme": {
+          "$ref": "#/$defs/L10N::UI::Theme"
+        },
         "title": {
           "$ref": "#/$defs/std::string"
         }
@@ -191,6 +197,8 @@
       "required": [
         "errors",
         "messages",
+        "sections",
+        "theme",
         "title"
       ]
     },
@@ -232,6 +240,102 @@
       "additionalProperties": false,
       "required": [
         "setup_complete"
+      ]
+    },
+    "L10N::UI::Sections": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "log": {
+          "$ref": "#/$defs/L10N::UI::Sections::Log"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "log"
+      ]
+    },
+    "L10N::UI::Sections::Log": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/L10N::UI::Sections::Log::Level"
+        },
+        "title": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "title"
+      ]
+    },
+    "L10N::UI::Sections::Log::Level": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "debug": {
+          "$ref": "#/$defs/std::string"
+        },
+        "error": {
+          "$ref": "#/$defs/std::string"
+        },
+        "fatal": {
+          "$ref": "#/$defs/std::string"
+        },
+        "info": {
+          "$ref": "#/$defs/std::string"
+        },
+        "title": {
+          "$ref": "#/$defs/std::string"
+        },
+        "trace": {
+          "$ref": "#/$defs/std::string"
+        },
+        "verbose": {
+          "$ref": "#/$defs/std::string"
+        },
+        "warning": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "debug",
+        "error",
+        "fatal",
+        "info",
+        "title",
+        "trace",
+        "verbose",
+        "warning"
+      ]
+    },
+    "L10N::UI::Theme": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "dark": {
+          "$ref": "#/$defs/std::string"
+        },
+        "light": {
+          "$ref": "#/$defs/std::string"
+        },
+        "title": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "dark",
+        "light",
+        "title"
       ]
     },
     "std::string": {

@@ -38,6 +38,28 @@ struct L10N {
       string setup_complete;
     } messages;
 
+    struct Sections {
+      struct Log {
+        string title;
+        struct Level {
+          string debug;
+          string error;
+          string fatal;
+          string info;
+          string title;
+          string trace;
+          string verbose;
+          string warning;
+        } level;
+      } log;
+    } sections;
+
+    struct Theme {
+      string dark;
+      string light;
+      string title;
+    } theme;
+
     string title;
   } ui;
 

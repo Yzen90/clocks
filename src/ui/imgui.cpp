@@ -8,6 +8,10 @@
 #include "../i18n/l10n.hpp"
 #include "dialogs.hpp"
 
+extern "C" {
+#include "splash.h"
+}
+
 using std::make_format_args;
 using std::vformat;
 
@@ -15,6 +19,7 @@ const int MIN_WIDTH = 640;
 const int MIN_HEIGHT = 480;
 
 static el::Logger* logger;
+static SDL_Window* splash;
 
 optional<Resources> setup(void*& window_handle, Theme theme) {
   if (logger == nullptr) logger = el::Loggers::getLogger("ui");
@@ -28,8 +33,16 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
 
+  splash = SDL_CreateWindow("Clocks", 256, 256, SDL_WINDOW_BORDERLESS);
+
+  if (splash) {
+    logger->debug("Splash size: " + std::to_string(splash_size));
+    // auto stream = SDL_IOFromConstMem(splash_image, splash_size);
+  }
+
   resources.window = SDL_CreateWindow(
-      l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY
+      l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT,
+      SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_HIDDEN
   );
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
@@ -39,6 +52,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   }
 
   SDL_SetWindowMinimumSize(resources.window, MIN_WIDTH, MIN_HEIGHT);
+  if (!splash) SDL_ShowWindow(resources.window);
 
 #ifdef NOT_RELEASE_MODE
   bool debug_mode = true;
@@ -173,6 +187,12 @@ void render(const Resources& resources) {
   }
 
   SDL_SubmitGPUCommandBuffer(command_buffer);
+
+  if (splash) {
+    SDL_DestroyWindow(splash);
+    splash = nullptr;
+    SDL_ShowWindow(resources.window);
+  }
 }
 
 bool is_minimized(const Resources& resources) {
