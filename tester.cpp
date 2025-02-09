@@ -1,8 +1,11 @@
 #include <Windows.h>
+#undef ERROR
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnontrivial-memcall"
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
-#include <winrt/base.h>
-#undef ERROR
+#pragma clang diagnostic pop
 
 #include <chrono>
 #include <iostream>

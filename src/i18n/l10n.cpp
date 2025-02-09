@@ -1,10 +1,18 @@
 #include "l10n.hpp"
 
 #include <easylogging++.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnontrivial-memcall"
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.System.UserProfile.h>
+#pragma clang diagnostic pop
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++26-extensions"
 #include <glaze/glaze.hpp>
+#pragma clang diagnostic pop
+
 #include <map>
 #include <string>
 #include <string_view>
@@ -28,7 +36,7 @@ static const L10N::StateStore::Messages** ss_messages;
 const Locale DEFAULT_LOCALE = Locale::EN;
 
 typedef std::map<Locale, string> LocaleNames;
-const LocaleNames& locale_names() {
+constexpr const LocaleNames& locale_names() {
   static const LocaleNames locale_names{{Locale::EN, "English"}, {Locale::ES, "Español"}};
   return locale_names;
 };
@@ -55,10 +63,10 @@ string_view get_localization(Locale locale) {
     case Locale::Auto:
       throw invalid_argument("Unexpected Locale::Auto @ get_localization");
     case Locale::ES:
-      return string_view{reinterpret_cast<char*>(locale_es_MX), locale_es_MX_len};
+      return string_view{reinterpret_cast<const char*>(es_MX), es_MX_size};
       break;
     case DEFAULT_LOCALE:
-      return string_view{reinterpret_cast<char*>(locale_en_US), locale_en_US_len};
+      return string_view{reinterpret_cast<const char*>(en_US), en_US_size};
   }
 }
 

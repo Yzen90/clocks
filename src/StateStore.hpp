@@ -1,6 +1,9 @@
 #pragma once
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnontrivial-memcall"
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
+#pragma clang diagnostic pop
 
 #include <chrono>
 #include <filesystem>

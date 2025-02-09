@@ -29,3 +29,6 @@ void new_frame();
 void render(const Resources& resources);
 
 void cleanup(const Resources& resources);
+
+static bool show_splash();
+static bool apps_use_light_theme();

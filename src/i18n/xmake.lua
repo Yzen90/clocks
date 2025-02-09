@@ -1,4 +1,3 @@
-
 local schema_source = 'src/i18n/schema.hpp'
 local schemagen_target = 'schemagen'
 
@@ -8,7 +7,12 @@ target(schemagen_target)
   add_files('schemagen.cpp')
 
   add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
-  add_rules('i18n-shared')
+
+  set_default(false)
+  set_symbols('hidden')
+  set_optimize('fastest')
+  set_strip('all')
+  set_targetdir('$(buildir)/$(plat)/$(arch)')
 
   after_build(function ()
     local depend = import('../../modules/depend')
@@ -20,80 +24,35 @@ target(schemagen_target)
   end)
 
 
-target('makeheaders')
-  set_kind('binary')
-
-  add_files('$(projectdir)/extern/makeheaders/makeheaders.c')
-
-  add_includedirs('$(projectdir)/dummy')
-  add_cflags('-Wno-deprecated-declarations', {force = true})
-  add_defines('WIN32')
-  add_rules('i18n-shared')
-
-
-rule('i18n-shared')
-  on_load(function (target)
-    target:set('default', false)
-    target:set('symbols', 'hidden')
-    target:set('optimize', 'fastest')
-    target:set('strip', 'all')
-    target:set('targetdir', '$(buildir)/$(plat)/$(arch)')
-  end)
-
-
-local codegen_target = 'src/i18n/locales.cpp'
 local schema = 'l10n.schema.json'
 local localization_files = 'i18n/*.json'
 
 rule('i18n-codegen')
-  on_load(function (target)
-    if not os.isfile(codegen_target) then
-      io.writefile(codegen_target, '')
-    end
-
-    target:add('files', codegen_target)
-  end)
-
   before_build(function (target)
     import('core.base.option')
     local depend = import('../../modules/depend')
 
-    local makeheaders = '$(buildir)/$(plat)/$(arch)/makeheaders.exe'
-    if not os.isfile(makeheaders) then
-      raise('makeheaders not found, run deps script.')
-    end
-
     local localizations = os.files(localization_files)
 
-    if option.get('rebuild') or not os.isfile('src/i18n/locales.hpp')
-      or depend.any_files_changed(localizations, target) then
-      
-      print('Running i18n codegen...')
-      os.rm(codegen_target)
-      local locales = io.open(codegen_target, 'a')
+    if option.get('rebuild') or depend.any_files_changed(localizations, target) then
+      print('Running l10n minify...')
 
       for _, l10n in ipairs(localizations) do
-
-        local source = 'locale/' .. path.basename(l10n);
+        local source = 'locale/' .. path.filename(l10n);
         os.execv('yq', {'-o=json', '-I=0'}, {stdin = l10n, stdout = source})
-        locales:write(os.iorunv('$(env PROGRAMFILES)/Git/usr/bin/xxd', {'-i', source}))
 
         if depend.is_changed(l10n, target) then
           depend.save(l10n, target)
         end
       end
-
-      locales:close()
-      os.run(makeheaders .. ' ' .. codegen_target)
     end
-
 
     if depend.is_changed(schema_source, schemagen_target, vformat('$(arch)')) then
       raise('schemagen needs rebuild, run deps script.')
     end
 
     if option.get('rebuild') or not os.isfile(schema) or depend.is_changed(schema_source, target) then
-      print('Running i18n schema codegen...')
+      print('Running l10n schema codegen...')
       local temp_file = vformat('$(buildir)/tmp.json')
 
       os.run('$(buildir)/$(plat)/$(arch)/schemagen.exe')

@@ -17,7 +17,7 @@ set_configvar('C_SYMBOL', '\\xa9')
 set_configvar('COPYRIGHT', '2025 Edgar Montiel Cruz')
 set_configvar('URL', 'https://github.com/Yzen90/clocks')
 
-set_languages('cxx23', 'c23')
+set_languages('cxx23')
 set_config('toolchain', 'clang')
 
 add_rules('mode.debug', 'mode.release')
@@ -37,11 +37,8 @@ includes('src/i18n')
 target('clocks')
   set_kind('shared')
 
-  add_files('src/*.cpp')
-  add_files('src/i18n/l10n.cpp')
-  add_files('src/ui/*.cpp')
-  add_files('src/ui/splash.c')
-  add_files('clocks.rc')
+  add_files('src/*.cpp', 'src/**/*.cpp', 'clocks.rc')
+  remove_files('src/i18n/schemagen.cpp')
   add_files('vcpkg_installed/$(arch)-$(plat)-static/include/easylogging++.cc')
 
   add_packages('sdl')
@@ -49,9 +46,9 @@ target('clocks')
 
   add_syslinks('kernel32', 'gdi32', 'winmm', 'imm32', 'ole32', 'oleaut32', 'version', 'uuid', 'advapi32', 'setupapi', 'shell32')
 
-  add_defines('AUTO_INITIALIZE_EASYLOGGINGPP')
-  add_defines('ELPP_NO_DEFAULT_LOG_FILE')
-  add_defines('XXH_INLINE_ALL')
+  add_cxxflags('-Wno-c23-extensions', '--embed-dir=assets', '--embed-dir=locale')
+
+  add_defines('AUTO_INITIALIZE_EASYLOGGINGPP', 'ELPP_NO_DEFAULT_LOG_FILE', 'XXH_INLINE_ALL')
 
   if is_mode('release') then
     add_defines('GLZ_ALWAYS_INLINE=[[clang::always_inline]] inline')
@@ -83,21 +80,6 @@ package('sdl')
   end)
 package_end()
 add_requires('sdl')
-
-
---[[ package('sdl-image')
-  add_deps('cmake')
-  add_deps('sdl')
-  set_sourcedir('extern/SDL_image')
-  on_install(function (package) 
-    import('package.tools.cmake').install(package, {
-      shared = false,
-    }, {
-      CMAKE_PREFIX_PATH = package:dep('sdl'):installdir()
-    })
-  end)
-package_end()
-add_requires('sdl-image') ]]
 
 
 target('tester')

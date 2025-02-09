@@ -6,11 +6,8 @@
 #include <easylogging++.h>
 
 #include "../i18n/l10n.hpp"
+#include "assets.hpp"
 #include "dialogs.hpp"
-
-extern "C" {
-#include "splash.h"
-}
 
 using std::make_format_args;
 using std::vformat;
@@ -114,26 +111,6 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   return {resources};
 }
 
-bool apps_use_light_theme() {
-  HKEY key;
-
-  LONG result = RegOpenKeyExW(
-      HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &key
-  );
-
-  if (result == ERROR_SUCCESS) {
-    DWORD value = 1;
-    DWORD dataSize = sizeof(value);
-
-    result = RegQueryValueExW(key, L"AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &dataSize);
-    RegCloseKey(key);
-
-    if (result == ERROR_SUCCESS) return (value == 1);
-  }
-
-  return true;
-}
-
 void set_theme(Theme theme) {
   if ((theme == Theme::Auto && apps_use_light_theme()) || theme == Theme::Light)
     ImGui::StyleColorsLight();
@@ -217,4 +194,30 @@ void cleanup(const Resources& resources) {
   }
   if (resources.window) SDL_DestroyWindow(resources.window);
   SDL_Quit();
+}
+
+bool apps_use_light_theme() {
+  HKEY key;
+
+  LONG result = RegOpenKeyExW(
+      HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &key
+  );
+
+  if (result == ERROR_SUCCESS) {
+    DWORD value = 1;
+    DWORD dataSize = sizeof(value);
+
+    result = RegQueryValueExW(key, L"AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &dataSize);
+    RegCloseKey(key);
+
+    if (result == ERROR_SUCCESS) return (value == 1);
+  }
+
+  return true;
+}
+
+bool show_splash() {
+  /* CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, NULL, NULL, WS_POPUP, ); */
+
+  return true;
 }

@@ -1,11 +1,19 @@
 #include "StateStore.hpp"
 
 #include <easylogging++.h>
-#include <winrt/Windows.Foundation.Collections.h>
 #include <xxhash.h>
 
-#include <format>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnontrivial-memcall"
+#include <winrt/Windows.Foundation.Collections.h>
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++26-extensions"
 #include <glaze/glaze.hpp>
+#pragma clang diagnostic pop
+
+#include <format>
 #include <nowide/convert.hpp>
 
 #include "i18n/l10n.hpp"
