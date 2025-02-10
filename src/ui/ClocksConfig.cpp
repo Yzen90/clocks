@@ -28,15 +28,15 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ImGui::SetNextWindowSize(resources->io->DisplaySize);
 
         ImGui::Begin(
-            "Clocks", nullptr,
+            "ClocksConfig", nullptr,
             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                 ImGuiWindowFlags_NoCollapse
         );
 
         ImGui::Text("%s", resources->driver.data());
         ImGui::Text("%.1f fps", resources->io->Framerate);
-        ImGui::Text("%.0f×%.0f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
-        ImGui::Text("scale: %.2f", resources->io->FontGlobalScale);
+        ImGui::Text("%.0fx%.0f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
+        ImGui::Text("%ddpi %d%%", resources->dpi, resources->scale);
 
         ImGui::End();
         ImGui::PopStyleVar();

@@ -4,7 +4,7 @@ yq --version > nul 2>&1 || winget install MikeFarah.yq
 clang --version > nul 2>&1 || winget install LLVM.LLVM
 xmake config --arch=x64
 xmake build schemagen
-xmake build makeheaders
 git submodule init
 git pull --recurse-submodules
 npm install
+pip install fonttools

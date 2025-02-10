@@ -69,6 +69,7 @@ rule('i18n-validation')
   add_deps('i18n-codegen')
 
   before_build(function (target)
+    import('core.base.option')
     local depend = import('../../modules/depend')
 
     local localizations = os.files(localization_files)
@@ -76,10 +77,42 @@ rule('i18n-validation')
 
     local tag = 'validation'
 
-    if depend.any_files_changed(localizations, target, tag) then
+    if option.get('rebuild') or depend.any_files_changed(localizations, target, tag) then
       print('Running i18n validation...')
       os.run('node node_modules/@jirutka/ajv-cli/lib/main.js validate --strict-schema -s ' .. schema .. ' ' .. localization_files)
 
       depend.save_only_changed(localizations, target, tag)
+    end
+  end)
+
+
+rule('i18n-fonts')
+  before_build(function (target)
+    import('core.base.option')
+    local depend = import('../../modules/depend')
+
+    local dependencies = os.files(localization_files)
+    table.join2(dependencies, os.files('fonts/*.ttf'))
+    table.insert(dependencies, 'charsets.py')
+
+    local tag = 'fonts'
+
+    if option.get('rebuild') or depend.any_files_changed(dependencies, target, tag) then
+      print('Running i18n font stripping...')
+ 
+      os.run('py charsets.py')
+
+      for _, charset_file in ipairs(os.files('build/*.charset')) do
+        local font_file = path.basename(charset_file) .. '.ttf'
+
+        os.runv('pyftsubset', {
+          'fonts/' .. font_file,
+          '--text-file=' .. charset_file,
+          '--output-file=assets/' .. font_file,
+          '--layout-features=*', '--glyph-names', '--symbol-cmap', '--legacy-cmap', '--notdef-glyph', '--recommended-glyphs'
+        })
+
+        depend.save_only_changed(dependencies, target, tag)
+      end
     end
   end)

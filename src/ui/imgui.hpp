@@ -14,6 +14,8 @@ struct Resources {
   SDL_GPUDevice* gpu;
   ImGuiIO* io;
   string driver;
+  int dpi;
+  int scale;
 };
 
 optional<Resources> setup(void*& window_handle, Theme theme);

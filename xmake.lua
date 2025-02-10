@@ -56,7 +56,7 @@ target('clocks')
     add_defines('NOT_RELEASE_MODE')
   end
 
-  add_rules('i18n-codegen', 'i18n-validation')
+  add_rules('i18n-codegen', 'i18n-validation', 'i18n-fonts')
 
 
 target('imgui')
@@ -64,8 +64,12 @@ target('imgui')
   add_files('extern/imgui/*.cpp')
   add_files('extern/imgui/backends/imgui_impl_sdl3.cpp')
   add_files('extern/imgui/backends/imgui_impl_sdlgpu3.cpp')
+  add_files('extern/imgui/misc/freetype/imgui_freetype.cpp')
   add_includedirs('extern/imgui', {public = true})
   add_packages('sdl')
+  add_links('freetype')
+
+  add_defines('IMGUI_DISABLE_DEFAULT_FONT', 'IMGUI_ENABLE_FREETYPE')
 
 
 package('sdl')

@@ -14,5 +14,16 @@
 			}
 		]
 	},
-	"dependencies": ["cppwinrt", "easyloggingpp", "glaze", "nowide", "xxhash"]
+	"dependencies": [
+		"cppwinrt",
+		"easyloggingpp",
+		"glaze",
+		"nowide",
+		"xxhash",
+		{
+			"name": "freetype",
+			"default-features": false,
+			"features": ["error-strings", "subpixel-rendering"]
+		}
+	]
 }

@@ -85,6 +85,10 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   io.IniFilename = nullptr;
   io.LogFilename = nullptr;
 
+  ImFontConfig font_config;
+  font_config.FontDataOwnedByAtlas = false;
+  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(latin_font), latin_size, 18, &font_config);
+
   {
     UINT dpi = GetDpiForWindow(static_cast<HWND>(window_handle));
     if (dpi == 0) {
@@ -93,6 +97,8 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
       ReleaseDC(nullptr, hdc);
     }
     io.FontGlobalScale = dpi / 96.0;
+    resources.dpi = dpi;
+    resources.scale = (dpi / 96.0) * 100;
   }
 
   resources.io = &io;
