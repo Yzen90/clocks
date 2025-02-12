@@ -25,7 +25,9 @@ static HWND splash;
 optional<Resources> setup(void*& window_handle, Theme theme) {
   if (logger == nullptr) logger = el::Loggers::getLogger("ui");
 
-  Resources resources;
+  SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+
+  if (show_splash()) flags |= SDL_WINDOW_HIDDEN;
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     logger->error(l10n->ui.errors.sdl_init + " " + SDL_GetError());
@@ -34,10 +36,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
 
-  SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-
-  if (show_splash()) flags |= SDL_WINDOW_HIDDEN;
-
+  Resources resources;
   resources.window = SDL_CreateWindow(l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT, flags);
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
@@ -92,14 +91,14 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
 
   ImFontConfig font_config;
   font_config.FontDataOwnedByAtlas = false;
-  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(latin_font), latin_size, 20, &font_config, bmp_emoji_range);
+  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, 40, &font_config, bmp_emoji_range);
 
   static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";
   if (exists(emoji_font)) {
     ImFontConfig emoji_config;
     emoji_config.MergeMode = true;
     emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
-    io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 16, &emoji_config, bmp_emoji_range);
+    io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &emoji_config, bmp_emoji_range);
   }
 
   {
@@ -109,8 +108,8 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
       dpi = static_cast<UINT>(GetDeviceCaps(hdc, LOGPIXELSX));
       ReleaseDC(nullptr, hdc);
     }
-    io.FontGlobalScale = (dpi / 96.0);
-    if (dpi != 96) resources.style->ScaleAllSizes(io.FontGlobalScale);
+    io.FontGlobalScale = 0.5 * (dpi / 96.0);
+    resources.style->ScaleAllSizes(io.FontGlobalScale);
     resources.dpi = dpi;
     resources.scale = (dpi / 96.0) * 100;
   }
@@ -239,35 +238,36 @@ bool apps_use_light_theme() {
   return true;
 }
 
+static const auto MODULE = GetModuleHandle(NULL);
+static const auto SPLASH_CLASS = []() {
+  const auto classname = L"ClocksSplash";
+
+  WNDCLASSEX splash_class = {0};
+  splash_class.cbSize = sizeof(WNDCLASSEX);
+  splash_class.lpfnWndProc = DefWindowProc;
+  splash_class.hInstance = MODULE;
+  splash_class.hCursor = LoadCursor(MODULE, IDC_WAIT);
+  splash_class.lpszClassName = classname;
+  RegisterClassEx(&splash_class);
+
+  return classname;
+}();
+
 bool show_splash() {
-  auto module = GetModuleHandle(NULL);
-
-  static bool registered = false;
-  if (!registered) {
-    WNDCLASSEX splash_class = {0};
-    splash_class.cbSize = sizeof(WNDCLASSEX);
-    splash_class.lpfnWndProc = DefWindowProc;
-    splash_class.hInstance = module;
-    splash_class.hCursor = LoadCursor(module, IDC_WAIT);
-    splash_class.lpszClassName = L"ClocksSplash";
-    RegisterClassEx(&splash_class);
-    registered = true;
-  }
-
   int screenWidth = GetSystemMetrics(SM_CXSCREEN);
   int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
   splash = CreateWindowEx(
       WS_EX_TOPMOST | WS_EX_TOOLWINDOW, L"ClocksSplash", NULL, WS_POPUP | WS_VISIBLE, (screenWidth - 256) / 2,
-      (screenHeight - 256) / 2, 256, 256, NULL, NULL, module, NULL
+      (screenHeight - 256) / 2, 256, 256, NULL, NULL, MODULE, NULL
   );
 
   if (splash) {
     const size_t INFO_POS = sizeof(BITMAPFILEHEADER);
-    const BITMAPINFOHEADER* splash_info = reinterpret_cast<const BITMAPINFOHEADER*>(splash_image + INFO_POS);
+    const BITMAPINFOHEADER* splash_info = reinterpret_cast<const BITMAPINFOHEADER*>(SPLASH_IMAGE + INFO_POS);
 
     const size_t COLOR_POS = INFO_POS + sizeof(BITMAPINFOHEADER);
-    const RGBQUAD* splash_colors = reinterpret_cast<const RGBQUAD*>(splash_image + COLOR_POS);
+    const RGBQUAD* splash_colors = reinterpret_cast<const RGBQUAD*>(SPLASH_IMAGE + COLOR_POS);
 
     const unsigned int COLORS = 256, SPLASH_SIZE = 256;
     const HPALETTE palette = [splash_colors]() {
@@ -294,7 +294,7 @@ bool show_splash() {
 
     StretchDIBits(
         splash_context, 0, 0, SPLASH_SIZE, SPLASH_SIZE, 0, 0, SPLASH_SIZE, SPLASH_SIZE,
-        splash_image + COLOR_POS + (sizeof(RGBQUAD) * COLORS), reinterpret_cast<const BITMAPINFO*>(splash_info),
+        SPLASH_IMAGE + COLOR_POS + (sizeof(RGBQUAD) * COLORS), reinterpret_cast<const BITMAPINFO*>(splash_info),
         DIB_RGB_COLORS, SRCCOPY
     );
 

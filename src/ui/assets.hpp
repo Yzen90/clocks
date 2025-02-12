@@ -1,5 +1,5 @@
 
-extern const unsigned char splash_image[];
+extern const unsigned char SPLASH_IMAGE[];
 
-extern const unsigned char latin_font[];
-extern const size_t latin_size;
+extern const unsigned char LATIN_FONT[];
+extern const size_t LATIN_SIZE;

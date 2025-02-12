@@ -1,10 +1,10 @@
 #include "assets.hpp"
 
-static constexpr const unsigned char splash_image[] = {
+static constexpr const unsigned char SPLASH_IMAGE[] = {
 #embed "splash.dib"
 };
 
-static constexpr  const unsigned char latin_font[] = {
+static constexpr  const unsigned char LATIN_FONT[] = {
 #embed "NotoSans-Regular.ttf"
 };
-static constexpr const size_t latin_size = sizeof(latin_font);
+static constexpr const size_t LATIN_SIZE = sizeof(LATIN_FONT);

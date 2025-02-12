@@ -1,5 +1,9 @@
-#include <fstream>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++26-extensions"
 #include <glaze/json/schema.hpp>
+#pragma clang diagnostic pop
+
+#include <fstream>
 #include <iostream>
 
 #include "schema.hpp"
