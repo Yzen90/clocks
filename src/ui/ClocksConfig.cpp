@@ -37,6 +37,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ImGui::Text("%.1f fps", resources->io->Framerate);
         ImGui::Text("%.0fx%.0f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
         ImGui::Text("%ddpi %d%%", resources->dpi, resources->scale);
+        ImGui::Text("%s", l10n->ui.title.data());
 
         ImGui::End();
         ImGui::PopStyleVar();

@@ -13,6 +13,7 @@ struct Resources {
   SDL_Window* window;
   SDL_GPUDevice* gpu;
   ImGuiIO* io;
+  ImGuiStyle* style;
   string driver;
   int dpi;
   int scale;
@@ -32,5 +33,5 @@ void render(const Resources& resources);
 
 void cleanup(const Resources& resources);
 
-static bool show_splash();
 static bool apps_use_light_theme();
+static bool show_splash();

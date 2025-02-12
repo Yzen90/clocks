@@ -28,8 +28,7 @@ add_includedirs('extern/TrafficMonitor/include')
 add_includedirs('vcpkg_installed/$(arch)-$(plat)-static/include')
 add_linkdirs('vcpkg_installed/$(arch)-$(plat)-static/lib')
 add_syslinks('WindowsApp', 'User32')
-add_defines('NOMINMAX')
-add_defines('WIN32_LEAN_AND_MEAN')
+add_defines('NOMINMAX', 'WIN32_LEAN_AND_MEAN', 'UNICODE', '_UNICODE', 'IMGUI_USE_WCHAR32')
 
 includes('src/i18n')
 
@@ -56,7 +55,7 @@ target('clocks')
     add_defines('NOT_RELEASE_MODE')
   end
 
-  add_rules('i18n-codegen', 'i18n-validation', 'i18n-fonts')
+  add_rules('i18n-codegen', 'i18n-validation')
 
 
 target('imgui')

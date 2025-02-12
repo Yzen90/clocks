@@ -7,6 +7,5 @@ node_modules
 
 *.log
 
-assets/*.ttf
 locale/
 src/Config.hpp
