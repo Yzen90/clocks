@@ -16,11 +16,18 @@ glyphs = [
 
 font = TTFont("resources/MaterialSymbolsRounded_Filled-Regular.ttf")
 
+
 codepoints = {}
 with reverse_cmap(font) as reversed_cmap:
+    font_glyphs = font["glyf"]
+
     for glyph in glyphs:
         if glyph in reversed_cmap:
             codepoints[glyph] = reversed_cmap[glyph]
+
+            fill_glyph = glyph + ".fill"
+            if fill_glyph in font_glyphs:
+                font_glyphs[glyph] = font_glyphs[fill_glyph]
         else:
             logging.warning(f'Codepoints: Glyph "{glyph}" not found.')
 
@@ -28,19 +35,16 @@ with reverse_cmap(font) as reversed_cmap:
 options = Options()
 options.glyph_names = True
 options.symbol_cmap = True
-""" options.legacy_cmap = True
-options.layout_features = ["*"]
-options.notdef_glyph = True
-options.recommended_glyphs = True """
+options.notdef_glyph = False
 options.ignore_missing_glyphs = False
 options.ignore_missing_unicodes = False
-options.verbose = True
 
 
 subsetter = Subsetter(options)
 
 subsetter.populate(glyphs=glyphs, unicodes=codepoints.values())
 subsetter.subset(font)
+
 
 font.save("assets/icons.ttf")
 font.close()
