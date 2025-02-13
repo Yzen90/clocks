@@ -1,26 +1,51 @@
-from glob import glob
+import logging
+
 from fontTools.ttLib import TTFont
-from fontTools.svgLib import SVGPath
-from fontTools.ttLib.ttFont import newTable
-from fontTools.ttLib.tables import _g_l_y_f
-from fontTools.ttLib.tables._c_m_a_p import CmapSubtable
+from fontTools.subset import Subsetter, Options
+
+from shared.fonts import reverse_cmap
 
 
-font = TTFont()
+glyphs = [
+    "brightness_auto",
+    "brightness_high",
+    "dark_mode",
+    "night_sight_auto",
+    "routine",
+]
 
-cmap_table = CmapSubtable.newSubtable(4)
-cmap_table.platformID = 3
-cmap_table.platEncID = 1
-cmap_table.language = 0
-cmap_table.cmap = {}
+font = TTFont("resources/MaterialSymbolsRounded_Filled-Regular.ttf")
 
-font["cmap"] = newTable("cmap")
-font["cmap"].tables = [cmap_table]
-font["glyf"] = _g_l_y_f.table__g_l_y_f()
+codepoints = {}
+with reverse_cmap(font) as reversed_cmap:
+    for glyph in glyphs:
+        if glyph in reversed_cmap:
+            codepoints[glyph] = reversed_cmap[glyph]
+        else:
+            logging.warning(f'Codepoints: Glyph "{glyph}" not found.')
 
 
-codepoint_start = 0xF0000
+options = Options()
+options.glyph_names = True
+options.symbol_cmap = True
+""" options.legacy_cmap = True
+options.layout_features = ["*"]
+options.notdef_glyph = True
+options.recommended_glyphs = True """
+options.ignore_missing_glyphs = False
+options.ignore_missing_unicodes = False
+options.verbose = True
 
-for i, svg in enumerate(glob("icons/*.svg")):
-    path = SVGPath("icons/" + svg)
-    glyph = _g_l_y_f.Glyph()
+
+subsetter = Subsetter(options)
+
+subsetter.populate(glyphs=glyphs, unicodes=codepoints.values())
+subsetter.subset(font)
+
+font.save("assets/icons.ttf")
+font.close()
+
+
+print(codepoints)
+
+""" print(f"{codepoints[glyph]:04X}")"""

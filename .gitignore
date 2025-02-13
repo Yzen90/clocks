@@ -1,6 +1,7 @@
 .cache/
 .xmake/
 build/
+__pycache__
 
 vcpkg_installed
 node_modules
