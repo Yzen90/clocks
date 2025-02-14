@@ -1,5 +1,5 @@
 #include <winver.h>
-#include "src/config.hpp"
+#include "config.hpp"
 
 LANGUAGE  0, 0
 

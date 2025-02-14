@@ -97,9 +97,14 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   if (exists(emoji_font)) {
     ImFontConfig emoji_config;
     emoji_config.MergeMode = true;
+    emoji_config.GlyphOffset = ImVec2{-3, 0};
     emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
     io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &emoji_config, bmp_emoji_range);
   }
+
+  font_config.MergeMode = true;
+  font_config.GlyphOffset = ImVec2{0, 8};
+  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &font_config, bmp_emoji_range);
 
   {
     UINT dpi = GetDpiForWindow(static_cast<HWND>(window_handle));

@@ -4,6 +4,7 @@
 
 #include <thread>
 
+#include "icons.hpp"
 #include "imgui.hpp"
 
 ClocksConfig::ClocksConfig(Configuration configuration) : configuration(configuration) {}
@@ -37,7 +38,8 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ImGui::Text("%.1f fps", resources->io->Framerate);
         ImGui::Text("%.0fx%.0f", resources->io->DisplaySize.x, resources->io->DisplaySize.y);
         ImGui::Text("%ddpi %d%%", resources->dpi, resources->scale);
-        ImGui::Text("%s", l10n->ui.title.data());
+
+        ImGui::Text("%s", (l10n->ui.title + material_symbols::BRIGHTNESS_AUTO).data());
 
         ImGui::End();
         ImGui::PopStyleVar();

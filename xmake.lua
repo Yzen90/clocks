@@ -5,7 +5,7 @@ clocks_version_minor = 3
 clocks_version_patch = 0
 set_version(clocks_version_major .. '.' .. clocks_version_minor .. '.' .. clocks_version_patch)
 
-add_configfiles('config.hpp.in')
+add_configfiles('src/config.hpp.in')
 set_configdir('src')
 set_configvar('VERSION_MAJOR', clocks_version_major)
 set_configvar('VERSION_MINOR', clocks_version_minor)
@@ -36,7 +36,7 @@ includes('src/i18n')
 target('clocks')
   set_kind('shared')
 
-  add_files('src/*.cpp', 'src/**/*.cpp', 'clocks.rc')
+  add_files('src/*.cpp', 'src/**/*.cpp', 'src/clocks.rc')
   remove_files('src/i18n/schemagen.cpp')
   add_files('vcpkg_installed/$(arch)-$(plat)-static/include/easylogging++.cc')
 
