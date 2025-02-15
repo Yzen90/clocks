@@ -15,10 +15,11 @@ struct Resources {
   SDL_Window* window;
   SDL_GPUDevice* gpu;
   ImGuiIO* io;
-  ImGuiStyle* style;
   string driver;
   int dpi;
   int scale;
+  float scale_factor;
+  float real_scale;
   bool light_theme;
 };
 
@@ -34,7 +35,7 @@ void new_frame();
 
 void render(const Resources& resources);
 
-void cleanup(const Resources& resources);
+void cleanup(Resources* resources);
 
 void with_font_scale(float scale, function<void()> imgui_ops);
 

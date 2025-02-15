@@ -1,65 +1,68 @@
 {
-  "generic": {
-    "auto_option": "Automático",
-    "cause": "Causa:"
-  },
-  "l10n": {
-    "contexts": {
-      "load": "Carga"
-    },
-    "logger_id": "idioma",
-    "messages": {
-      "loaded": "Idioma cargado:"
-    }
-  },
-  "state_store": {
-    "contexts": {
-      "configuration": "Configuración",
-      "initialization": "Inicialización"
-    },
-    "logger_id": "estado",
-    "messages": {
-      "config_file": "Archivo de configuración:",
-      "config_loaded": "🕜Clocks cargó {} reloj(es).",
-      "config_saved": "La configuración fue guardada.",
-      "invalid_timezone": "La zona horaria \"{}\" es inválida, el reloj fue ignorado.",
-      "too_many_clocks": "Mas de {} relojes fueron proporcionados, se ignorará el resto.",
-      "using_default_config": "Se utilizará la configuración por defecto.",
-      "warn_default_config": "Se utilizarán valores por defecto de la configuración.",
-      "warn_no_clocks": "Ningún reloj fue definido en la configuración, se utilizará el reloj por defecto.",
-      "warn_no_valid_clocks": "Ningún reloj válido fue definido en la configuración, se utilizará el reloj por defecto."
-    }
-  },
-  "ui": {
-    "errors": {
-      "sdl_claim_window": "SLD no pudo reclamar la ventana para el dispositivo GPU:",
-      "sdl_create_gpu_device": "SDL no pudo crear el dispositivo GPU:",
-      "sdl_create_window": "SDL no pudo crear la ventana:",
-      "sdl_init": "No se pudo inicializar SDL:"
-    },
-    "messages": {
-      "setup_complete": "SDL y Dear ImGui están listos. Driver: {}, escala de visualización: {}"
-    },
-    "sections": {
-      "log": {
-        "level": {
-          "debug": "Depuración",
-          "error": "Error",
-          "fatal": "Fatal",
-          "info": "Informativo",
-          "title": "Nivel de registro",
-          "trace": "Traza",
-          "verbose": "Detallado",
-          "warning": "Advertencia"
-        },
-        "title": "Registro"
-      }
-    },
-    "theme": {
-      "dark": "Oscuro",
-      "light": "Claro",
-      "title": "Tema"
-    },
-    "title": "🕜Clocks"
-  }
+	"generic": {
+		"auto_option": "Automático",
+		"cause": "Causa:"
+	},
+	"l10n": {
+		"contexts": {
+			"load": "Carga"
+		},
+		"logger_id": "idioma",
+		"messages": {
+			"loaded": "Idioma cargado:"
+		}
+	},
+	"state_store": {
+		"contexts": {
+			"configuration": "Configuración",
+			"initialization": "Inicialización"
+		},
+		"logger_id": "estado",
+		"messages": {
+			"config_file": "Archivo de configuración:",
+			"config_loaded": "🕜Clocks cargó {} reloj(es).",
+			"config_saved": "La configuración fue guardada.",
+			"invalid_timezone": "La zona horaria \"{}\" es inválida, el reloj fue ignorado.",
+			"too_many_clocks": "Mas de {} relojes fueron proporcionados, se ignorará el resto.",
+			"using_default_config": "Se utilizará la configuración por defecto.",
+			"warn_default_config": "Se utilizarán valores por defecto de la configuración.",
+			"warn_no_clocks": "Ningún reloj fue definido en la configuración, se utilizará el reloj por defecto.",
+			"warn_no_valid_clocks": "Ningún reloj válido fue definido en la configuración, se utilizará el reloj por defecto."
+		}
+	},
+	"ui": {
+		"actions": {
+			"save": "Guardar"
+		},
+		"errors": {
+			"sdl_claim_window": "SLD no pudo reclamar la ventana para el dispositivo GPU:",
+			"sdl_create_gpu_device": "SDL no pudo crear el dispositivo GPU:",
+			"sdl_create_window": "SDL no pudo crear la ventana:",
+			"sdl_init": "No se pudo inicializar SDL:"
+		},
+		"messages": {
+			"setup_complete": "SDL y Dear ImGui están listos. Driver: {}, escala de visualización: {}"
+		},
+		"sections": {
+			"log": {
+				"level": {
+					"debug": "Depuración",
+					"error": "Error",
+					"fatal": "Fatal",
+					"info": "Informativo",
+					"title": "Nivel de registro",
+					"trace": "Traza",
+					"verbose": "Detallado",
+					"warning": "Advertencia"
+				},
+				"title": "Registro"
+			}
+		},
+		"theme": {
+			"dark": "Oscuro",
+			"light": "Claro",
+			"title": "Tema"
+		},
+		"title": "🕜Clocks"
+	}
 }

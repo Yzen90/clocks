@@ -7,4 +7,5 @@ clang --version > nul 2>&1 || winget install LLVM.LLVM
 xmake config --arch=x64
 xmake build schemagen
 pip install fonttools
+py icons.py
 npm install

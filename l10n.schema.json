@@ -177,6 +177,9 @@
         "object"
       ],
       "properties": {
+        "actions": {
+          "$ref": "#/$defs/L10N::UI::Actions"
+        },
         "errors": {
           "$ref": "#/$defs/L10N::UI::Errors"
         },
@@ -195,11 +198,26 @@
       },
       "additionalProperties": false,
       "required": [
+        "actions",
         "errors",
         "messages",
         "sections",
         "theme",
         "title"
+      ]
+    },
+    "L10N::UI::Actions": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "save": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "save"
       ]
     },
     "L10N::UI::Errors": {

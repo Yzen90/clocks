@@ -1,4 +1,6 @@
 import logging
+import json
+from pathlib import Path
 
 from fontTools.ttLib import TTFont
 from fontTools.subset import Subsetter, Options
@@ -6,16 +8,8 @@ from fontTools.subset import Subsetter, Options
 from shared.fonts import *
 
 
-glyphs = [
-    "brightness_auto",
-    "brightness_high",
-    "dark_mode",
-    "night_sight_auto",
-    "routine",
-]
-
+glyphs = json.loads(Path("icons.json").read_text("utf_8"))
 codepoints = {}
-
 
 with TTFont("resources/MaterialSymbolsRounded_Filled-Regular.ttf") as font:
     with reverse_cmap(font) as reversed_cmap:

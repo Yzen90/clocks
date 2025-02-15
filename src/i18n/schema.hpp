@@ -27,6 +27,10 @@ struct L10N {
   } state_store;
 
   struct UI {
+    struct Actions {
+      string save;
+    } actions;
+
     struct Errors {
       string sdl_claim_window;
       string sdl_create_gpu_device;

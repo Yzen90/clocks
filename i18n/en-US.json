@@ -1,65 +1,68 @@
 {
-  "generic": {
-    "auto_option": "Auto",
-    "cause": "Cause:"
-  },
-  "l10n": {
-    "contexts": {
-      "load": "Load"
-    },
-    "logger_id": "localization",
-    "messages": {
-      "loaded": "Language loaded:"
-    }
-  },
-  "state_store": {
-    "contexts": {
-      "configuration": "Configuration",
-      "initialization": "Initialization"
-    },
-    "logger_id": "state",
-    "messages": {
-      "config_file": "Configuration file:",
-      "config_loaded": "🕜Clocks plugin loaded {} clock(s).",
-      "config_saved": "The configuration was saved.",
-      "invalid_timezone": "Ignoring clock with invalid timezone \"{}\".",
-      "too_many_clocks": "More clocks than {} where provided, ignoring the rest.",
-      "using_default_config": "Using default configuration.",
-      "warn_default_config": "Default configuration values will be used.",
-      "warn_no_clocks": "No clocks were defined in the configuration, default clock will be used.",
-      "warn_no_valid_clocks": "No valid clocks were defined in the configuration, default clock will be used."
-    }
-  },
-  "ui": {
-    "errors": {
-      "sdl_claim_window": "SDL was unable to claim window for GPU device:",
-      "sdl_create_gpu_device": "SDL was unable to create the GPU device:",
-      "sdl_create_window": "SDL was unable to create the window:",
-      "sdl_init": "Unable to initialize SDL:"
-    },
-    "messages": {
-      "setup_complete": "SDL and Dear ImGui setup completed. Driver: {}, display scale: {}"
-    },
-    "sections": {
-      "log": {
-        "level": {
-          "debug": "Debug",
-          "error": "Error",
-          "fatal": "Fatal",
-          "info": "Info",
-          "title": "Log level",
-          "trace": "Trace",
-          "verbose": "Verbose",
-          "warning": "Warning"
-        },
-        "title": "Log"
-      }
-    },
-    "theme": {
-      "dark": "Dark",
-      "light": "Light",
-      "title": "Theme"
-    },
-    "title": "🕜Clocks"
-  }
+	"generic": {
+		"auto_option": "Auto",
+		"cause": "Cause:"
+	},
+	"l10n": {
+		"contexts": {
+			"load": "Load"
+		},
+		"logger_id": "localization",
+		"messages": {
+			"loaded": "Language loaded:"
+		}
+	},
+	"state_store": {
+		"contexts": {
+			"configuration": "Configuration",
+			"initialization": "Initialization"
+		},
+		"logger_id": "state",
+		"messages": {
+			"config_file": "Configuration file:",
+			"config_loaded": "🕜Clocks plugin loaded {} clock(s).",
+			"config_saved": "The configuration was saved.",
+			"invalid_timezone": "Ignoring clock with invalid timezone \"{}\".",
+			"too_many_clocks": "More clocks than {} where provided, ignoring the rest.",
+			"using_default_config": "Using default configuration.",
+			"warn_default_config": "Default configuration values will be used.",
+			"warn_no_clocks": "No clocks were defined in the configuration, default clock will be used.",
+			"warn_no_valid_clocks": "No valid clocks were defined in the configuration, default clock will be used."
+		}
+	},
+	"ui": {
+		"actions": {
+			"save": "Save"
+		},
+		"errors": {
+			"sdl_claim_window": "SDL was unable to claim window for GPU device:",
+			"sdl_create_gpu_device": "SDL was unable to create the GPU device:",
+			"sdl_create_window": "SDL was unable to create the window:",
+			"sdl_init": "Unable to initialize SDL:"
+		},
+		"messages": {
+			"setup_complete": "SDL and Dear ImGui setup completed. Driver: {}, display scale: {}"
+		},
+		"sections": {
+			"log": {
+				"level": {
+					"debug": "Debug",
+					"error": "Error",
+					"fatal": "Fatal",
+					"info": "Info",
+					"title": "Log level",
+					"trace": "Trace",
+					"verbose": "Verbose",
+					"warning": "Warning"
+				},
+				"title": "Log"
+			}
+		},
+		"theme": {
+			"dark": "Dark",
+			"light": "Light",
+			"title": "Theme"
+		},
+		"title": "🕜Clocks"
+	}
 }

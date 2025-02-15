@@ -41,7 +41,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_window + " " + SDL_GetError(), l10n->ui.title, window_handle);
-    cleanup(resources);
+    cleanup(&resources);
     return {};
   }
 
@@ -59,14 +59,14 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   if (!resources.gpu) {
     logger->error(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError(), l10n->ui.title, window_handle);
-    cleanup(resources);
+    cleanup(&resources);
     return {};
   }
 
   if (!SDL_ClaimWindowForGPUDevice(resources.gpu, resources.window)) {
     logger->error(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError(), l10n->ui.title, window_handle);
-    cleanup(resources);
+    cleanup(&resources);
     return {};
   }
   SDL_SetGPUSwapchainParameters(
@@ -80,7 +80,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  resources.style = &ImGui::GetStyle();
+
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.IniFilename = nullptr;
@@ -113,10 +113,13 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
       dpi = static_cast<UINT>(GetDeviceCaps(hdc, LOGPIXELSX));
       ReleaseDC(nullptr, hdc);
     }
-    io.FontGlobalScale = 0.5 * (dpi / 96.0);
-    resources.style->ScaleAllSizes(io.FontGlobalScale);
+
+    resources.scale_factor = dpi / 96.0;
+    resources.real_scale = 0.5 * resources.scale_factor;
+    io.FontGlobalScale = resources.real_scale;
+    ImGui::GetStyle().ScaleAllSizes(resources.real_scale);
     resources.dpi = dpi;
-    resources.scale = (dpi / 96.0) * 100;
+    resources.scale = resources.scale_factor * 100;
   }
 
   resources.io = &io;
@@ -209,18 +212,20 @@ bool is_minimized(const Resources& resources) {
   return false;
 }
 
-void cleanup(const Resources& resources) {
-  if (resources.gpu) {
-    SDL_WaitForGPUIdle(resources.gpu);
+void cleanup(Resources* resources) {
+  if (resources->gpu) {
+    SDL_WaitForGPUIdle(resources->gpu);
 
     ImGui_ImplSDL3_Shutdown();
     ImGui_ImplSDLGPU3_Shutdown();
     ImGui::DestroyContext();
 
-    SDL_ReleaseWindowFromGPUDevice(resources.gpu, resources.window);
-    SDL_DestroyGPUDevice(resources.gpu);
+    SDL_ReleaseWindowFromGPUDevice(resources->gpu, resources->window);
+    SDL_DestroyGPUDevice(resources->gpu);
   }
-  if (resources.window) SDL_DestroyWindow(resources.window);
+  if (resources->window) SDL_DestroyWindow(resources->window);
+
+  *resources = Resources{};
   SDL_Quit();
 }
 
