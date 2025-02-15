@@ -121,7 +121,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
 
   resources.io = &io;
 
-  set_theme(theme);
+  set_theme(theme, &resources);
 
   // ANCHOR - ImGui backend initialization
 
@@ -137,11 +137,14 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   return {resources};
 }
 
-void set_theme(Theme theme) {
-  if ((theme == Theme::Auto && apps_use_light_theme()) || theme == Theme::Light)
+void set_theme(Theme theme, Resources* resources) {
+  if ((theme == Theme::Auto && apps_use_light_theme()) || theme == Theme::Light) {
     ImGui::StyleColorsLight();
-  else
+    resources->light_theme = true;
+  } else {
     ImGui::StyleColorsDark();
+    resources->light_theme = false;
+  }
 }
 
 bool keep_open(const Resources& resources) {
@@ -219,6 +222,14 @@ void cleanup(const Resources& resources) {
   }
   if (resources.window) SDL_DestroyWindow(resources.window);
   SDL_Quit();
+}
+
+// ANCHOR - UI
+
+void with_font_scale(float scale, function<void()> imgui_ops) {
+  ImGui::SetWindowFontScale(scale);
+  imgui_ops();
+  ImGui::SetWindowFontScale(1);
 }
 
 // ANCHOR - Internal
