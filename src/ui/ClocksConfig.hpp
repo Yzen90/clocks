@@ -1,6 +1,9 @@
 #pragma once
 
+#include <optional>
+
 #include "../StateStore.hpp"
+#include "imgui.h"
 #include "imgui.hpp"
 
 using std::optional;
@@ -17,8 +20,12 @@ class ClocksConfig {
   bool show_metrics = false;
 
   float gap;
+  ImVec2 icon_button_size;
 
-  bool ui_primary_button(const string& text, float font_scale = 1, optional<ImVec2> size = {});
+  bool ui_primary_button(
+      const string& text, optional<float> font_scale = {}, optional<ImVec2> size = {}, optional<ImVec2> padding = {}
+  );
+  bool ui_icon_button(const string& icon, optional<float> font_scale = {});
 
   void ui_main_actions();
 

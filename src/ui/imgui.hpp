@@ -38,4 +38,4 @@ float available_x();
 void move_x(float distance);
 
 static bool apps_use_light_theme();
-static bool show_splash();
+static bool show_splash(float scale);

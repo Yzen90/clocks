@@ -16,9 +16,6 @@ using std::make_format_args;
 using std::vformat;
 using std::filesystem::exists;
 
-const int MIN_WIDTH = 640;
-const int MIN_HEIGHT = 480;
-
 static el::Logger* logger;
 static HWND splash;
 
@@ -27,7 +24,20 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
 
   SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
-  if (show_splash()) flags |= SDL_WINDOW_HIDDEN;
+  short dpi;
+  {
+    dpi = GetDpiForWindow(static_cast<HWND>(window_handle));
+    if (dpi == 0) {
+      HDC hdc = GetDC(nullptr);
+      dpi = static_cast<UINT>(GetDeviceCaps(hdc, LOGPIXELSX));
+      ReleaseDC(nullptr, hdc);
+    }
+  }
+  float scale = dpi / 96.0;
+  const short min_width = 512 * scale;
+  const short min_height = 384 * scale;
+
+  if (show_splash(scale)) flags |= SDL_WINDOW_HIDDEN;
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     logger->error(l10n->ui.errors.sdl_init + " " + SDL_GetError());
@@ -37,7 +47,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   }
 
   Resources resources;
-  resources.window = SDL_CreateWindow(l10n->ui.title.data(), MIN_WIDTH, MIN_HEIGHT, flags);
+  resources.window = SDL_CreateWindow(l10n->ui.title.data(), min_width, min_height, flags);
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_window + " " + SDL_GetError(), l10n->ui.title, window_handle);
@@ -45,7 +55,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
     return {};
   }
 
-  SDL_SetWindowMinimumSize(resources.window, MIN_WIDTH, MIN_HEIGHT);
+  SDL_SetWindowMinimumSize(resources.window, min_width, min_height);
 
   // ANCHOR - SDL GPU initialization
 
@@ -106,21 +116,12 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   font_config.GlyphOffset = ImVec2{0, 8};
   io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &font_config, bmp_emoji_range);
 
-  {
-    UINT dpi = GetDpiForWindow(static_cast<HWND>(window_handle));
-    if (dpi == 0) {
-      HDC hdc = GetDC(nullptr);
-      dpi = static_cast<UINT>(GetDeviceCaps(hdc, LOGPIXELSX));
-      ReleaseDC(nullptr, hdc);
-    }
-
-    resources.scale_factor = dpi / 96.0;
-    resources.real_scale = 0.5 * resources.scale_factor;
-    io.FontGlobalScale = resources.real_scale;
-    ImGui::GetStyle().ScaleAllSizes(resources.real_scale);
-    resources.dpi = dpi;
-    resources.scale = resources.scale_factor * 100;
-  }
+  resources.scale_factor = scale;
+  resources.real_scale = 0.5 * resources.scale_factor;
+  io.FontGlobalScale = resources.real_scale;
+  ImGui::GetStyle().ScaleAllSizes(resources.real_scale);
+  resources.dpi = dpi;
+  resources.scale = resources.scale_factor * 100;
 
   resources.io = &io;
 
@@ -232,13 +233,9 @@ void cleanup(Resources* resources) {
 // ANCHOR - UI
 
 void with_font_scale(float scale, function<void()> imgui_ops) {
-  if (scale == 1) {
-    imgui_ops();
-  } else {
-    ImGui::SetWindowFontScale(scale);
-    imgui_ops();
-    ImGui::SetWindowFontScale(1);
-  }
+  ImGui::SetWindowFontScale(scale);
+  imgui_ops();
+  ImGui::SetWindowFontScale(1);
 }
 
 float available_x() { return ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x; };
@@ -281,48 +278,57 @@ static const auto SPLASH_CLASS = []() {
   return classname;
 }();
 
-bool show_splash() {
+// ANCHOR - Internal: Splash screen
+
+const unsigned int COLORS = 256, SPLASH_SIZE = 256;
+
+const size_t INFO_POS = sizeof(BITMAPFILEHEADER);
+const BITMAPINFOHEADER* SPLASH_INFO = reinterpret_cast<const BITMAPINFOHEADER*>(SPLASH_IMAGE + INFO_POS);
+
+const size_t COLOR_POS = INFO_POS + sizeof(BITMAPINFOHEADER);
+const RGBQUAD* SPLASH_COLORS = reinterpret_cast<const RGBQUAD*>(SPLASH_IMAGE + COLOR_POS);
+
+HPALETTE splash_palette() {
+  struct {
+    WORD palVersion = 0x300;
+    WORD palNumEntries = COLORS;
+    PALETTEENTRY palPalEntry[COLORS];
+  } log_palette;
+
+  for (int i = 0; i < COLORS; ++i) {
+    log_palette.palPalEntry[i].peRed = SPLASH_COLORS[i].rgbRed;
+    log_palette.palPalEntry[i].peGreen = SPLASH_COLORS[i].rgbGreen;
+    log_palette.palPalEntry[i].peBlue = SPLASH_COLORS[i].rgbBlue;
+    log_palette.palPalEntry[i].peFlags = 0;
+  }
+
+  return CreatePalette(reinterpret_cast<const LOGPALETTE*>(&log_palette));
+};
+
+bool show_splash(float scale) {
   int screenWidth = GetSystemMetrics(SM_CXSCREEN);
   int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
+  short splash_size = 256 * scale;
+
   splash = CreateWindowEx(
-      WS_EX_TOPMOST | WS_EX_TOOLWINDOW, L"ClocksSplash", NULL, WS_POPUP | WS_VISIBLE, (screenWidth - 256) / 2,
-      (screenHeight - 256) / 2, 256, 256, NULL, NULL, MODULE, NULL
+      WS_EX_TOPMOST | WS_EX_TOOLWINDOW, L"ClocksSplash", NULL, WS_POPUP | WS_VISIBLE, (screenWidth - splash_size) / 2,
+      (screenHeight - splash_size) / 2, splash_size, splash_size, NULL, NULL, MODULE, NULL
   );
 
   if (splash) {
-    const size_t INFO_POS = sizeof(BITMAPFILEHEADER);
-    const BITMAPINFOHEADER* splash_info = reinterpret_cast<const BITMAPINFOHEADER*>(SPLASH_IMAGE + INFO_POS);
-
-    const size_t COLOR_POS = INFO_POS + sizeof(BITMAPINFOHEADER);
-    const RGBQUAD* splash_colors = reinterpret_cast<const RGBQUAD*>(SPLASH_IMAGE + COLOR_POS);
-
-    const unsigned int COLORS = 256, SPLASH_SIZE = 256;
-    const HPALETTE palette = [splash_colors]() {
-      struct {
-        WORD palVersion = 0x300;
-        WORD palNumEntries = COLORS;
-        PALETTEENTRY palPalEntry[COLORS];
-      } log_palette;
-
-      for (int i = 0; i < COLORS; ++i) {
-        log_palette.palPalEntry[i].peRed = splash_colors[i].rgbRed;
-        log_palette.palPalEntry[i].peGreen = splash_colors[i].rgbGreen;
-        log_palette.palPalEntry[i].peBlue = splash_colors[i].rgbBlue;
-        log_palette.palPalEntry[i].peFlags = 0;
-      }
-
-      return CreatePalette(reinterpret_cast<const LOGPALETTE*>(&log_palette));
-    }();
+    const HPALETTE palette = splash_palette();
+    bool stretch = splash_size != SPLASH_SIZE;
 
     HDC splash_context = GetDC(splash);
     SelectPalette(splash_context, palette, TRUE);
     RealizePalette(splash_context);
-    SetStretchBltMode(splash_context, COLORONCOLOR);
+    SetStretchBltMode(splash_context, stretch ? HALFTONE : COLORONCOLOR);
+    if (stretch) SetBrushOrgEx(splash_context, 0, 0, nullptr);
 
     StretchDIBits(
-        splash_context, 0, 0, SPLASH_SIZE, SPLASH_SIZE, 0, 0, SPLASH_SIZE, SPLASH_SIZE,
-        SPLASH_IMAGE + COLOR_POS + (sizeof(RGBQUAD) * COLORS), reinterpret_cast<const BITMAPINFO*>(splash_info),
+        splash_context, 0, 0, splash_size, splash_size, 0, 0, SPLASH_SIZE, SPLASH_SIZE,
+        SPLASH_IMAGE + COLOR_POS + (sizeof(RGBQUAD) * COLORS), reinterpret_cast<const BITMAPINFO*>(SPLASH_INFO),
         DIB_RGB_COLORS, SRCCOPY
     );
 

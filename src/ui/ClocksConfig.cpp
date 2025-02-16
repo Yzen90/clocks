@@ -10,6 +10,8 @@
 
 using namespace material_symbols;
 
+const short GAP = 5;
+
 ClocksConfig::ClocksConfig(Configuration configuration) : configuration(configuration) {}
 
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
@@ -20,7 +22,9 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
       current_theme = configuration.theme;
       debug_level = configuration.log_level == LogLevel::DEBUG;
-      gap = resources.scale_factor * 5;
+
+      gap = GAP * resources.scale_factor;
+      icon_button_size = ImVec2(32 * resources.scale_factor, 32 * resources.scale_factor);
 
       while (keep_open(resources)) {
         if (is_minimized(resources)) continue;
@@ -32,25 +36,34 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
         new_frame();
 
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 1);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 12 * resources.scale_factor);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2 * resources.scale_factor);
 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, gap));
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(resources.io->DisplaySize);
 
         ImGui::Begin(
             "ClocksConfig", nullptr,
             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
+                ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar |
+                ImGuiWindowFlags_NoScrollWithMouse
         );
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar(2);
 
         ui_top_buttons();
+
+        ImGui::BeginChild("Main", ImVec2(0, ImGui::GetContentRegionAvail().y - (36 * resources.scale_factor)));
+
+        for (int i = 0; i < 100; i++) ImGui::Text("%04d: scrollable region", i);
+
+        ImGui::EndChild();
 
         ui_main_actions();
 
         ImGui::End();
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar(2);
 
         render(resources);
       }
@@ -75,18 +88,10 @@ void ClocksConfig::ui_main_actions() {
   ui_primary_button(SAVE_AS + " " + l10n->ui.actions.save + " ", 1.1);
 }
 
-bool ClocksConfig::ui_primary_button(const string& text, float font_scale, optional<ImVec2> size) {
-  bool click;
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-  with_font_scale(font_scale, [&]() { click = size ? ImGui::Button(text.data(), *size) : ImGui::Button(text.data()); });
-  ImGui::PopStyleVar();
-  return click;
-};
-
 void ClocksConfig::ui_top_buttons() {
   short buttons = debug_level ? 2 : 1;
-  float button_size = 32 * resources.scale_factor;
-  float start_x = available_x() - (button_size * buttons) - (gap * (buttons - 1));
+  float button_size = icon_button_size.x;
+  float start_x = available_x() - (button_size * buttons) - (gap * buttons);
 
   move_x(start_x);
   if (debug_level) {
@@ -96,12 +101,33 @@ void ClocksConfig::ui_top_buttons() {
   ui_theme_menu();
 }
 
+bool ClocksConfig::ui_primary_button(
+    const string& text, optional<float> font_scale, optional<ImVec2> size, optional<ImVec2> padding
+) {
+  bool click;
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding ? *padding : ImVec2(5, 5));
+
+  auto show_button = [&]() { click = size ? ImGui::Button(text.data(), *size) : ImGui::Button(text.data()); };
+
+  if (font_scale)
+    with_font_scale(*font_scale, show_button);
+  else
+    show_button();
+
+  ImGui::PopStyleVar();
+  return click;
+};
+
+bool ClocksConfig::ui_icon_button(const string& icon, optional<float> font_scale) {
+  return ui_primary_button(icon, font_scale, icon_button_size, ImVec2(0, 0));
+};
+
 void ClocksConfig::ui_theme_menu() {
   with_font_scale(1.1, [&]() {
     bool is_light = resources.light_theme;
     const string& icon = configuration.theme == Theme::Auto ? (is_light ? BRIGHTNESS_AUTO : NIGHT_SIGHT_AUTO)
                                                             : (is_light ? BRIGHTNESS_HIGH : DARK_MODE);
-    if (ui_primary_button(icon, 1, {ImVec2(32, 32)})) ImGui::OpenPopup("theme_menu");
+    if (ui_icon_button(icon)) ImGui::OpenPopup("theme_menu");
 
     if (ImGui::BeginPopup("theme_menu")) {
       ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(12, 12));
@@ -130,7 +156,7 @@ void ClocksConfig::ui_theme_menu() {
 }
 
 void ClocksConfig::ui_graphics_metrics() {
-  if (ui_primary_button(BROWSE_ACTIVITY, 1.1, {ImVec2(32, 32)})) show_metrics = !show_metrics;
+  if (ui_icon_button(BROWSE_ACTIVITY, 1.1)) show_metrics = !show_metrics;
 
   if (show_metrics) {
     ImGui::Begin(
