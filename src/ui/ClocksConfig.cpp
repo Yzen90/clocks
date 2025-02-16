@@ -20,6 +20,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
       current_theme = configuration.theme;
       debug_level = configuration.log_level == LogLevel::DEBUG;
+      gap = resources.scale_factor * 5;
 
       while (keep_open(resources)) {
         if (is_minimized(resources)) continue;
@@ -44,9 +45,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         );
         ImGui::PopStyleVar();
 
-        ui_top_buttons_spacing(debug_level ? 2 : 1);
-        if (debug_level) ui_graphics_metrics();
-        ui_theme_menu();
+        ui_top_buttons();
 
         ui_main_actions();
 
@@ -68,24 +67,33 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
 void ClocksConfig::ui_main_actions() {
   ImGui::Separator();
-  with_font_scale(1.1, [&]() {
-    ImGui::Dummy(ImVec2(1, 2));
 
-    ui_primary_button(SAVE_AS + " " + l10n->ui.actions.save + " ");
-  });
+  ImGui::Dummy(ImVec2(1, 1));
+
+  // TODO - Position according to text size
+  move_x(available_x() - (99 * resources.scale_factor) - gap);
+  ui_primary_button(SAVE_AS + " " + l10n->ui.actions.save + " ", 1.1);
 }
 
-bool ClocksConfig::ui_primary_button(const string& text) {
+bool ClocksConfig::ui_primary_button(const string& text, float font_scale, optional<ImVec2> size) {
+  bool click;
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-  bool click = ImGui::Button(text.data());
+  with_font_scale(font_scale, [&]() { click = size ? ImGui::Button(text.data(), *size) : ImGui::Button(text.data()); });
   ImGui::PopStyleVar();
   return click;
 };
 
-void ClocksConfig::ui_top_buttons_spacing(int button_count) {
-  ImGui::SetCursorPosX(
-      ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ((32 * resources.scale_factor) * button_count)
-  );
+void ClocksConfig::ui_top_buttons() {
+  short buttons = debug_level ? 2 : 1;
+  float button_size = 32 * resources.scale_factor;
+  float start_x = available_x() - (button_size * buttons) - (gap * (buttons - 1));
+
+  move_x(start_x);
+  if (debug_level) {
+    ui_graphics_metrics();
+    move_x(start_x + button_size + gap);
+  }
+  ui_theme_menu();
 }
 
 void ClocksConfig::ui_theme_menu() {
@@ -93,7 +101,7 @@ void ClocksConfig::ui_theme_menu() {
     bool is_light = resources.light_theme;
     const string& icon = configuration.theme == Theme::Auto ? (is_light ? BRIGHTNESS_AUTO : NIGHT_SIGHT_AUTO)
                                                             : (is_light ? BRIGHTNESS_HIGH : DARK_MODE);
-    if (ui_primary_button(icon)) ImGui::OpenPopup("theme_menu");
+    if (ui_primary_button(icon, 1, {ImVec2(32, 32)})) ImGui::OpenPopup("theme_menu");
 
     if (ImGui::BeginPopup("theme_menu")) {
       ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(12, 12));
@@ -122,23 +130,21 @@ void ClocksConfig::ui_theme_menu() {
 }
 
 void ClocksConfig::ui_graphics_metrics() {
-  with_font_scale(1.1, [&]() {
-    if (ui_primary_button(BROWSE_ACTIVITY)) show_metrics = !show_metrics;
+  if (ui_primary_button(BROWSE_ACTIVITY, 1.1, {ImVec2(32, 32)})) show_metrics = !show_metrics;
 
-    if (show_metrics) {
-      ImGui::Begin(
-          (BROWSE_ACTIVITY + "🕜").data(), &show_metrics,
-          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus
-      );
+  if (show_metrics) {
+    ImGui::Begin(
+        (BROWSE_ACTIVITY + "🕜").data(), &show_metrics,
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus
+    );
 
-      ImGui::Text("%s", resources.driver.data());
-      ImGui::Text("%.1f fps", resources.io->Framerate);
-      ImGui::Text("%.0fx%.0f", resources.io->DisplaySize.x, resources.io->DisplaySize.y);
-      ImGui::Text("%ddpi %d%%", resources.dpi, resources.scale);
+    ImGui::Text("%s", resources.driver.data());
+    ImGui::Text("%.1f fps", resources.io->Framerate);
+    ImGui::Text("%.0fx%.0f", resources.io->DisplaySize.x, resources.io->DisplaySize.y);
+    ImGui::Text("%ddpi %d%%", resources.dpi, resources.scale);
 
-      ImGui::End();
-    }
-  });
+    ImGui::End();
+  }
 
   ImGui::SameLine();
 }

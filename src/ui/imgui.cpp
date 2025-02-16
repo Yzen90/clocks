@@ -232,10 +232,17 @@ void cleanup(Resources* resources) {
 // ANCHOR - UI
 
 void with_font_scale(float scale, function<void()> imgui_ops) {
-  ImGui::SetWindowFontScale(scale);
-  imgui_ops();
-  ImGui::SetWindowFontScale(1);
+  if (scale == 1) {
+    imgui_ops();
+  } else {
+    ImGui::SetWindowFontScale(scale);
+    imgui_ops();
+    ImGui::SetWindowFontScale(1);
+  }
 }
+
+float available_x() { return ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x; };
+void move_x(float distance) { ImGui::SetCursorPosX(distance); }
 
 // ANCHOR - Internal
 

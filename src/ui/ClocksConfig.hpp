@@ -16,12 +16,15 @@ class ClocksConfig {
   bool debug_level = false;
   bool show_metrics = false;
 
-  bool ui_primary_button(const string& text);
-  void ui_top_buttons_spacing(int button_count);
+  float gap;
 
+  bool ui_primary_button(const string& text, float font_scale = 1, optional<ImVec2> size = {});
+
+  void ui_main_actions();
+
+  void ui_top_buttons();
   void ui_theme_menu();
   void ui_graphics_metrics();
-  void ui_main_actions();
 
  public:
   ClocksConfig(Configuration configuration);

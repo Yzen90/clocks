@@ -23,21 +23,19 @@ struct Resources {
   bool light_theme;
 };
 
-optional<Resources> setup(void*& window_handle, Theme theme);
-
 void set_theme(Theme theme, Resources* resources);
 
+optional<Resources> setup(void*& window_handle, Theme theme);
 bool keep_open(const Resources& resources);
-
 bool is_minimized(const Resources& resources);
 
 void new_frame();
-
 void render(const Resources& resources);
-
 void cleanup(Resources* resources);
 
 void with_font_scale(float scale, function<void()> imgui_ops);
+float available_x();
+void move_x(float distance);
 
 static bool apps_use_light_theme();
 static bool show_splash();
