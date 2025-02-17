@@ -53,5 +53,5 @@ for icon, codepoint in codepoints.items():
 
 cpp += "\n}\n"
 
-with open("src/ui/icons.hpp", "w", encoding="utf-8") as file:
+with open("src/ui/icons.hpp", "w", encoding="utf-8", newline="\n") as file:
     file.write(cpp)

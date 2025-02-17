@@ -11,6 +11,8 @@
 using std::function;
 using std::optional;
 
+const short BASE_SIZE = 20;
+
 struct Resources {
   SDL_Window* window;
   SDL_GPUDevice* gpu;
@@ -33,7 +35,7 @@ void new_frame();
 void render(const Resources& resources);
 void cleanup(Resources* resources);
 
-void with_font_scale(float scale, function<void()> imgui_ops);
+void with_font_scale(float scale, function<void()> imgui_ops, float reset_scale = 1);
 float available_x();
 void move_x(float distance);
 

@@ -65,11 +65,13 @@ string_view get_localization(Locale locale) {
   }
 }
 
-static Locale loaded_locale = Locale::Auto;
+static Locale locale_loaded = Locale::Auto;
+
+Locale loaded_locale() { return locale_loaded; }
 
 void load_locale(Locale locale) {
   if (locale == Locale::Auto) locale = get_prefered_locale();
-  if (loaded_locale == locale) return;
+  if (locale_loaded == locale) return;
 
   auto localization = get_localization(locale);
   auto result = glz::read_json<L10N>(localization);
@@ -86,7 +88,7 @@ void load_locale(Locale locale) {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }
 
-  loaded_locale = locale;
+  locale_loaded = locale;
 }
 
 void use_l10n(const L10N::StateStore::Contexts*& reference) {

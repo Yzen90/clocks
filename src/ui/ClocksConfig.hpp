@@ -11,27 +11,35 @@ using std::optional;
 class ClocksConfig {
  private:
   Configuration configuration;
+  Configuration original;
 
-  Theme current_theme;
   Resources resources;
+
+  string locale;
+  bool locale_changed;
+  float locale_width;
 
   bool is_changed = false;
   bool debug_level = false;
   bool show_metrics = false;
 
   float gap;
+  ImVec2 button_padding;
   ImVec2 icon_button_size;
+  Theme current_theme;
+
+  void ui_section_bottom();
+  void ui_section_main();
+  void ui_section_top();
+
+  void ui_locale_select();
+  void ui_theme_menu();
+  void ui_graphics_metrics();
 
   bool ui_primary_button(
       const string& text, optional<float> font_scale = {}, optional<ImVec2> size = {}, optional<ImVec2> padding = {}
   );
   bool ui_icon_button(const string& icon, optional<float> font_scale = {});
-
-  void ui_main_actions();
-
-  void ui_top_buttons();
-  void ui_theme_menu();
-  void ui_graphics_metrics();
 
  public:
   ClocksConfig(Configuration configuration);

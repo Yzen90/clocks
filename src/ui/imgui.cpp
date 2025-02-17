@@ -101,7 +101,9 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
 
   ImFontConfig font_config;
   font_config.FontDataOwnedByAtlas = false;
-  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, 40, &font_config, bmp_emoji_range);
+  io.Fonts->AddFontFromMemoryTTF(
+      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, BASE_SIZE * 2, &font_config, bmp_emoji_range
+  );
 
   static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";
   if (exists(emoji_font)) {
@@ -232,10 +234,10 @@ void cleanup(Resources* resources) {
 
 // ANCHOR - UI
 
-void with_font_scale(float scale, function<void()> imgui_ops) {
+void with_font_scale(float scale, function<void()> imgui_ops, float reset_scale) {
   ImGui::SetWindowFontScale(scale);
   imgui_ops();
-  ImGui::SetWindowFontScale(1);
+  ImGui::SetWindowFontScale(reset_scale);
 }
 
 float available_x() { return ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x; };
