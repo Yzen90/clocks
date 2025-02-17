@@ -13,7 +13,6 @@
 #include <glaze/glaze.hpp>
 #pragma clang diagnostic pop
 
-#include <map>
 #include <string>
 #include <string_view>
 
@@ -35,11 +34,7 @@ static const L10N::StateStore::Messages** ss_messages;
 
 const Locale DEFAULT_LOCALE = Locale::EN;
 
-typedef std::map<Locale, string> LocaleNames;
-constexpr const LocaleNames& locale_names() {
-  static const LocaleNames locale_names{{Locale::EN, "English"}, {Locale::ES, "Español"}};
-  return locale_names;
-};
+LocaleNames locales = {{Locale::EN, "English"}, {Locale::ES, "Español"}};
 
 Locale get_prefered_locale() {
   auto languages = GlobalizationPreferences::Languages();
@@ -86,9 +81,7 @@ void load_locale(Locale locale) {
     if (ss_messages) *ss_messages = &l10n->state_store.messages;
 
     logger = el::Loggers::getLogger(l10n->l10n.logger_id);
-    logger->verbose(
-        0, context(l10n->l10n.contexts.load) + l10n->l10n.messages.loaded + " " + locale_names().at(locale)
-    );
+    logger->verbose(0, context(l10n->l10n.contexts.load) + l10n->l10n.messages.loaded + " " + locales[locale]);
   } else {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }

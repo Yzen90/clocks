@@ -54,9 +54,15 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
         ui_top_buttons();
 
-        ImGui::BeginChild("Main", ImVec2(0, ImGui::GetContentRegionAvail().y - (36 * resources.scale_factor)));
+        float container_height = ImGui::GetContentRegionAvail().y - (40 * resources.scale_factor);
+        ImGui::BeginChild("Clocks", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, container_height));
 
-        for (int i = 0; i < 100; i++) ImGui::Text("%04d: scrollable region", i);
+        ImGui::EndChild();
+        ImGui::SameLine();
+        ImGui::BeginChild(
+            "Options", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, container_height), ImGuiChildFlags_None,
+            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
+        );
 
         ImGui::EndChild();
 
