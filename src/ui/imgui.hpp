@@ -11,8 +11,6 @@
 using std::function;
 using std::optional;
 
-const short BASE_SIZE = 20;
-
 struct Resources {
   SDL_Window* window;
   SDL_GPUDevice* gpu;
@@ -27,7 +25,7 @@ struct Resources {
 
 void set_theme(Theme theme, Resources* resources);
 
-optional<Resources> setup(void*& window_handle, Theme theme);
+optional<Resources> setup(void*& window_handle, Theme theme, const short base_size);
 bool keep_open(const Resources& resources);
 bool is_minimized(const Resources& resources);
 

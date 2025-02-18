@@ -17,16 +17,18 @@ class ClocksConfig {
 
   string locale;
   bool locale_changed;
-  float locale_width;
+  float locale_space;
 
   bool is_changed = false;
-  bool debug_level = false;
   bool show_metrics = false;
 
-  float gap;
-  ImVec2 button_padding;
-  ImVec2 icon_button_size;
   Theme current_theme;
+  bool debug_level = false;
+
+  float gap;
+  ImVec2 icon_button_size;
+  float button_space;
+  ImVec2 button_padding;
 
   void ui_section_bottom();
   void ui_section_main();

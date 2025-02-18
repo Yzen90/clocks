@@ -19,7 +19,7 @@ using std::filesystem::exists;
 static el::Logger* logger;
 static HWND splash;
 
-optional<Resources> setup(void*& window_handle, Theme theme) {
+optional<Resources> setup(void*& window_handle, Theme theme, const short base_size) {
   if (logger == nullptr) logger = el::Loggers::getLogger("ui");
 
   SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
@@ -102,7 +102,7 @@ optional<Resources> setup(void*& window_handle, Theme theme) {
   ImFontConfig font_config;
   font_config.FontDataOwnedByAtlas = false;
   io.Fonts->AddFontFromMemoryTTF(
-      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, BASE_SIZE * 2, &font_config, bmp_emoji_range
+      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, base_size * 2, &font_config, bmp_emoji_range
   );
 
   static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";

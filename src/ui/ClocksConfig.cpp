@@ -9,15 +9,17 @@
 #include "imgui.hpp"
 
 using namespace material_symbols;
+using std::round;
 
 const short GAP = 5;
-const float SIZE_LARGE = 1.1;
+const short ICON_BUTTON_SIZE = 30;
+const short BASE_SIZE = 20;
 
 ClocksConfig::ClocksConfig(Configuration configuration) : configuration(configuration), original(configuration) {}
 
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
-    if (auto setup_resources = setup(window_handle, configuration.theme)) {
+    if (auto setup_resources = setup(window_handle, configuration.theme, BASE_SIZE)) {
       resources = std::move(*setup_resources);
       setup_resources.reset();
 
@@ -26,9 +28,10 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       current_theme = configuration.theme;
       debug_level = configuration.log_level == LogLevel::DEBUG;
 
-      gap = GAP * resources.scale_factor;
+      gap = round(GAP * resources.scale_factor);
+      icon_button_size = {ICON_BUTTON_SIZE * resources.scale_factor, ICON_BUTTON_SIZE * resources.scale_factor};
+      button_space = icon_button_size.x + gap;
       button_padding = {gap, gap};
-      icon_button_size = {32 * resources.scale_factor, 32 * resources.scale_factor};
 
       while (keep_open(resources)) {
         if (is_minimized(resources)) continue;
@@ -57,9 +60,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ImGui::PopStyleVar(2);
 
         ui_section_top();
-
         ui_section_main();
-
         ui_section_bottom();
 
         ImGui::End();
@@ -81,13 +82,15 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 }
 
 void ClocksConfig::ui_section_bottom() {
+  ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextPadding, ImVec2(0, 0));
   ImGui::Separator();
+  ImGui::PopStyleVar();
 
-  ImGui::Dummy(ImVec2(1, 1));
+  ImGui::Dummy(ImVec2(1, gap));
 
   // TODO - Position according to text size
   move_x(available_x() - (99 * resources.scale_factor) - gap);
-  ui_primary_button(SAVE_AS + " " + l10n->ui.actions.save + " ", SIZE_LARGE);
+  ui_primary_button(SAVE_AS + " " + l10n->ui.actions.save + " ");
 }
 
 void ClocksConfig::ui_section_main() {
@@ -107,29 +110,27 @@ void ClocksConfig::ui_section_main() {
 }
 
 void ClocksConfig::ui_section_top() {
-  with_font_scale(SIZE_LARGE, [&]() {
-    if (locale_changed) {
-      load_locale(configuration.locale);
-      locale = LANGUAGE + " " + locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale];
-      locale_width =
-          ImGui::CalcTextSize(locale.data()).x + (BASE_SIZE * SIZE_LARGE * resources.scale_factor) + (gap * 4);
-      locale_changed = false;
-    }
+  if (locale_changed) {
+    load_locale(configuration.locale);
+    locale = LANGUAGE + " ";
+    locale += locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale];
+    locale += " ";
+    locale_space = round(ImGui::CalcTextSize(locale.data()).x + (BASE_SIZE * resources.scale_factor) + (gap * 5));
+    locale_changed = false;
+  }
 
-    short buttons = debug_level ? 2 : 1;
-    float button_size = icon_button_size.x;
-    float start_x = available_x() - locale_width - gap - (button_size * buttons) - (gap * buttons);
+  short buttons = debug_level ? 2 : 1;
+  float start_x = available_x() - locale_space - (button_space * buttons);
 
-    move_x(start_x);
-    ui_locale_select();
+  move_x(start_x);
+  ui_locale_select();
 
-    move_x(start_x + locale_width + gap);
-    if (debug_level) {
-      ui_graphics_metrics();
-      move_x(start_x + locale_width + gap + button_size + gap);
-    }
-    ui_theme_menu();
-  });
+  move_x(start_x + locale_space);
+  if (debug_level) {
+    ui_graphics_metrics();
+    move_x(start_x + locale_space + button_space);
+  }
+  ui_theme_menu();
 }
 
 void ClocksConfig::ui_locale_select() {
@@ -193,23 +194,17 @@ void ClocksConfig::ui_graphics_metrics() {
   if (ui_icon_button(BROWSE_ACTIVITY)) show_metrics = !show_metrics;
 
   if (show_metrics) {
-    with_font_scale(
-        1,
-        [&]() {
-          ImGui::Begin(
-              (BROWSE_ACTIVITY + "🕜").data(), &show_metrics,
-              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus
-          );
-
-          ImGui::Text("%s", resources.driver.data());
-          ImGui::Text("%.1f fps", resources.io->Framerate);
-          ImGui::Text("%.0fx%.0f", resources.io->DisplaySize.x, resources.io->DisplaySize.y);
-          ImGui::Text("%ddpi %d%%", resources.dpi, resources.scale);
-
-          ImGui::End();
-        },
-        SIZE_LARGE
+    ImGui::Begin(
+        (BROWSE_ACTIVITY + "🕜").data(), &show_metrics,
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavFocus
     );
+
+    ImGui::Text("%s", resources.driver.data());
+    ImGui::Text("%.1f fps", resources.io->Framerate);
+    ImGui::Text("%.0fx%.0f", resources.io->DisplaySize.x, resources.io->DisplaySize.y);
+    ImGui::Text("%ddpi %d%%", resources.dpi, resources.scale);
+
+    ImGui::End();
   }
 
   ImGui::SameLine();
