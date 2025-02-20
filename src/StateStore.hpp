@@ -4,6 +4,7 @@
 #pragma clang diagnostic ignored "-Wnontrivial-memcall"
 #include <winrt/Windows.Globalization.DateTimeFormatting.h>
 #pragma clang diagnostic pop
+#include <easylogging++.h>
 
 #include <chrono>
 #include <filesystem>
@@ -14,11 +15,13 @@
 using namespace std::chrono;
 using namespace winrt::Windows::Globalization::DateTimeFormatting;
 
-using std::forward_list;
+using el::Logger;
+using el::Loggers;
 using std::map;
 using std::optional;
 using std::string;
 using std::unique_ptr;
+using std::vector;
 using std::wstring;
 using std::filesystem::path;
 
@@ -35,6 +38,8 @@ struct Clock {
   string label;
 };
 
+const Clock DEFAULT_CLOCK{"UTC", "UTC:"};
+
 enum class LogLevel { TRACE, DEBUG, VERBOSE, INFO, WARNING, ERROR, FATAL };
 #ifdef NOT_RELEASE_MODE
 const LogLevel DEFAULT_LOG_LEVEL = LogLevel::DEBUG;
@@ -50,7 +55,7 @@ struct Configuration {
   Locale locale = Locale::Auto;
   Theme theme = Theme::Auto;
   LogLevel log_level = DEFAULT_LOG_LEVEL;
-  forward_list<Clock> clocks;
+  vector<Clock> clocks;
 };
 
 struct ClockData {
@@ -65,22 +70,8 @@ struct ClockData {
 
 typedef unsigned char Index;
 typedef unsigned short ItemCount;
-typedef map<Index, ClockData> Clocks;
-
-struct State {
-  ItemCount item_count = 0;
-  path configuration_location;
-  DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
-
-  time_point<system_clock> time;
-  time_point<winrt::clock> winrt_time;
-
-  const time_zone* current_tz = current_zone();
-  sys_days local_days;
-  minutes current_minutes;
-
-  Configuration configuration;
-};
+typedef time_point<system_clock> TimeSystem;
+typedef time_point<winrt::clock> TimeWinRT;
 
 class StateStore {
  private:
@@ -88,10 +79,26 @@ class StateStore {
   StateStore(const StateStore&) = delete;
   StateStore& operator=(const StateStore&) = delete;
 
+  Logger* logger = Loggers::getLogger("StateStore");
   const Contexts* contexts;
   const Messages* messages;
-  State state;
-  Clocks clocks;
+
+  struct State {
+    ItemCount item_count = 0;
+    path configuration_location;
+    DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
+
+    TimeSystem time;
+    TimeWinRT winrt_time;
+
+    const time_zone* current_tz = current_zone();
+    sys_days local_days;
+    minutes current_minutes;
+
+    Configuration configuration;
+  } state;
+
+  map<Index, ClockData> clocks;
 
   void set_log_file(path log_file);
   void set_log_level();
@@ -102,9 +109,11 @@ class StateStore {
   void use_configuration();
   void save_configuration();
 
-  void refresh_time(const time_point<system_clock>& now);
-  inline wstring get_time(const time_zone* tz, const wstring& timezone);
+  wstring get_time(const time_zone*& tz, const wstring& timezone);
+  inline wstring get_time_inline(const time_zone*& tz, const wstring& timezone);
+
   void add_clock(const time_zone* tz, string timezone, wstring label);
+  void refresh_time(const time_point<system_clock>& now);
 
  public:
   static StateStore& instance();
@@ -115,4 +124,10 @@ class StateStore {
   ItemCount item_count();
   Configuration get_configuration();
   void set_configuration(Configuration configuration);
+
+  static wstring get_time(
+      const time_zone*& tz, const wstring& timezone, const Configuration& configuration,
+      const DateTimeFormatter& formatter, const TimeSystem& time, const TimeWinRT& winrt_time, sys_days local_days
+  );
+  static DateTimeFormatter get_time_formatter(ClockType clock_type);
 };

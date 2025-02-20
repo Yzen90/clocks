@@ -3,6 +3,9 @@
 	"description": "World clocks plugin for TrafficMonitor.",
 	"homepage": "https://github.com/Yzen90/clocks",
 	"author": "Edgar Montiel Cruz",
+	"scripts": {
+		"fix": "lec -d -r i18n --eolc LF"
+	},
 	"devDependencies": {
 		"@jirutka/ajv-cli": "^6.0.0-beta.5",
 		"lec": "^1.0.1",

@@ -7,3 +7,6 @@
 [submodule "SDL"]
 	path = extern/SDL
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "imgui_toggle"]
+	path = extern/imgui_toggle
+	url = https://github.com/cmdwtf/imgui_toggle.git

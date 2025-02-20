@@ -1,6 +1,5 @@
 #include "StateStore.hpp"
 
-#include <easylogging++.h>
 #include <xxhash.h>
 
 #pragma clang diagnostic push
@@ -24,16 +23,13 @@ using namespace winrt::Windows::Globalization;
 using namespace std::filesystem;
 
 using el::ConfigurationType;
-using el::Logger;
-using el::Loggers;
+
 using nowide::widen;
 using std::format;
 using std::make_format_args;
 using std::string;
 using std::vformat;
 using winrt::clock;
-
-static Logger* logger;
 
 const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
@@ -66,8 +62,6 @@ struct glz::meta<Locale> {
   using enum Locale;
   static constexpr auto value = enumerate(Auto, EN, ES);
 };
-
-const Clock DEFAULT_CLOCK{"UTC", "UTC:"};
 
 StateStore::StateStore() {
   std::locale::global(std::locale(".utf-8"));
@@ -185,28 +179,26 @@ void StateStore::set_log_level() {
   el::Loggers::setDefaultConfigurations(log_config, true);
 }
 
-void StateStore::set_locale() {
-  load_locale(state.configuration.locale);
-  logger = Loggers::getLogger(l10n->state_store.logger_id);
-}
+void StateStore::set_locale() { load_locale(state.configuration.locale); }
 
-void StateStore::set_time_formatter() {
-  switch (state.configuration.clock_type) {
+void StateStore::set_time_formatter() { state.time_formatter = get_time_formatter(state.configuration.clock_type); }
+
+DateTimeFormatter StateStore::get_time_formatter(ClockType clock_type) {
+  switch (clock_type) {
     case ClockType::FormatAuto:
-      state.time_formatter = DEFAULT_TIME_FORMATTER;
-      return;
+      return DEFAULT_TIME_FORMATTER;
+
     case ClockType::Format12h:
-      state.time_formatter = {
+      return {
           DEFAULT_TIME_FORMAT, DEFAULT_TIME_FORMATTER.Languages(), DEFAULT_TIME_FORMATTER.GeographicRegion(),
           DEFAULT_TIME_FORMATTER.Calendar(), ClockIdentifiers::TwelveHour()
       };
-      return;
+
     case ClockType::Format24h:
-      state.time_formatter = {
+      return {
           DEFAULT_TIME_FORMAT, DEFAULT_TIME_FORMATTER.Languages(), DEFAULT_TIME_FORMATTER.GeographicRegion(),
           DEFAULT_TIME_FORMATTER.Calendar(), ClockIdentifiers::TwentyFourHour()
       };
-      return;
   }
 }
 
@@ -234,17 +226,34 @@ void StateStore::refresh_time(const time_point<system_clock>& now) {
   state.current_minutes = hh_mm_ss{now - floor<days>(now)}.minutes();
 }
 
-inline wstring StateStore::get_time(const time_zone* tz, const wstring& timezone) {
-  wstring time_string{state.time_formatter.Format(state.winrt_time, timezone)};
+wstring StateStore::get_time(const time_zone*& tz, const wstring& timezone) {
+  return get_time(
+      tz, timezone, state.configuration, state.time_formatter, state.time, state.winrt_time, state.local_days
+  );
+}
 
-  if (state.configuration.show_day_difference) {
-    sys_days tz_days{year_month_day{floor<days>(zoned_time{tz, state.time}.get_local_time())}};
+[[clang::always_inline]] inline wstring StateStore::get_time_inline(const time_zone*& tz, const wstring& timezone) {
+  [[clang::always_inline]] return get_time(
+      tz, timezone, state.configuration, state.time_formatter, state.time, state.winrt_time, state.local_days
+  );
+}
 
-    if (tz_days != state.local_days) {
-      if (tz_days > state.local_days)
-        time_string.append(L" " + NEXT_DAY + L" ");
+wstring StateStore::get_time(
+    const time_zone*& tz, const wstring& timezone, const Configuration& configuration,
+    const DateTimeFormatter& formatter, const TimeSystem& time, const TimeWinRT& winrt_time, sys_days local_days
+) {
+  wstring time_string{formatter.Format(winrt_time, timezone)};
+  // Remove the U+200E "Left-To-Right Mark" character
+  time_string.erase(remove(time_string.begin(), time_string.end(), L'\u200E'), time_string.end());
+
+  if (configuration.show_day_difference) {
+    sys_days tz_days{year_month_day{floor<days>(zoned_time{tz, time}.get_local_time())}};
+
+    if (tz_days != local_days) {
+      if (tz_days > local_days)
+        time_string.append(L" " + NEXT_DAY);
       else
-        time_string.append(L" " + PREV_DAY + L" ");
+        time_string.append(L" " + PREV_DAY);
     }
   }
 
@@ -276,7 +285,7 @@ void StateStore::refresh() {
     refresh_time(now);
 
     for (auto& [_, clock] : clocks) {
-      clock.time = get_time(clock.tz, clock.timezone);
+      clock.time = get_time_inline(clock.tz, clock.timezone);
     }
   }
 }

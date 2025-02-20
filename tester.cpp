@@ -20,12 +20,62 @@ using nowide::narrow;
 using std::cout;
 using std::endl;
 using std::format;
+using std::remove;
 using std::string;
 using std::wcout;
 using winrt::clock;
 using namespace std::chrono;
 using namespace winrt::Windows::Globalization;
 using namespace winrt::Windows::Globalization::DateTimeFormatting;
+
+vector<uint32_t> get_utf8_codepoints(const string& sample) {
+  vector<uint32_t> codepoints;
+  const auto size = sample.size();
+  for (size_t i = 0; i < size;) {
+    uint8_t lead = static_cast<uint8_t>(sample[i]);
+
+    // Determine the number of bytes in the code point
+    size_t len = 1;
+    if ((lead >> 3) == 0x1E)
+      len = 4;  // 11110xxx (4 bytes)
+    else if ((lead >> 4) == 0x0E)
+      len = 3;  // 1110xxxx (3 bytes)
+    else if ((lead >> 5) == 0x06)
+      len = 2;  // 110xxxxx (2 bytes)
+    else if ((lead >> 7) == 0x00)
+      len = 1;  // 0xxxxxxx (1 byte)
+
+    // Check if valid length remains
+    if (i + len > sample.size()) len = size - i;
+
+    // Extract code point
+    uint32_t cp = 0;
+    switch (len) {
+      case 4:
+        cp |= (static_cast<uint8_t>(sample[i]) & 0x07) << 18;
+        cp |= (static_cast<uint8_t>(sample[i + 1]) & 0x3F) << 12;
+        cp |= (static_cast<uint8_t>(sample[i + 2]) & 0x3F) << 6;
+        cp |= static_cast<uint8_t>(sample[i + 3]) & 0x3F;
+        break;
+      case 3:
+        cp |= (static_cast<uint8_t>(sample[i]) & 0x0F) << 12;
+        cp |= (static_cast<uint8_t>(sample[i + 1]) & 0x3F) << 6;
+        cp |= static_cast<uint8_t>(sample[i + 2]) & 0x3F;
+        break;
+      case 2:
+        cp |= (static_cast<uint8_t>(sample[i]) & 0x1F) << 6;
+        cp |= static_cast<uint8_t>(sample[i + 1]) & 0x3F;
+        break;
+      default:
+        cp = static_cast<uint8_t>(sample[i]);
+    }
+    codepoints.push_back(cp);
+    i += len;
+  }
+  return codepoints;
+}
+
+void remove_lrm(wstring& target) { target.erase(remove(target.begin(), target.end(), L'\u200E'), target.end()); }
 
 int main() {
   std::locale::global(std::locale{".utf-8"});
@@ -37,7 +87,7 @@ int main() {
     cout << "Invalid timezone" << endl;
   }
 
-  TMPluginGetInstance()->OnExtenedInfo(ITMPlugin::EI_CONFIG_DIR, L"dummy");
+  TMPluginGetInstance()->OnExtenedInfo(ITMPlugin::EI_CONFIG_DIR, L"./");
 
   auto plug_name = TMPluginGetInstance()->GetInfo(ITMPlugin::TMI_NAME);
   auto item_name = TMPluginGetInstance()->GetItem(0)->GetItemName();
@@ -107,7 +157,20 @@ int main() {
 
   cout << "\nWIN -----------" << endl;
 
-  wcout << L"Local auto: [" << formatter.Format(now_win) << L"]" << endl;
+  auto local_win = wstring{formatter.Format(now_win)};
+  wcout << L"Local auto: [" << local_win << L"]" << endl;
+
+  auto local_utf8 = narrow(wstring{local_win});
+  auto local_codepoints = get_utf8_codepoints(local_utf8);
+  cout << "Local utf8 codepoints:" << endl;
+
+  for (auto& codepoint : local_codepoints) {
+    cout << format("{:x}", codepoint) << endl;
+  }
+
+  remove_lrm(local_win);
+  wcout << endl << L"Local auto clean: [" << local_win << L"]" << endl;
+
   wcout << L"Local 24h: [" << formatter_24h.Format(now_win) << L"]" << endl;
   wcout << L"Local 12h: [" << formatter_12h.Format(now_win) << L"]" << endl;
 

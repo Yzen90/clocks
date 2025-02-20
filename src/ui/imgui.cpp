@@ -20,7 +20,7 @@ static el::Logger* logger;
 static HWND splash;
 
 optional<Resources> setup(void*& window_handle, Theme theme, const short base_size) {
-  if (logger == nullptr) logger = el::Loggers::getLogger("ui");
+  if (logger == nullptr) logger = el::Loggers::getLogger("imgui");
 
   SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
@@ -41,16 +41,16 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     logger->error(l10n->ui.errors.sdl_init + " " + SDL_GetError());
-    error_message(l10n->ui.errors.sdl_init + " " + SDL_GetError(), l10n->ui.title, window_handle);
+    error_message(l10n->ui.errors.sdl_init + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     SDL_Quit();
     return {};
   }
 
   Resources resources;
-  resources.window = SDL_CreateWindow(l10n->ui.title.data(), min_width, min_height, flags);
+  resources.window = SDL_CreateWindow(l10n->ui.app_title.data(), min_width, min_height, flags);
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
-    error_message(l10n->ui.errors.sdl_create_window + " " + SDL_GetError(), l10n->ui.title, window_handle);
+    error_message(l10n->ui.errors.sdl_create_window + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     cleanup(&resources);
     return {};
   }
@@ -68,14 +68,14 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
   resources.gpu = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL, debug_mode, nullptr);
   if (!resources.gpu) {
     logger->error(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError());
-    error_message(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError(), l10n->ui.title, window_handle);
+    error_message(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     cleanup(&resources);
     return {};
   }
 
   if (!SDL_ClaimWindowForGPUDevice(resources.gpu, resources.window)) {
     logger->error(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError());
-    error_message(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError(), l10n->ui.title, window_handle);
+    error_message(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     cleanup(&resources);
     return {};
   }
@@ -139,7 +139,9 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
   ImGui_ImplSDLGPU3_Init(&init_info);
 
   resources.driver = SDL_GetGPUDeviceDriver(resources.gpu);
-  logger->verbose(0, vformat(l10n->ui.messages.setup_complete, make_format_args(resources.driver, io.FontGlobalScale)));
+  logger->verbose(
+      0, vformat(l10n->ui.messages.setup_complete, make_format_args(resources.driver, resources.scale_factor))
+  );
   return {resources};
 }
 
@@ -240,8 +242,15 @@ void with_font_scale(float scale, function<void()> imgui_ops, float reset_scale)
   ImGui::SetWindowFontScale(reset_scale);
 }
 
-float available_x() { return ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x; };
+float current_x() { return ImGui::GetCursorPosX(); };
+float available_x() { return ImGui::GetContentRegionAvail().x; };
+float end_x() { return ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x; };
 void move_x(float distance) { ImGui::SetCursorPosX(distance); }
+
+float current_y() { return ImGui::GetCursorPosY(); };
+float available_y() { return ImGui::GetContentRegionAvail().y; };
+float end_y() { return ImGui::GetCursorPosY() + ImGui::GetContentRegionAvail().y; };
+void move_y(float distance) { ImGui::SetCursorPosY(distance); }
 
 // ANCHOR - Internal
 

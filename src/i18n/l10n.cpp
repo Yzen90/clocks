@@ -23,7 +23,11 @@
 using namespace winrt::Windows::System::UserProfile;
 
 using std::invalid_argument;
+using std::make_format_args;
 using std::string_view;
+using std::tie;
+using std::tuple;
+using std::vformat;
 
 static el::Logger* logger;
 
@@ -36,21 +40,16 @@ const Locale DEFAULT_LOCALE = Locale::EN;
 
 LocaleNames locales = {{Locale::EN, "English"}, {Locale::ES, "Español"}};
 
-Locale get_prefered_locale() {
+tuple<Locale, unsigned short> get_prefered_locale() {
   auto languages = GlobalizationPreferences::Languages();
   auto prefered = languages.Size();
 
-  if (logger == nullptr) {
-    logger = el::Loggers::getLogger("l10n");
-    logger->verbose(0, "System prefered languages: " + std::to_string(prefered));
-  }
-
   if (prefered > 0) {
     for (const auto language : languages) {
-      if (language.starts_with(L"es")) return Locale::ES;
+      if (language.starts_with(L"es")) return {Locale::ES, prefered};
     }
   }
-  return DEFAULT_LOCALE;
+  return {DEFAULT_LOCALE, prefered};
 }
 
 string_view get_localization(Locale locale) {
@@ -70,7 +69,10 @@ static Locale locale_loaded = Locale::Auto;
 Locale loaded_locale() { return locale_loaded; }
 
 void load_locale(Locale locale) {
-  if (locale == Locale::Auto) locale = get_prefered_locale();
+  if (logger == nullptr) logger = el::Loggers::getLogger("l10n");
+  int prefered = -1;
+
+  if (locale == Locale::Auto) tie(locale, prefered) = get_prefered_locale();
   if (locale_loaded == locale) return;
 
   auto localization = get_localization(locale);
@@ -82,8 +84,10 @@ void load_locale(Locale locale) {
     if (ss_contexts) *ss_contexts = &l10n->state_store.contexts;
     if (ss_messages) *ss_messages = &l10n->state_store.messages;
 
-    logger = el::Loggers::getLogger(l10n->l10n.logger_id);
-    logger->verbose(0, context(l10n->l10n.contexts.load) + l10n->l10n.messages.loaded + " " + locales[locale]);
+    if (prefered != -1)
+      logger->verbose(0, vformat(l10n->l10n.messages.loaded_system, make_format_args(prefered, locales[locale])));
+    else
+      logger->verbose(0, vformat(l10n->l10n.messages.loaded, make_format_args(locales[locale])));
   } else {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }

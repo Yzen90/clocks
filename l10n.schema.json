@@ -41,35 +41,13 @@
         "object"
       ],
       "properties": {
-        "contexts": {
-          "$ref": "#/$defs/L10N::Localization::Contexts"
-        },
-        "logger_id": {
-          "$ref": "#/$defs/std::string"
-        },
         "messages": {
           "$ref": "#/$defs/L10N::Localization::Messages"
         }
       },
       "additionalProperties": false,
       "required": [
-        "contexts",
-        "logger_id",
         "messages"
-      ]
-    },
-    "L10N::Localization::Contexts": {
-      "type": [
-        "object"
-      ],
-      "properties": {
-        "load": {
-          "$ref": "#/$defs/std::string"
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "load"
       ]
     },
     "L10N::Localization::Messages": {
@@ -79,11 +57,15 @@
       "properties": {
         "loaded": {
           "$ref": "#/$defs/std::string"
+        },
+        "loaded_system": {
+          "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "loaded"
+        "loaded",
+        "loaded_system"
       ]
     },
     "L10N::StateStore": {
@@ -94,9 +76,6 @@
         "contexts": {
           "$ref": "#/$defs/L10N::StateStore::Contexts"
         },
-        "logger_id": {
-          "$ref": "#/$defs/std::string"
-        },
         "messages": {
           "$ref": "#/$defs/L10N::StateStore::Messages"
         }
@@ -104,7 +83,6 @@
       "additionalProperties": false,
       "required": [
         "contexts",
-        "logger_id",
         "messages"
       ]
     },
@@ -180,6 +158,9 @@
         "actions": {
           "$ref": "#/$defs/L10N::UI::Actions"
         },
+        "app_title": {
+          "$ref": "#/$defs/std::string"
+        },
         "errors": {
           "$ref": "#/$defs/L10N::UI::Errors"
         },
@@ -199,6 +180,7 @@
       "additionalProperties": false,
       "required": [
         "actions",
+        "app_title",
         "errors",
         "messages",
         "sections",
@@ -265,13 +247,39 @@
         "object"
       ],
       "properties": {
+        "configuration": {
+          "$ref": "#/$defs/L10N::UI::Sections::Configuration"
+        },
         "log": {
           "$ref": "#/$defs/L10N::UI::Sections::Log"
         }
       },
       "additionalProperties": false,
       "required": [
+        "configuration",
         "log"
+      ]
+    },
+    "L10N::UI::Sections::Configuration": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "options": {
+          "$ref": "#/$defs/std::string"
+        },
+        "sample": {
+          "$ref": "#/$defs/std::string"
+        },
+        "show_day_difference": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "options",
+        "sample",
+        "show_day_difference"
       ]
     },
     "L10N::UI::Sections::Log": {

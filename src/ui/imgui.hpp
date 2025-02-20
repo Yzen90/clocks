@@ -34,8 +34,14 @@ void render(const Resources& resources);
 void cleanup(Resources* resources);
 
 void with_font_scale(float scale, function<void()> imgui_ops, float reset_scale = 1);
+float current_x();
 float available_x();
+float end_x();
 void move_x(float distance);
+float current_y();
+float available_y();
+float end_y();
+void move_y(float distance);
 
 static bool apps_use_light_theme();
 static bool show_splash(float scale);

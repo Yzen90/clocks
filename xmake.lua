@@ -64,7 +64,10 @@ target('imgui')
   add_files('extern/imgui/backends/imgui_impl_sdl3.cpp')
   add_files('extern/imgui/backends/imgui_impl_sdlgpu3.cpp')
   add_files('extern/imgui/misc/freetype/imgui_freetype.cpp')
+  add_files('extern/imgui_toggle/*.cpp')
   add_includedirs('extern/imgui', {public = true})
+  add_includedirs('extern/imgui_toggle', {public = true})
+
   add_packages('sdl')
   add_links('freetype')
 

@@ -2,20 +2,30 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <imgui_toggle.h>
 
+#include <nowide/convert.hpp>
 #include <thread>
 
 #include "icons.hpp"
 #include "imgui.hpp"
 
 using namespace material_symbols;
+using namespace std::chrono;
+
+using nowide::narrow;
+using nowide::widen;
 using std::round;
+using winrt::clock;
 
 const short GAP = 5;
 const short ICON_BUTTON_SIZE = 30;
 const short BASE_SIZE = 20;
 
-ClocksConfig::ClocksConfig(Configuration configuration) : configuration(configuration), original(configuration) {}
+ClocksConfig::ClocksConfig(Configuration configuration)
+    : configuration(configuration),
+      original(configuration),
+      formatter(StateStore::get_time_formatter(configuration.clock_type)) {}
 
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
@@ -27,6 +37,8 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
       current_theme = configuration.theme;
       debug_level = configuration.log_level == LogLevel::DEBUG;
+
+      refresh_sample();
 
       gap = round(GAP * resources.scale_factor);
       icon_button_size = {ICON_BUTTON_SIZE * resources.scale_factor, ICON_BUTTON_SIZE * resources.scale_factor};
@@ -59,12 +71,18 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         );
         ImGui::PopStyleVar(2);
 
-        ui_section_top();
-        ui_section_main();
-        ui_section_bottom();
+        panel_width = available_x() / 2;
+        ui_section_header();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{gap, 0});
+        ImVec2 panels_size{panel_width, available_y() - (save_button_size.y + (gap * 2))};
+        ui_section_clocks(panels_size);
+        ui_section_options(panels_size);
+
+        ui_section_footer();
 
         ImGui::End();
-        ImGui::PopStyleVar(2);
+        ImGui::PopStyleVar(3);
 
         render(resources);
       }
@@ -81,46 +99,120 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
   return {};
 }
 
-void ClocksConfig::ui_section_bottom() {
+void ClocksConfig::ui_section_footer() {
   ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextPadding, ImVec2(0, 0));
   ImGui::Separator();
   ImGui::PopStyleVar();
 
-  ImGui::Dummy(ImVec2(1, gap));
-
-  // TODO - Position according to text size
-  move_x(available_x() - (99 * resources.scale_factor) - gap);
-  ui_primary_button(SAVE_AS + " " + l10n->ui.actions.save + " ");
+  move_x(end_x() - save_button_size.x - gap);
+  move_y(current_y() + gap);
+  ui_primary_button(save_label);
 }
 
-void ClocksConfig::ui_section_main() {
-  float container_width = ImGui::GetContentRegionAvail().x * 0.5;
-  float container_height = ImGui::GetContentRegionAvail().y - (40 * resources.scale_factor);
-  ImGui::BeginChild("Clocks", ImVec2(container_width, container_height));
+void ClocksConfig::ui_section_clocks(ImVec2& size) {
+  ImGui::BeginChild("Clocks", size, ImGuiChildFlags_AlwaysUseWindowPadding);
 
   ImGui::EndChild();
+}
+
+void ClocksConfig::ui_section_options(ImVec2& size) {
   ImGui::SameLine();
+  move_x(size.x);
 
   ImGui::BeginChild(
-      "Options", ImVec2(container_width, container_height), ImGuiChildFlags_None,
+      "Options", size, ImGuiChildFlags_AlwaysUseWindowPadding,
       ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
   );
 
+  ui_clock_sample();
+
+  ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextPadding, ImVec2(0, gap));
+  ImGui::SeparatorText(l10n->ui.sections.configuration.options.data());
+  ImGui::PopStyleVar();
+
+  if (ImGui::Toggle(
+          (" " + l10n->ui.sections.configuration.show_day_difference).data(), &configuration.show_day_difference,
+          ImGuiToggleFlags_Animated
+      )) {
+    refresh_sample();
+  }
+
   ImGui::EndChild();
 }
 
-void ClocksConfig::ui_section_top() {
+void ClocksConfig::ui_add_clock_button() {
+  move_x(panel_width - icon_button_size.x);
+  ui_icon_button(MORE_TIME, 1.2);
+}
+
+void ClocksConfig::refresh_sample() {
+  auto time = system_clock::now();
+  auto winrt_time = clock::from_sys(time);
+
+  auto selected_tz = configuration.clocks[selected_clock].timezone;
+  auto local_days = sys_days{year_month_day{floor<days>(zoned_time{selected_tz, time}.get_local_time())}};
+  auto timezone = widen(selected_tz);
+  auto tz = locate_zone(DEFAULT_CLOCK.timezone);
+
+  time_sample = narrow(StateStore::get_time(tz, timezone, configuration, formatter, time, winrt_time, local_days));
+  if (configuration.show_day_difference) {
+    time_sample_after =
+        narrow(StateStore::get_time(tz, timezone, configuration, formatter, time, winrt_time, local_days - days(1)));
+    time_sample_before =
+        narrow(StateStore::get_time(tz, timezone, configuration, formatter, time, winrt_time, local_days + days(1)));
+  }
+}
+
+void ClocksConfig::ui_clock_sample() {
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, button_padding);
+  ImGui::BeginChild("Sample", {available_x(), 0}, ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY);
+
+  ImGui::TextDisabled("%s", l10n->ui.sections.configuration.sample.data());
+
+  auto selected_label = configuration.clocks[selected_clock].label;
+
+  string sample = selected_label + " " + time_sample;
+  if (configuration.show_day_difference) {
+    auto separator = panel_width > (480 * resources.scale_factor) ? '\t' : '\n';
+
+    sample += separator + selected_label + " " + time_sample_before;
+    sample += separator + selected_label + " " + time_sample_after;
+  }
+
+  ImGui::TextWrapped("%s", sample.data());
+
+  ImGui::EndChild();
+  ImGui::PopStyleVar();
+}
+
+void ClocksConfig::ui_section_header() {
   if (locale_changed) {
     load_locale(configuration.locale);
+
     locale = LANGUAGE + " ";
     locale += locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale];
     locale += " ";
     locale_space = round(ImGui::CalcTextSize(locale.data()).x + (BASE_SIZE * resources.scale_factor) + (gap * 5));
     locale_changed = false;
+
+    save_label = SAVE_AS + " " + l10n->ui.actions.save + " ";
+
+    save_button_size = ImGui::CalcTextSize(save_label.data());
+    save_button_size.x += gap * 2;
+    save_button_size.y += gap * 2;
   }
 
+  move_x(gap);
+  with_font_scale(1.3, []() { ImGui::TextUnformatted(NEST_CLOCK_FARSIGHT_ANALOG.data()); });
+  ImGui::SameLine();
+  with_font_scale(1.3, []() { ImGui::TextUnformatted(l10n->ui.title.data()); });
+  ImGui::SameLine();
+
+  ui_add_clock_button();
+  ImGui::SameLine();
+
   short buttons = debug_level ? 2 : 1;
-  float start_x = available_x() - locale_space - (button_space * buttons);
+  float start_x = end_x() - locale_space - (button_space * buttons);
 
   move_x(start_x);
   ui_locale_select();

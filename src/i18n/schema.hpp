@@ -22,8 +22,6 @@ struct L10N {
       string warn_no_clocks;
       string warn_no_valid_clocks;
     } messages;
-
-    string logger_id;
   } state_store;
 
   struct UI {
@@ -43,6 +41,12 @@ struct L10N {
     } messages;
 
     struct Sections {
+      struct Configuration {
+        string options;
+        string sample;
+        string show_day_difference;
+      } configuration;
+
       struct Log {
         string title;
         struct Level {
@@ -64,18 +68,14 @@ struct L10N {
       string title;
     } theme;
 
+    string app_title;
     string title;
   } ui;
 
   struct Localization {
-    string logger_id;
-
-    struct Contexts {
-      string load;
-    } contexts;
-
     struct Messages {
       string loaded;
+      string loaded_system;
     } messages;
   } l10n;
 
