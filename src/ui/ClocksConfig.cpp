@@ -30,6 +30,8 @@ ClocksConfig::ClocksConfig(Configuration configuration)
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
     if (auto setup_resources = setup(window_handle, configuration.theme, BASE_SIZE)) {
+      EnableWindow(static_cast<HWND>(window_handle), FALSE);
+
       resources = std::move(*setup_resources);
       setup_resources.reset();
 
@@ -88,9 +90,31 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       }
 
       cleanup(&resources);
+      EnableWindow(static_cast<HWND>(window_handle), TRUE);
+      SetFocus(static_cast<HWND>(window_handle));
+      SetForegroundWindow(static_cast<HWND>(window_handle));
     }
   }};
 
+  HANDLE ui_thread = ui.native_handle();
+  DWORD result;
+  while (true) {
+    result = MsgWaitForMultipleObjects(1, &ui_thread, FALSE, INFINITE, QS_ALLINPUT);
+
+    if (result == WAIT_OBJECT_0) {
+      break;
+
+    } else if (result == WAIT_OBJECT_0 + 1) {
+      MSG message;
+      while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&message);
+        DispatchMessageW(&message);
+      }
+    } else {
+      throw "UI thread wait error.";
+      break;
+    }
+  }
   ui.join();
 
   if (is_changed) return {configuration};
