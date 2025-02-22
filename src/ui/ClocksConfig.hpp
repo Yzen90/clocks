@@ -36,10 +36,13 @@ class ClocksConfig {
   bool debug_level = false;
 
   float gap;
+  float icon_button_width;
   ImVec2 icon_button_size;
   float button_space;
   ImVec2 button_padding;
   float panel_width;
+  float breakpoint;
+  bool panel_large;
 
   void ui_section_header();
   void ui_section_clocks(ImVec2& size);
@@ -51,6 +54,7 @@ class ClocksConfig {
   void ui_graphics_metrics();
 
   void ui_add_clock_button();
+  void ui_clock_entry(Clock& clock);
   void ui_clock_sample();
 
   bool ui_primary_button(

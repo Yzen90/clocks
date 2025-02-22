@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <imgui_stdlib.h>
 #include <imgui_toggle.h>
 
 #include <nowide/convert.hpp>
@@ -15,12 +16,12 @@ using namespace std::chrono;
 
 using nowide::narrow;
 using nowide::widen;
-using std::round;
 using winrt::clock;
 
 const short GAP = 5;
-const short ICON_BUTTON_SIZE = 30;
 const short BASE_SIZE = 20;
+const float SCALE_L = 1.24;
+const short RESPONSIVE_BREAKPOINT = 480;
 
 ClocksConfig::ClocksConfig(Configuration configuration)
     : configuration(configuration),
@@ -40,10 +41,12 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
 
       refresh_sample();
 
-      gap = round(GAP * resources.scale_factor);
-      icon_button_size = {ICON_BUTTON_SIZE * resources.scale_factor, ICON_BUTTON_SIZE * resources.scale_factor};
-      button_space = icon_button_size.x + gap;
+      gap = ceil(GAP * resources.scale_factor);
+      icon_button_width = (BASE_SIZE * resources.scale_factor) + (gap * 2);
+      icon_button_size = {icon_button_width, icon_button_width};
+      button_space = icon_button_width + gap;
       button_padding = {gap, gap};
+      breakpoint = RESPONSIVE_BREAKPOINT * resources.scale_factor;
 
       while (keep_open(resources)) {
         if (is_minimized(resources)) continue;
@@ -72,6 +75,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ImGui::PopStyleVar(2);
 
         panel_width = available_x() / 2;
+        panel_large = panel_width > breakpoint;
         ui_section_header();
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{gap, 0});
@@ -130,6 +134,10 @@ void ClocksConfig::ui_section_footer() {
 void ClocksConfig::ui_section_clocks(ImVec2& size) {
   ImGui::BeginChild("Clocks", size, ImGuiChildFlags_AlwaysUseWindowPadding);
 
+  for (auto& clock : configuration.clocks) {
+    ui_clock_entry(clock);
+  }
+
   ImGui::EndChild();
 }
 
@@ -159,8 +167,20 @@ void ClocksConfig::ui_section_options(ImVec2& size) {
 }
 
 void ClocksConfig::ui_add_clock_button() {
-  move_x(panel_width - icon_button_size.x);
-  ui_icon_button(MORE_TIME, 1.2);
+  move_x(panel_width - icon_button_width);
+  ui_icon_button(MORE_TIME, SCALE_L);
+}
+
+void ClocksConfig::ui_clock_entry(Clock& clock) {
+  /* if (ImGui::BeginTable("table", panel_large ? 3 : 2))
+  {
+
+  } */
+
+  ui_primary_button(clock.timezone);
+  ImGui::SameLine();
+  ImGui::InputText("Etiqueta", &clock.label);
+  ImGui::Separator();
 }
 
 void ClocksConfig::refresh_sample() {
@@ -191,7 +211,7 @@ void ClocksConfig::ui_clock_sample() {
 
   string sample = selected_label + " " + time_sample;
   if (configuration.show_day_difference) {
-    auto separator = panel_width > (480 * resources.scale_factor) ? '\t' : '\n';
+    auto separator = panel_large ? '\t' : '\n';
 
     sample += separator + selected_label + " " + time_sample_before;
     sample += separator + selected_label + " " + time_sample_after;
