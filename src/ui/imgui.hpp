@@ -14,6 +14,7 @@ using std::optional;
 struct Resources {
   SDL_Window* window;
   SDL_GPUDevice* gpu;
+  HWND parent;
   ImGuiIO* io;
   string driver;
   int dpi;
@@ -44,4 +45,4 @@ float end_y();
 void move_y(float distance);
 
 static bool apps_use_light_theme();
-static bool show_splash(float scale);
+static bool show_splash(float scale, HWND parent);

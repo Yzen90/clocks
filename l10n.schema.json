@@ -216,7 +216,13 @@
         "sdl_create_window": {
           "$ref": "#/$defs/std::string"
         },
+        "sdl_get_handle": {
+          "$ref": "#/$defs/std::string"
+        },
         "sdl_init": {
+          "$ref": "#/$defs/std::string"
+        },
+        "sdl_set_parent": {
           "$ref": "#/$defs/std::string"
         }
       },
@@ -225,7 +231,9 @@
         "sdl_claim_window",
         "sdl_create_gpu_device",
         "sdl_create_window",
-        "sdl_init"
+        "sdl_get_handle",
+        "sdl_init",
+        "sdl_set_parent"
       ]
     },
     "L10N::UI::Messages": {

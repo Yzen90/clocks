@@ -21,12 +21,13 @@ static HWND splash;
 
 optional<Resources> setup(void*& window_handle, Theme theme, const short base_size) {
   if (logger == nullptr) logger = el::Loggers::getLogger("imgui");
+  Resources resources{.parent = static_cast<HWND>(window_handle)};
 
   SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
   short dpi;
   {
-    dpi = GetDpiForWindow(static_cast<HWND>(window_handle));
+    dpi = GetDpiForWindow(resources.parent);
     if (dpi == 0) {
       HDC hdc = GetDC(nullptr);
       dpi = static_cast<UINT>(GetDeviceCaps(hdc, LOGPIXELSX));
@@ -37,7 +38,8 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
   const short min_width = 512 * scale;
   const short min_height = 384 * scale;
 
-  if (show_splash(scale)) flags |= SDL_WINDOW_HIDDEN;
+  EnableWindow(resources.parent, FALSE);
+  if (show_splash(scale, resources.parent)) flags |= SDL_WINDOW_HIDDEN;
 
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     logger->error(l10n->ui.errors.sdl_init + " " + SDL_GetError());
@@ -46,7 +48,6 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
     return {};
   }
 
-  Resources resources;
   resources.window = SDL_CreateWindow(l10n->ui.app_title.data(), min_width, min_height, flags);
   if (!resources.window) {
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
@@ -56,6 +57,19 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
   }
 
   SDL_SetWindowMinimumSize(resources.window, min_width, min_height);
+
+  {
+    HWND handle = static_cast<HWND>(
+        SDL_GetPointerProperty(SDL_GetWindowProperties(resources.window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL)
+    );
+    if (handle) {
+      SetLastError(0);
+      SetWindowLongPtr(handle, GWLP_HWNDPARENT, (LONG_PTR)window_handle);
+      if (GetLastError()) logger->warn(l10n->ui.errors.sdl_set_parent);
+    } else {
+      logger->warn(l10n->ui.errors.sdl_get_handle);
+    }
+  }
 
   // ANCHOR - SDL GPU initialization
 
@@ -230,6 +244,9 @@ void cleanup(Resources* resources) {
   }
   if (resources->window) SDL_DestroyWindow(resources->window);
 
+  EnableWindow(resources->parent, TRUE);
+  SetForegroundWindow(resources->parent);
+  SetFocus(resources->parent);
   *resources = Resources{};
   SDL_Quit();
 }
@@ -316,7 +333,7 @@ HPALETTE splash_palette() {
   return CreatePalette(reinterpret_cast<const LOGPALETTE*>(&log_palette));
 };
 
-bool show_splash(float scale) {
+bool show_splash(float scale, HWND parent) {
   int screenWidth = GetSystemMetrics(SM_CXSCREEN);
   int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
@@ -324,7 +341,7 @@ bool show_splash(float scale) {
 
   splash = CreateWindowEx(
       WS_EX_TOPMOST | WS_EX_TOOLWINDOW, L"ClocksSplash", NULL, WS_POPUP | WS_VISIBLE, (screenWidth - splash_size) / 2,
-      (screenHeight - splash_size) / 2, splash_size, splash_size, NULL, NULL, MODULE, NULL
+      (screenHeight - splash_size) / 2, splash_size, splash_size, parent, NULL, MODULE, NULL
   );
 
   if (splash) {

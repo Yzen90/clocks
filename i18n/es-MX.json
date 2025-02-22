@@ -35,7 +35,9 @@
       "sdl_claim_window": "SLD no pudo reclamar la ventana para el dispositivo GPU:",
       "sdl_create_gpu_device": "SDL no pudo crear el dispositivo GPU:",
       "sdl_create_window": "SDL no pudo crear la ventana:",
-      "sdl_init": "No se pudo inicializar SDL:"
+      "sdl_get_handle": "No se pudo obtener el handle de la ventana de SDL.",
+      "sdl_init": "No se pudo inicializar SDL:",
+      "sdl_set_parent": "No se pudo establecer el padre de la ventana de SDL."
     },
     "messages": {
       "setup_complete": "SDL y Dear ImGui están listos. Driver: {}, escala de visualización: {}"

@@ -30,8 +30,6 @@ ClocksConfig::ClocksConfig(Configuration configuration)
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
     if (auto setup_resources = setup(window_handle, configuration.theme, BASE_SIZE)) {
-      EnableWindow(static_cast<HWND>(window_handle), FALSE);
-
       resources = std::move(*setup_resources);
       setup_resources.reset();
 
@@ -90,9 +88,6 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       }
 
       cleanup(&resources);
-      EnableWindow(static_cast<HWND>(window_handle), TRUE);
-      SetFocus(static_cast<HWND>(window_handle));
-      SetForegroundWindow(static_cast<HWND>(window_handle));
     }
   }};
 
@@ -112,7 +107,6 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       }
     } else {
       throw "UI thread wait error.";
-      break;
     }
   }
   ui.join();

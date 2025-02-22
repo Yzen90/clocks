@@ -35,7 +35,9 @@
       "sdl_claim_window": "SDL was unable to claim window for GPU device:",
       "sdl_create_gpu_device": "SDL was unable to create the GPU device:",
       "sdl_create_window": "SDL was unable to create the window:",
-      "sdl_init": "Unable to initialize SDL:"
+      "sdl_get_handle": "Unable to get the SDL window handle.",
+      "sdl_init": "Unable to initialize SDL:",
+      "sdl_set_parent": "Unable to set the SDL window parent."
     },
     "messages": {
       "setup_complete": "SDL and Dear ImGui setup completed. Driver: {}, display scale: {}"
