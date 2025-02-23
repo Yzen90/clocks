@@ -79,6 +79,7 @@ target('imgui')
 package('sdl')
   add_deps('cmake')
   set_sourcedir('extern/SDL')
+  add_versions("3.2.5", "deadfe0c98c3d0d047a0ef6d4effa48eb99a4afb")
   on_install(function (package) 
     import('package.tools.cmake').install(package, {
       shared = false,
