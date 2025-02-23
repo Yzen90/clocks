@@ -4,6 +4,7 @@ using std::string;
 
 namespace material_symbols {
 
+  constexpr const string AUTO_DELETE = "\uEA4C";
   constexpr const string BRIGHTNESS_AUTO = "\uE1AB";
   constexpr const string BRIGHTNESS_HIGH = "\uE1AC";
   constexpr const string BROWSE_ACTIVITY = "\uF8A5";

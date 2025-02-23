@@ -16,6 +16,7 @@ using namespace std::chrono;
 
 using nowide::narrow;
 using nowide::widen;
+using std::to_string;
 using winrt::clock;
 
 const short GAP = 5;
@@ -48,6 +49,8 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       button_padding = {gap, gap};
       breakpoint = RESPONSIVE_BREAKPOINT * resources.scale_factor;
 
+      bool first_frame = true;
+
       while (keep_open(resources)) {
         if (is_minimized(resources)) continue;
 
@@ -57,6 +60,11 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         }
 
         new_frame();
+
+        if (first_frame) {
+          first_frame = false;
+          refresh_clocks_state();
+        }
 
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 12 * resources.scale_factor);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2 * resources.scale_factor);
@@ -128,14 +136,25 @@ void ClocksConfig::ui_section_footer() {
 
   move_x(end_x() - save_button_size.x - gap);
   move_y(current_y() + gap);
+
+  ImGui::BeginDisabled(!is_changed);
   ui_primary_button(save_label);
+  ImGui::EndDisabled();
 }
 
 void ClocksConfig::ui_section_clocks(ImVec2& size) {
   ImGui::BeginChild("Clocks", size, ImGuiChildFlags_AlwaysUseWindowPadding);
 
+  Index index = 0;
   for (auto& clock : configuration.clocks) {
-    ui_clock_entry(clock);
+    ui_clock_entry(clock, index);
+    if (index < configuration.clocks.size() - 1) ImGui::Separator();
+    index++;
+  }
+
+  if (clock_added) {
+    clock_added = false;
+    ImGui::SetScrollHereY();
   }
 
   ImGui::EndChild();
@@ -166,21 +185,78 @@ void ClocksConfig::ui_section_options(ImVec2& size) {
   ImGui::EndChild();
 }
 
-void ClocksConfig::ui_add_clock_button() {
-  move_x(panel_width - icon_button_width);
-  ui_icon_button(MORE_TIME, SCALE_L);
+void ClocksConfig::refresh_clocks_state() {
+  auto count = configuration.clocks.size();
+  clock_count = to_string(count);
+  clock_count_size = ImGui::CalcTextSize(clock_count.data());
+  clock_count_size.x += (gap * 2) + 1;
+  clock_count_size.y += (gap * 2) + 1;
+
+  can_remove = count > 1;
+  can_add = count < ITEM_MAX;
 }
 
-void ClocksConfig::ui_clock_entry(Clock& clock) {
-  /* if (ImGui::BeginTable("table", panel_large ? 3 : 2))
-  {
+void ClocksConfig::ui_clock_count() {
+  move_x(panel_width - (clock_count_size.x + icon_button_width * 2 + gap * 2));
+  ImGui::BeginDisabled();
 
-  } */
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, button_padding);
+  ImGui::BeginChild("ClockCount", clock_count_size, ImGuiChildFlags_Borders);
 
-  ui_primary_button(clock.timezone);
-  ImGui::SameLine();
-  ImGui::InputText("Etiqueta", &clock.label);
-  ImGui::Separator();
+  ImGui::TextUnformatted(clock_count.data());
+
+  ImGui::EndChild();
+  ImGui::PopStyleVar();
+
+  ImGui::EndDisabled();
+}
+
+void ClocksConfig::ui_remove_clock_button() {
+  move_x(panel_width - (icon_button_width * 2 + gap));
+
+  ImGui::BeginDisabled(!can_remove);
+  if (ui_icon_button(AUTO_DELETE, SCALE_L)) {
+    configuration.clocks.erase(configuration.clocks.begin() + selected_clock);
+
+    if (selected_clock == configuration.clocks.size()) selected_clock--;
+    refresh_clocks_state();
+  }
+  ImGui::EndDisabled();
+}
+
+void ClocksConfig::ui_add_clock_button() {
+  move_x(panel_width - icon_button_width);
+
+  ImGui::BeginDisabled(!can_add);
+  if (ui_icon_button(MORE_TIME, SCALE_L)) {
+    configuration.clocks.push_back(DEFAULT_CLOCK);
+    refresh_clocks_state();
+    selected_clock = configuration.clocks.size() - 1;
+    clock_added = true;
+  }
+  ImGui::EndDisabled();
+}
+
+void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
+  ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(gap, gap * 2));
+
+  if (ImGui::BeginTable("table", 2)) {
+    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, icon_button_width);
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::RadioButton(("##Clock" + to_string(index)).data(), &selected_clock, index);
+    ImGui::TableNextColumn();
+    ui_primary_button(clock.timezone);
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::TableNextColumn();
+    ImGui::InputText("Etiqueta", &clock.label);
+
+    ImGui::EndTable();
+  }
+
+  ImGui::PopStyleVar();
 }
 
 void ClocksConfig::refresh_sample() {
@@ -246,6 +322,10 @@ void ClocksConfig::ui_section_header() {
   with_font_scale(1.3, []() { ImGui::TextUnformatted(l10n->ui.title.data()); });
   ImGui::SameLine();
 
+  ui_clock_count();
+  ImGui::SameLine();
+  ui_remove_clock_button();
+  ImGui::SameLine();
   ui_add_clock_button();
   ImGui::SameLine();
 

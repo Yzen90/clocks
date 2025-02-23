@@ -31,8 +31,6 @@ using std::string;
 using std::vformat;
 using winrt::clock;
 
-const ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
-
 const string CONFIG_FILENAME = "clocks.dll.json";
 const string LOG_FILENAME = "clocks.dll.log";
 

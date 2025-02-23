@@ -70,6 +70,9 @@ struct ClockData {
 
 typedef unsigned char Index;
 typedef unsigned short ItemCount;
+
+const constexpr ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
+
 typedef time_point<system_clock> TimeSystem;
 typedef time_point<winrt::clock> TimeWinRT;
 

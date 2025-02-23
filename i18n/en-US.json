@@ -44,7 +44,7 @@
     },
     "sections": {
       "configuration": {
-        "options": "Options",
+        "options": "General options",
         "sample": "Sample",
         "show_day_difference": "Different day indicator"
       },

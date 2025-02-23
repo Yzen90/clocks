@@ -19,6 +19,7 @@ class ClocksConfig {
 
   bool is_changed = false;
   bool show_metrics = false;
+  bool debug_level = false;
 
   string locale;
   bool locale_changed;
@@ -31,9 +32,14 @@ class ClocksConfig {
   string time_sample_before;
   string time_sample_after;
 
-  Index selected_clock = 0;
+  int selected_clock = 0;
+  string clock_count;
+  ImVec2 clock_count_size;
+  bool can_remove;
+  bool can_add;
+  bool clock_added = false;
+
   Theme current_theme;
-  bool debug_level = false;
 
   float gap;
   float icon_button_width;
@@ -53,16 +59,20 @@ class ClocksConfig {
   void ui_theme_menu();
   void ui_graphics_metrics();
 
+  void refresh_clocks_state();
+  void ui_clock_count();
+  void ui_remove_clock_button();
   void ui_add_clock_button();
-  void ui_clock_entry(Clock& clock);
+
+  void ui_clock_entry(Clock& clock, const Index& index);
+
+  void refresh_sample();
   void ui_clock_sample();
 
   bool ui_primary_button(
       const string& text, optional<float> font_scale = {}, optional<ImVec2> size = {}, optional<ImVec2> padding = {}
   );
   bool ui_icon_button(const string& icon, optional<float> font_scale = {});
-
-  void refresh_sample();
 
  public:
   ClocksConfig(Configuration configuration);
