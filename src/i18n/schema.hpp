@@ -43,6 +43,11 @@ struct L10N {
     } messages;
 
     struct Sections {
+      struct Clocks {
+        string label;
+        string timezone;
+      } clocks;
+
       struct Configuration {
         string options;
         string sample;

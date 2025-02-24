@@ -43,6 +43,10 @@
       "setup_complete": "SDL y Dear ImGui están listos. Driver: {}, escala de visualización: {}"
     },
     "sections": {
+      "clocks": {
+        "label": "Etiqueta",
+        "timezone": "Zona horaria"
+      },
       "configuration": {
         "options": "Opciones generales",
         "sample": "Muestra",

@@ -43,6 +43,10 @@
       "setup_complete": "SDL and Dear ImGui setup completed. Driver: {}, display scale: {}"
     },
     "sections": {
+      "clocks": {
+        "label": "Label",
+        "timezone": "Time zone"
+      },
       "configuration": {
         "options": "General options",
         "sample": "Sample",

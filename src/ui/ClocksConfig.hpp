@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui.hpp"
 
+using std::nullopt;
 using std::optional;
 using winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter;
 
@@ -42,6 +43,7 @@ class ClocksConfig {
   Theme current_theme;
 
   float gap;
+  float frame_height;
   float icon_button_width;
   ImVec2 icon_button_size;
   float button_space;
@@ -49,6 +51,7 @@ class ClocksConfig {
   float panel_width;
   float breakpoint;
   bool panel_large;
+  float clock_entry_adjustment;
 
   void ui_section_header();
   void ui_section_clocks(ImVec2& size);
@@ -70,9 +73,10 @@ class ClocksConfig {
   void ui_clock_sample();
 
   bool ui_primary_button(
-      const string& text, optional<float> font_scale = {}, optional<ImVec2> size = {}, optional<ImVec2> padding = {}
+      const string& text, optional<float> font_scale = nullopt, optional<ImVec2> size = nullopt,
+      optional<ImVec2> padding = nullopt
   );
-  bool ui_icon_button(const string& icon, optional<float> font_scale = {});
+  bool ui_icon_button(const string& icon, optional<float> font_scale = nullopt);
 
  public:
   ClocksConfig(Configuration configuration);

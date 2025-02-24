@@ -64,6 +64,8 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         if (first_frame) {
           first_frame = false;
           refresh_clocks_state();
+          frame_height = ImGui::GetFrameHeight();
+          clock_entry_adjustment = ImGui::GetStyle().FramePadding.y * 3;
         }
 
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 12 * resources.scale_factor);
@@ -126,7 +128,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
   if (is_changed) return {configuration};
 
   load_locale(original.locale);
-  return {};
+  return nullopt;
 }
 
 void ClocksConfig::ui_section_footer() {
@@ -146,9 +148,11 @@ void ClocksConfig::ui_section_clocks(ImVec2& size) {
   ImGui::BeginChild("Clocks", size, ImGuiChildFlags_AlwaysUseWindowPadding);
 
   Index index = 0;
+  auto last = configuration.clocks.size() - 1;
+
   for (auto& clock : configuration.clocks) {
     ui_clock_entry(clock, index);
-    if (index < configuration.clocks.size() - 1) ImGui::Separator();
+    if (index < last) ImGui::Separator();
     index++;
   }
 
@@ -238,25 +242,48 @@ void ClocksConfig::ui_add_clock_button() {
 }
 
 void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
-  ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(gap, gap * 2));
+  ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, button_padding);
 
-  if (ImGui::BeginTable("table", 2)) {
-    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, icon_button_width);
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::RadioButton(("##Clock" + to_string(index)).data(), &selected_clock, index);
-    ImGui::TableNextColumn();
-    ui_primary_button(clock.timezone);
+  auto id = to_string(index);
+
+  if (ImGui::BeginTable(("ClockContainer" + id).data(), 2)) {
+    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, frame_height);
 
     ImGui::TableNextRow();
+
     ImGui::TableNextColumn();
+    ImGui::Dummy(
+        {1, panel_large ? (BASE_SIZE * resources.scale_factor) - clock_entry_adjustment
+                        : (BASE_SIZE * resources.scale_factor) * 2 + gap * 2}
+    );
+    if (ImGui::RadioButton(("##Clock" + id).data(), &selected_clock, index)) refresh_sample();
+
     ImGui::TableNextColumn();
-    ImGui::InputText("Etiqueta", &clock.label);
+    ImGui::PopStyleVar();
+    if (ImGui::BeginTable(("ClockParams" + id).data(), panel_large ? 2 : 1)) {
+      ImGui::TableNextRow();
+
+      ImGui::TableNextColumn();
+      if (panel_large) ImGui::Dummy({1, clock_entry_adjustment});
+      ImGui::TextDisabled("%s", l10n->ui.sections.clocks.timezone.data());
+      ImVec2 size{available_x(), 0};
+      ui_primary_button(clock.timezone, nullopt, size);
+
+      if (!panel_large) ImGui::TableNextRow();
+
+      ImGui::TableNextColumn();
+      if (!panel_large) ImGui::Dummy(button_padding);
+      ImGui::TextDisabled("%s", l10n->ui.sections.clocks.label.data());
+      ImGui::SetNextItemWidth(size.x);
+      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+      ImGui::InputText("", &clock.label);
+      ImGui::PopStyleVar();
+
+      ImGui::EndTable();
+    }
 
     ImGui::EndTable();
   }
-
-  ImGui::PopStyleVar();
 }
 
 void ClocksConfig::refresh_sample() {
@@ -266,7 +293,7 @@ void ClocksConfig::refresh_sample() {
   auto selected_tz = configuration.clocks[selected_clock].timezone;
   auto local_days = sys_days{year_month_day{floor<days>(zoned_time{selected_tz, time}.get_local_time())}};
   auto timezone = widen(selected_tz);
-  auto tz = locate_zone(DEFAULT_CLOCK.timezone);
+  auto tz = locate_zone(selected_tz);
 
   time_sample = narrow(StateStore::get_time(tz, timezone, configuration, formatter, time, winrt_time, local_days));
   if (configuration.show_day_difference) {

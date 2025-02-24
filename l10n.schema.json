@@ -255,6 +255,9 @@
         "object"
       ],
       "properties": {
+        "clocks": {
+          "$ref": "#/$defs/L10N::UI::Sections::Clocks"
+        },
         "configuration": {
           "$ref": "#/$defs/L10N::UI::Sections::Configuration"
         },
@@ -264,8 +267,27 @@
       },
       "additionalProperties": false,
       "required": [
+        "clocks",
         "configuration",
         "log"
+      ]
+    },
+    "L10N::UI::Sections::Clocks": {
+      "type": [
+        "object"
+      ],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/std::string"
+        },
+        "timezone": {
+          "$ref": "#/$defs/std::string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "timezone"
       ]
     },
     "L10N::UI::Sections::Configuration": {

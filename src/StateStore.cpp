@@ -27,6 +27,7 @@ using el::ConfigurationType;
 using nowide::widen;
 using std::format;
 using std::make_format_args;
+using std::nullopt;
 using std::string;
 using std::vformat;
 using winrt::clock;
@@ -272,7 +273,7 @@ void StateStore::add_clock(const time_zone* tz, string timezone, wstring label) 
 
 void StateStore::set_config_dir(const wchar_t* config_dir) {
   state.configuration_location = path{config_dir};
-  load_configuration({});
+  load_configuration(nullopt);
 }
 
 void StateStore::refresh() {

@@ -13,6 +13,7 @@
 using namespace winrt::Windows::Storage;
 
 using std::make_format_args;
+using std::nullopt;
 using std::vformat;
 using std::filesystem::exists;
 
@@ -45,7 +46,7 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
     logger->error(l10n->ui.errors.sdl_init + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_init + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     SDL_Quit();
-    return {};
+    return nullopt;
   }
 
   resources.window = SDL_CreateWindow(l10n->ui.app_title.data(), min_width, min_height, flags);
@@ -53,7 +54,7 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
     logger->error(l10n->ui.errors.sdl_create_window + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_window + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     cleanup(&resources);
-    return {};
+    return nullopt;
   }
 
   SDL_SetWindowMinimumSize(resources.window, min_width, min_height);
@@ -84,14 +85,14 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
     logger->error(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_create_gpu_device + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     cleanup(&resources);
-    return {};
+    return nullopt;
   }
 
   if (!SDL_ClaimWindowForGPUDevice(resources.gpu, resources.window)) {
     logger->error(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError());
     error_message(l10n->ui.errors.sdl_claim_window + " " + SDL_GetError(), l10n->ui.app_title, window_handle);
     cleanup(&resources);
-    return {};
+    return nullopt;
   }
   SDL_SetGPUSwapchainParameters(
       resources.gpu, resources.window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR,
