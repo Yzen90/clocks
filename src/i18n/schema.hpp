@@ -26,6 +26,7 @@ struct L10N {
 
   struct UI {
     struct Actions {
+      string cancel;
       string save;
     } actions;
 

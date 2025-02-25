@@ -19,6 +19,8 @@ using nowide::widen;
 using std::to_string;
 using winrt::clock;
 
+const short MIN_WIDTH = 512;
+const short MIN_HEIGHT = 384;
 const short GAP = 5;
 const short BASE_SIZE = 20;
 const float SCALE_L = 1.24;
@@ -31,7 +33,7 @@ ClocksConfig::ClocksConfig(Configuration configuration)
 
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
-    if (auto setup_resources = setup(window_handle, configuration.theme, BASE_SIZE)) {
+    if (auto setup_resources = setup(window_handle, configuration.theme, BASE_SIZE, MIN_WIDTH, MIN_HEIGHT)) {
       resources = std::move(*setup_resources);
       setup_resources.reset();
 
@@ -48,6 +50,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       button_space = icon_button_width + gap;
       button_padding = {gap, gap};
       breakpoint = RESPONSIVE_BREAKPOINT * resources.scale_factor;
+      timezone_select_size = {ceil(resources.real_min_width * 0.6f), ceil(resources.real_min_height * 0.4f)};
 
       bool first_frame = true;
 
@@ -65,8 +68,11 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
           first_frame = false;
           refresh_clocks_state();
           frame_height = ImGui::GetFrameHeight();
-          clock_entry_adjustment = ImGui::GetStyle().FramePadding.y * 3;
+          frame_padding = ImGui::GetStyle().FramePadding;
+          clock_entry_adjustment = frame_padding.y * 3;
         }
+
+        if (locale_changed) change_locale();
 
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 12 * resources.scale_factor);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2 * resources.scale_factor);
@@ -92,6 +98,8 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ImVec2 panels_size{panel_width, available_y() - (save_button_size.y + (gap * 2))};
         ui_section_clocks(panels_size);
         ui_section_options(panels_size);
+
+        ui_timezone_select();
 
         ui_section_footer();
 
@@ -252,10 +260,7 @@ void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
     ImGui::TableNextRow();
 
     ImGui::TableNextColumn();
-    ImGui::Dummy(
-        {1, panel_large ? (BASE_SIZE * resources.scale_factor) - clock_entry_adjustment
-                        : (BASE_SIZE * resources.scale_factor) * 2 + gap * 2}
-    );
+    ImGui::Dummy(panel_large ? button_padding : frame_padding);
     if (ImGui::RadioButton(("##Clock" + id).data(), &selected_clock, index)) refresh_sample();
 
     ImGui::TableNextColumn();
@@ -267,7 +272,7 @@ void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
       if (panel_large) ImGui::Dummy({1, clock_entry_adjustment});
       ImGui::TextDisabled("%s", l10n->ui.sections.clocks.timezone.data());
       ImVec2 size{available_x(), 0};
-      ui_primary_button(clock.timezone, nullopt, size);
+      if (ui_primary_button(clock.timezone, nullopt, size)) open_timezone_select = true;
 
       if (!panel_large) ImGui::TableNextRow();
 
@@ -278,12 +283,50 @@ void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
       ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
       ImGui::InputText("", &clock.label);
       ImGui::PopStyleVar();
+      if (!panel_large) ImGui::Dummy({1, clock_entry_adjustment});
 
       ImGui::EndTable();
     }
 
     ImGui::EndTable();
   }
+}
+
+void ClocksConfig::load_timezones() {
+  for (const auto& timezone : get_tzdb().zones) {
+    timezones.push_back(timezone.name());
+  }
+}
+
+void ClocksConfig::ui_timezone_select() {
+  if (open_timezone_select) {
+    open_timezone_select = false;
+
+    if (timezones.empty()) load_timezones();
+
+    ImGui::OpenPopup(timezone_select_title.data());
+  }
+
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, button_padding);
+  ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, {0.5, 0.5});
+
+  if (ImGui::BeginPopupModal(timezone_select_title.data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::GetStyle().GrabMinSize = 40 * resources.scale_factor;
+    ImGui::BeginChild("Clocks", timezone_select_size, ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders);
+
+    for (auto& timezone : timezones) {
+      ImGui::MenuItem(timezone.data());
+    }
+
+    ImGui::EndChild();
+
+    ImGui::Dummy(frame_padding);
+
+    move_x(end_x() - cancel_button_size.x);
+    if (ui_primary_button(l10n->ui.actions.cancel, nullopt, cancel_button_size)) ImGui::CloseCurrentPopup();
+    ImGui::EndPopup();
+  }
+  ImGui::PopStyleVar();
 }
 
 void ClocksConfig::refresh_sample() {
@@ -326,23 +369,29 @@ void ClocksConfig::ui_clock_sample() {
   ImGui::PopStyleVar();
 }
 
+void ClocksConfig::change_locale() {
+  load_locale(configuration.locale);
+
+  locale = LANGUAGE + " ";
+  locale += locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale];
+  locale += " ";
+  locale_space = round(ImGui::CalcTextSize(locale.data()).x + (BASE_SIZE * resources.scale_factor) + (gap * 5));
+  locale_changed = false;
+
+  save_label = SAVE_AS + " " + l10n->ui.actions.save + " ";
+
+  save_button_size = ImGui::CalcTextSize(save_label.data());
+  save_button_size.x += gap * 2;
+  save_button_size.y += gap * 2;
+
+  timezone_select_title = l10n->ui.sections.clocks.timezone;
+  cancel_label = " " + l10n->ui.actions.cancel + " ";
+  cancel_button_size = ImGui::CalcTextSize(cancel_label.data());
+  cancel_button_size.x += gap * 2;
+  cancel_button_size.y += gap * 2;
+}
+
 void ClocksConfig::ui_section_header() {
-  if (locale_changed) {
-    load_locale(configuration.locale);
-
-    locale = LANGUAGE + " ";
-    locale += locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale];
-    locale += " ";
-    locale_space = round(ImGui::CalcTextSize(locale.data()).x + (BASE_SIZE * resources.scale_factor) + (gap * 5));
-    locale_changed = false;
-
-    save_label = SAVE_AS + " " + l10n->ui.actions.save + " ";
-
-    save_button_size = ImGui::CalcTextSize(save_label.data());
-    save_button_size.x += gap * 2;
-    save_button_size.y += gap * 2;
-  }
-
   move_x(gap);
   with_font_scale(1.3, []() { ImGui::TextUnformatted(NEST_CLOCK_FARSIGHT_ANALOG.data()); });
   ImGui::SameLine();

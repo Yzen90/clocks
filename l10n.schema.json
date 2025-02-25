@@ -193,12 +193,16 @@
         "object"
       ],
       "properties": {
+        "cancel": {
+          "$ref": "#/$defs/std::string"
+        },
         "save": {
           "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
+        "cancel",
         "save"
       ]
     },

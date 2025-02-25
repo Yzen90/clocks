@@ -8,6 +8,7 @@
 
 using std::nullopt;
 using std::optional;
+using std::string_view;
 using winrt::Windows::Globalization::DateTimeFormatting::DateTimeFormatter;
 
 class ClocksConfig {
@@ -39,11 +40,19 @@ class ClocksConfig {
   bool can_remove;
   bool can_add;
   bool clock_added = false;
+  bool open_timezone_select = false;
+  string timezone_select_title;
+  ImVec2 timezone_select_size;
+  string cancel_label;
+  ImVec2 cancel_button_size;
+
+  vector<string_view> timezones;
 
   Theme current_theme;
 
   float gap;
   float frame_height;
+  ImVec2 frame_padding;
   float icon_button_width;
   ImVec2 icon_button_size;
   float button_space;
@@ -58,6 +67,7 @@ class ClocksConfig {
   void ui_section_options(ImVec2& size);
   void ui_section_footer();
 
+  void change_locale();
   void ui_locale_select();
   void ui_theme_menu();
   void ui_graphics_metrics();
@@ -68,6 +78,8 @@ class ClocksConfig {
   void ui_add_clock_button();
 
   void ui_clock_entry(Clock& clock, const Index& index);
+  void load_timezones();
+  void ui_timezone_select();
 
   void refresh_sample();
   void ui_clock_sample();

@@ -22,11 +22,13 @@ struct Resources {
   float scale_factor;
   float real_scale;
   bool light_theme;
+  short real_min_width;
+  short real_min_height;
 };
 
 void set_theme(Theme theme, Resources* resources);
 
-optional<Resources> setup(void*& window_handle, Theme theme, const short base_size);
+optional<Resources> setup(void*& window_handle, Theme theme, const short base_size, short min_width, short min_height);
 bool keep_open(const Resources& resources);
 bool is_minimized(const Resources& resources);
 

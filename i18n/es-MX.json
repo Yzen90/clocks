@@ -28,6 +28,7 @@
   },
   "ui": {
     "actions": {
+      "cancel": "Cancelar",
       "save": "Guardar"
     },
     "app_title": "🕜Clocks",

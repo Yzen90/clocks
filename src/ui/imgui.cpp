@@ -20,7 +20,7 @@ using std::filesystem::exists;
 static el::Logger* logger;
 static HWND splash;
 
-optional<Resources> setup(void*& window_handle, Theme theme, const short base_size) {
+optional<Resources> setup(void*& window_handle, Theme theme, const short base_size, short min_width, short min_height) {
   if (logger == nullptr) logger = el::Loggers::getLogger("imgui");
   Resources resources{.parent = static_cast<HWND>(window_handle)};
 
@@ -36,8 +36,10 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
     }
   }
   float scale = dpi / 96.0;
-  const short min_width = 512 * scale;
-  const short min_height = 384 * scale;
+  min_width = min_width * scale;
+  min_height = min_height * scale;
+  resources.real_min_width = min_width;
+  resources.real_min_height = min_height;
 
   EnableWindow(resources.parent, FALSE);
   if (show_splash(scale, resources.parent)) flags |= SDL_WINDOW_HIDDEN;
