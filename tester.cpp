@@ -11,7 +11,7 @@
 #include <iostream>
 #include <locale>
 #include <nowide/convert.hpp>
-#include <thread>
+// #include <thread>
 
 #include "PluginInterface.h"
 #include "src/ClocksPlugin.hpp"
@@ -189,17 +189,17 @@ int main() {
 
   cout << "Hola " << local_time << " -- " << utc_time << " -- " << minutes << endl;
 
-  std::this_thread::sleep_for(seconds(30));
+  // std::this_thread::sleep_for(seconds(30));
 
-  now = system_clock::now();
+  now += seconds{30};
   auto later = hh_mm_ss{now - floor<days>(now)}.minutes();
 
   cout << std::boolalpha;
   cout << minutes << " - " << later << " - is equal: " << (later == minutes) << endl;
 
-  std::this_thread::sleep_for(seconds(30));
+  // std::this_thread::sleep_for(seconds(30));
 
-  now = system_clock::now();
+  now += seconds{30};
   minutes = later;
   later = hh_mm_ss{now - floor<days>(now)}.minutes();
 
@@ -220,6 +220,8 @@ int main() {
   for (const auto& tz : timezones) {
     std::cout << tz << std::endl;
   }
+
+  system("pause");
 
   return 0;
 }

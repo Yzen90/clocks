@@ -33,6 +33,7 @@ class ClocksConfig {
   string time_sample;
   string time_sample_before;
   string time_sample_after;
+  string selected_clock_type;
 
   int selected_clock = 0;
   string clock_count;
@@ -46,7 +47,9 @@ class ClocksConfig {
   string cancel_label;
   ImVec2 cancel_button_size;
 
+  string timezone_filter;
   vector<string_view> timezones;
+  vector<string_view> timezones_filtered;
 
   Theme current_theme;
 
@@ -79,10 +82,13 @@ class ClocksConfig {
 
   void ui_clock_entry(Clock& clock, const Index& index);
   void load_timezones();
+  static int filter_timezones(ImGuiInputTextCallbackData* data);
   void ui_timezone_select();
 
   void refresh_sample();
   void ui_clock_sample();
+  void refresh_clock_type();
+  void ui_clock_type_select();
 
   bool ui_primary_button(
       const string& text, optional<float> font_scale = nullopt, optional<ImVec2> size = nullopt,

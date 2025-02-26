@@ -6,8 +6,10 @@
 #include <imgui_toggle.h>
 
 #include <nowide/convert.hpp>
+#include <rapidfuzz/fuzz.hpp>
 #include <thread>
 
+#include "../shared.hpp"
 #include "icons.hpp"
 #include "imgui.hpp"
 
@@ -16,6 +18,7 @@ using namespace std::chrono;
 
 using nowide::narrow;
 using nowide::widen;
+using rapidfuzz::fuzz::CachedPartialTokenSetRatio;
 using std::to_string;
 using winrt::clock;
 
@@ -50,7 +53,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       button_space = icon_button_width + gap;
       button_padding = {gap, gap};
       breakpoint = RESPONSIVE_BREAKPOINT * resources.scale_factor;
-      timezone_select_size = {ceil(resources.real_min_width * 0.6f), ceil(resources.real_min_height * 0.4f)};
+      timezone_select_size = {ceil(resources.real_min_width * 0.6f), ceil(resources.real_min_height * 0.5f)};
 
       bool first_frame = true;
 
@@ -194,6 +197,9 @@ void ClocksConfig::ui_section_options(ImVec2& size) {
     refresh_sample();
   }
 
+  ImGui::Dummy(button_padding);
+  ui_clock_type_select();
+
   ImGui::EndChild();
 }
 
@@ -272,16 +278,22 @@ void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
       if (panel_large) ImGui::Dummy({1, clock_entry_adjustment});
       ImGui::TextDisabled("%s", l10n->ui.sections.clocks.timezone.data());
       ImVec2 size{available_x(), 0};
-      if (ui_primary_button(clock.timezone, nullopt, size)) open_timezone_select = true;
+      if (ui_primary_button(clock.timezone, nullopt, size)) {
+        selected_clock = index;
+        open_timezone_select = true;
+      }
 
       if (!panel_large) ImGui::TableNextRow();
 
       ImGui::TableNextColumn();
       if (!panel_large) ImGui::Dummy(button_padding);
       ImGui::TextDisabled("%s", l10n->ui.sections.clocks.label.data());
+
       ImGui::SetNextItemWidth(size.x);
       ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
       ImGui::InputText("", &clock.label);
+      if (ImGui::IsItemActivated()) selected_clock = index;
+
       ImGui::PopStyleVar();
       if (!panel_large) ImGui::Dummy({1, clock_entry_adjustment});
 
@@ -293,9 +305,40 @@ void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
 }
 
 void ClocksConfig::load_timezones() {
-  for (const auto& timezone : get_tzdb().zones) {
-    timezones.push_back(timezone.name());
+  for (const auto& tz : get_tzdb().zones) {
+    auto timezone = tz.name();
+
+    if (timezone.rfind("SystemV", 0) != 0) timezones.push_back(timezone);
   }
+}
+
+int ClocksConfig::filter_timezones(ImGuiInputTextCallbackData* event) {
+  if (event->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
+    auto instance = static_cast<ClocksConfig*>(event->UserData);
+
+    auto& timezones = instance->timezones;
+    auto& timezones_filtered = instance->timezones_filtered;
+
+    string_view buffer{event->Buf, static_cast<size_t>(event->BufTextLen)};
+
+    if (buffer.empty()) {
+      timezones_filtered = timezones;
+      return 0;
+    }
+
+    timezones_filtered.clear();
+    auto filter = CachedPartialTokenSetRatio{buffer};
+
+    for (auto& timezone : timezones) {
+      auto tz = to_lower(timezone);
+      std::replace(tz.begin(), tz.end(), '_', ' ');
+      std::replace(tz.begin(), tz.end(), '/', ' ');
+
+      if (filter.similarity(tz) == 100) timezones_filtered.push_back(timezone);
+    }
+  }
+
+  return 0;
 }
 
 void ClocksConfig::ui_timezone_select() {
@@ -303,6 +346,8 @@ void ClocksConfig::ui_timezone_select() {
     open_timezone_select = false;
 
     if (timezones.empty()) load_timezones();
+    timezones_filtered = timezones;
+    timezone_filter = "";
 
     ImGui::OpenPopup(timezone_select_title.data());
   }
@@ -311,11 +356,33 @@ void ClocksConfig::ui_timezone_select() {
   ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, {0.5, 0.5});
 
   if (ImGui::BeginPopupModal(timezone_select_title.data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::SetNextItemWidth(timezone_select_size.x);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+
+    ImGui::InputTextWithHint(
+        "##Filter", l10n->ui.sections.clocks.filter.data(), &timezone_filter, ImGuiInputTextFlags_CallbackEdit,
+        ClocksConfig::filter_timezones, this
+    );
+    ImGui::PopStyleVar();
+
     ImGui::GetStyle().GrabMinSize = 40 * resources.scale_factor;
     ImGui::BeginChild("Clocks", timezone_select_size, ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders);
 
-    for (auto& timezone : timezones) {
-      ImGui::MenuItem(timezone.data());
+    for (auto& timezone : timezones_filtered) {
+      if (ImGui::MenuItem(timezone.data())) {
+        ImGui::CloseCurrentPopup();
+
+        auto& selected = configuration.clocks[selected_clock];
+        selected.timezone = timezone;
+
+        auto separator = timezone.find_last_of('/');
+        selected.label = separator != string::npos ? timezone.substr(separator + 1) : timezone;
+
+        std::replace(selected.label.begin(), selected.label.end(), '_', ' ');
+        selected.label += ":";
+
+        refresh_sample();
+      }
     }
 
     ImGui::EndChild();
@@ -369,6 +436,54 @@ void ClocksConfig::ui_clock_sample() {
   ImGui::PopStyleVar();
 }
 
+void ClocksConfig::refresh_clock_type() {
+  selected_clock_type =
+      SEARCH_ACTIVITY + " " +
+      (configuration.clock_type == ClockType::FormatAuto
+           ? l10n->ui.sections.configuration.clock_type_auto
+           : (configuration.clock_type == ClockType::Format24h ? l10n->ui.sections.configuration.clock_type_24h
+                                                               : l10n->ui.sections.configuration.clock_type_12h));
+}
+
+void ClocksConfig::ui_clock_type_select() {
+  bool changed = false;
+
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+  if (ImGui::BeginCombo("##ClockType", selected_clock_type.data(), ImGuiComboFlags_WidthFitPreview)) {
+    bool selected = configuration.clock_type == ClockType::FormatAuto;
+    if (ImGui::Selectable(l10n->ui.sections.configuration.clock_type_auto.data(), selected)) {
+      configuration.clock_type = ClockType::FormatAuto;
+      changed = true;
+    }
+    if (selected) ImGui::SetItemDefaultFocus();
+
+    selected = configuration.clock_type == ClockType::Format12h;
+    if (ImGui::Selectable(l10n->ui.sections.configuration.clock_type_12h.data(), selected)) {
+      configuration.clock_type = ClockType::Format12h;
+      changed = true;
+    }
+    if (selected) ImGui::SetItemDefaultFocus();
+
+    selected = configuration.clock_type == ClockType::Format24h;
+    if (ImGui::Selectable(l10n->ui.sections.configuration.clock_type_24h.data(), selected)) {
+      configuration.clock_type = ClockType::Format24h;
+      changed = true;
+    }
+    if (selected) ImGui::SetItemDefaultFocus();
+
+    if (changed) {
+      refresh_clock_type();
+      formatter = StateStore::get_time_formatter(configuration.clock_type);
+      refresh_sample();
+    }
+
+    ImGui::EndCombo();
+  }
+  ImGui::PopStyleVar();
+
+  ImGui::SameLine();
+}
+
 void ClocksConfig::change_locale() {
   load_locale(configuration.locale);
 
@@ -389,6 +504,8 @@ void ClocksConfig::change_locale() {
   cancel_button_size = ImGui::CalcTextSize(cancel_label.data());
   cancel_button_size.x += gap * 2;
   cancel_button_size.y += gap * 2;
+
+  refresh_clock_type();
 }
 
 void ClocksConfig::ui_section_header() {

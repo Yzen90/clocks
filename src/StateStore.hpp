@@ -130,7 +130,8 @@ class StateStore {
 
   static wstring get_time(
       const time_zone*& tz, const wstring& timezone, const Configuration& configuration,
-      const DateTimeFormatter& formatter, const TimeSystem& time, const TimeWinRT& winrt_time, sys_days local_days
+      const DateTimeFormatter& formatter, const TimeSystem& time, const TimeWinRT& winrt_time,
+      const sys_days& local_days
   );
   static DateTimeFormatter get_time_formatter(ClockType clock_type);
 };

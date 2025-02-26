@@ -3,7 +3,7 @@
 	"vcpkg-configuration": {
 		"default-registry": {
 			"kind": "git",
-			"baseline": "1420fe276fe8f6450565e6239a675271c0869359",
+			"baseline": "d8f4a4703a8b5e80f56f4978c72b3d2f21d312ff",
 			"repository": "https://github.com/microsoft/vcpkg"
 		},
 		"registries": [
@@ -17,13 +17,14 @@
 	"dependencies": [
 		"cppwinrt",
 		"easyloggingpp",
-		"glaze",
-		"nowide",
-		"xxhash",
 		{
 			"name": "freetype",
 			"default-features": false,
 			"features": ["error-strings", "subpixel-rendering"]
-		}
+		},
+		"glaze",
+		"nowide",
+		"rapidfuzz",
+		"xxhash"
 	]
 }

@@ -9,5 +9,6 @@
 	"nest_clock_farsight_analog",
 	"night_sight_auto",
 	"routine",
-	"save_as"
+	"save_as",
+	"search_activity"
 ]

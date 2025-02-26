@@ -45,10 +45,14 @@
     },
     "sections": {
       "clocks": {
+        "filter": "Filtro",
         "label": "Etiqueta",
         "timezone": "Zona horaria"
       },
       "configuration": {
+        "clock_type_12h": "Formato de 12 horas",
+        "clock_type_24h": "Formato de 24 horas",
+        "clock_type_auto": "Formato automático",
         "options": "Opciones generales",
         "sample": "Muestra",
         "show_day_difference": "Indicador de día diferente"

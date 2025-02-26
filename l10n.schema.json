@@ -281,6 +281,9 @@
         "object"
       ],
       "properties": {
+        "filter": {
+          "$ref": "#/$defs/std::string"
+        },
         "label": {
           "$ref": "#/$defs/std::string"
         },
@@ -290,6 +293,7 @@
       },
       "additionalProperties": false,
       "required": [
+        "filter",
         "label",
         "timezone"
       ]
@@ -299,6 +303,15 @@
         "object"
       ],
       "properties": {
+        "clock_type_12h": {
+          "$ref": "#/$defs/std::string"
+        },
+        "clock_type_24h": {
+          "$ref": "#/$defs/std::string"
+        },
+        "clock_type_auto": {
+          "$ref": "#/$defs/std::string"
+        },
         "options": {
           "$ref": "#/$defs/std::string"
         },
@@ -311,6 +324,9 @@
       },
       "additionalProperties": false,
       "required": [
+        "clock_type_12h",
+        "clock_type_24h",
+        "clock_type_auto",
         "options",
         "sample",
         "show_day_difference"

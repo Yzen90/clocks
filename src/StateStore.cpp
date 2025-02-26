@@ -75,8 +75,6 @@ StateStore& StateStore::instance() {
 }
 
 void StateStore::load_configuration(optional<Configuration> configuration) {
-  bool save = true;
-
   if (configuration) {
     state.configuration = *configuration;
     use_configuration();
@@ -95,10 +93,7 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
       } else {
         if (state.configuration.clocks.empty())
           logger->warn(context(contexts->configuration) + messages->warn_no_clocks);
-        else
-          save = false;
       }
-      buffer.clear();
 
     } else {
       use_configuration();
@@ -129,16 +124,14 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
   }
 
   if (state.item_count == 0) {
+    if (!state.configuration.clocks.empty())
+      logger->warn(context(contexts->configuration) + messages->warn_no_valid_clocks);
+
     state.configuration.clocks = {DEFAULT_CLOCK};
     add_clock(locate_zone(DEFAULT_CLOCK.timezone), DEFAULT_CLOCK.timezone, widen(DEFAULT_CLOCK.label));
-
-    if (!save) {
-      save = true;
-      logger->warn(context(contexts->configuration) + messages->warn_no_valid_clocks);
-    }
   }
 
-  if (save) save_configuration();
+  save_configuration();
   logger->info(context(contexts->configuration) + vformat(messages->config_loaded, make_format_args(state.item_count)));
 }
 
@@ -239,7 +232,7 @@ wstring StateStore::get_time(const time_zone*& tz, const wstring& timezone) {
 
 wstring StateStore::get_time(
     const time_zone*& tz, const wstring& timezone, const Configuration& configuration,
-    const DateTimeFormatter& formatter, const TimeSystem& time, const TimeWinRT& winrt_time, sys_days local_days
+    const DateTimeFormatter& formatter, const TimeSystem& time, const TimeWinRT& winrt_time, const sys_days& local_days
 ) {
   wstring time_string{formatter.Format(winrt_time, timezone)};
   // Remove the U+200E "Left-To-Right Mark" character

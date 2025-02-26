@@ -15,5 +15,6 @@ namespace material_symbols {
   constexpr const string NIGHT_SIGHT_AUTO = "\uF1D7";
   constexpr const string ROUTINE = "\uE20C";
   constexpr const string SAVE_AS = "\uEB60";
+  constexpr const string SEARCH_ACTIVITY = "\uF3E5";
 
 }

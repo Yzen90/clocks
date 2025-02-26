@@ -45,11 +45,15 @@ struct L10N {
 
     struct Sections {
       struct Clocks {
+        string filter;
         string label;
         string timezone;
       } clocks;
 
       struct Configuration {
+        string clock_type_12h;
+        string clock_type_24h;
+        string clock_type_auto;
         string options;
         string sample;
         string show_day_difference;

@@ -449,6 +449,21 @@
 										<name>clocks</name>
 										<children>
 											<concept_node>
+												<name>filter</name>
+												<description/>
+												<comment/>
+												<translations>
+													<translation>
+														<language>en-US</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+												</translations>
+											</concept_node>
+											<concept_node>
 												<name>label</name>
 												<description/>
 												<comment/>
@@ -483,6 +498,51 @@
 									<folder_node>
 										<name>configuration</name>
 										<children>
+											<concept_node>
+												<name>clock_type_12h</name>
+												<description/>
+												<comment/>
+												<translations>
+													<translation>
+														<language>en-US</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+												</translations>
+											</concept_node>
+											<concept_node>
+												<name>clock_type_24h</name>
+												<description/>
+												<comment/>
+												<translations>
+													<translation>
+														<language>en-US</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+												</translations>
+											</concept_node>
+											<concept_node>
+												<name>clock_type_auto</name>
+												<description/>
+												<comment/>
+												<translations>
+													<translation>
+														<language>en-US</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+												</translations>
+											</concept_node>
 											<concept_node>
 												<name>options</name>
 												<description/>
