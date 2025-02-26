@@ -61,7 +61,7 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
 
   SDL_SetWindowMinimumSize(resources.window, min_width, min_height);
 
-  {
+  if (window_handle) {
     HWND handle = static_cast<HWND>(
         SDL_GetPointerProperty(SDL_GetWindowProperties(resources.window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL)
     );

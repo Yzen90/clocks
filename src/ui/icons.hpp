@@ -4,6 +4,8 @@ using std::string;
 
 namespace material_symbols {
 
+  constexpr const string ARROW_DROP_DOWN = "\uE5C5";
+  constexpr const string ARROW_DROP_UP = "\uE5C7";
   constexpr const string AUTO_DELETE = "\uEA4C";
   constexpr const string BRIGHTNESS_AUTO = "\uE1AB";
   constexpr const string BRIGHTNESS_HIGH = "\uE1AC";

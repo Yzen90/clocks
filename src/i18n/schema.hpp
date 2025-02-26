@@ -11,6 +11,8 @@ struct L10N {
       string initialization;
     } contexts;
 
+    string dummy_clock;
+
     struct Messages {
       string config_file;
       string config_loaded;
@@ -40,6 +42,8 @@ struct L10N {
     } errors;
 
     struct Messages {
+      string config_closed;
+      string config_opened;
       string setup_complete;
     } messages;
 

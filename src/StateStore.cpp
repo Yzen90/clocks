@@ -84,7 +84,9 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
 
     if (exists(configuration_path)) {
       string buffer{};
-      auto error = glz::read_file_json(state.configuration, configuration_path.string(), buffer);
+      auto error = glz::read_file_json<glz::opts{.error_on_unknown_keys = false}>(
+          state.configuration, configuration_path.string(), buffer
+      );
       use_configuration();
 
       if (error) {
@@ -98,18 +100,20 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
     } else {
       use_configuration();
       logger->info(context(contexts->configuration) + messages->using_default_config);
+
+      first_time = true;
     }
 
-    if (state.item_count == 0)
+    if (state.clock_count == 0)
       logger->info(context(contexts->initialization) + messages->config_file + " " + configuration_path.string());
   }
 
   refresh_time(system_clock::now());
-  state.item_count = 0;
+  state.clock_count = 0;
   clocks.clear();
 
   for (auto& clock : state.configuration.clocks) {
-    if (state.item_count == ITEM_MAX) {
+    if (state.clock_count == ITEM_MAX) {
       logger->warn(context(contexts->configuration) + vformat(messages->too_many_clocks, make_format_args(ITEM_MAX)));
       break;
     }
@@ -123,7 +127,7 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
     }
   }
 
-  if (state.item_count == 0) {
+  if (state.clock_count == 0) {
     if (!state.configuration.clocks.empty())
       logger->warn(context(contexts->configuration) + messages->warn_no_valid_clocks);
 
@@ -132,7 +136,9 @@ void StateStore::load_configuration(optional<Configuration> configuration) {
   }
 
   save_configuration();
-  logger->info(context(contexts->configuration) + vformat(messages->config_loaded, make_format_args(state.item_count)));
+  logger->info(
+      context(contexts->configuration) + vformat(messages->config_loaded, make_format_args(state.clock_count))
+  );
 }
 
 void StateStore::use_configuration() {
@@ -171,7 +177,14 @@ void StateStore::set_log_level() {
   el::Loggers::setDefaultConfigurations(log_config, true);
 }
 
-void StateStore::set_locale() { load_locale(state.configuration.locale); }
+void StateStore::set_locale() {
+  load_locale(state.configuration.locale);
+  dummy_clock.id = widen(l10n->state_store.dummy_clock);
+  dummy_clock.label = widen(l10n->state_store.dummy_clock);
+  dummy_clock.name = widen(l10n->state_store.dummy_clock);
+  dummy_clock.sample = widen(l10n->state_store.dummy_clock);
+  dummy_clock.time = L"\u26D4\u26D4\u26D4\u26D4";
+}
 
 void StateStore::set_time_formatter() { state.time_formatter = get_time_formatter(state.configuration.clock_type); }
 
@@ -195,7 +208,7 @@ DateTimeFormatter StateStore::get_time_formatter(ClockType clock_type) {
 }
 
 void StateStore::save_configuration() {
-  auto error = glz::write_file_json<glz::opts{.prettify = true}>(
+  auto error = glz::write_file_json<glz::opts{.prettify = true, .indentation_width = 2}>(
       state.configuration, (state.configuration_location / CONFIG_FILENAME).string(), string{}
   );
   if (error)
@@ -253,15 +266,15 @@ wstring StateStore::get_time(
 }
 
 void StateStore::add_clock(const time_zone* tz, string timezone, wstring label) {
-  auto payload = std::to_string(state.item_count) + timezone;
+  auto payload = std::to_string(state.clock_count) + timezone;
   auto id = widen(format("{:x}", XXH3_64bits(payload.data(), payload.size())));
   auto timezone_w = widen(timezone);
 
   auto time = get_time(tz, timezone_w);
 
-  clocks[state.item_count] = ClockData{tz, timezone_w, id, label, L"🕜" + timezone_w, time, time};
+  clocks[state.clock_count] = ClockData{tz, timezone_w, id, label, L"🕜" + timezone_w, time, time};
 
-  state.item_count++;
+  state.clock_count++;
 }
 
 void StateStore::set_config_dir(const wchar_t* config_dir) {
@@ -284,9 +297,9 @@ void StateStore::refresh() {
   }
 }
 
-ClockData* StateStore::get_clock(Index index) { return &(clocks[index]); }
+ClockData* StateStore::get_clock(Index index) { return index < state.clock_count ? &(clocks[index]) : &dummy_clock; }
 
-ItemCount StateStore::item_count() { return state.item_count; }
+ClockCount StateStore::clock_count() { return state.clock_count; }
 
 Configuration StateStore::get_configuration() {
   Configuration copy = state.configuration;

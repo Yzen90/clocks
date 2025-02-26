@@ -69,9 +69,9 @@ struct ClockData {
 };
 
 typedef unsigned char Index;
-typedef unsigned short ItemCount;
+typedef unsigned short ClockCount;
 
-const constexpr ItemCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
+const constexpr ClockCount ITEM_MAX = std::numeric_limits<Index>::max() + 1;
 
 typedef time_point<system_clock> TimeSystem;
 typedef time_point<winrt::clock> TimeWinRT;
@@ -87,7 +87,7 @@ class StateStore {
   const Messages* messages;
 
   struct State {
-    ItemCount item_count = 0;
+    ClockCount clock_count = 0;
     path configuration_location;
     DateTimeFormatter time_formatter = DEFAULT_TIME_FORMATTER;
 
@@ -102,6 +102,7 @@ class StateStore {
   } state;
 
   map<Index, ClockData> clocks;
+  ClockData dummy_clock;
 
   void set_log_file(path log_file);
   void set_log_level();
@@ -121,10 +122,12 @@ class StateStore {
  public:
   static StateStore& instance();
 
+  bool first_time = false;
+
   void set_config_dir(const wchar_t* config_dir);
   void refresh();
   ClockData* get_clock(Index index);
-  ItemCount item_count();
+  ClockCount clock_count();
   Configuration get_configuration();
   void set_configuration(Configuration configuration);
   string get_log_file();

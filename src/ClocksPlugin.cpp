@@ -3,7 +3,7 @@
 #include "config.hpp"
 #include "ui/ClocksConfig.hpp"
 
-ClocksPlugin::ClocksPlugin() : state(StateStore::instance()), item_count(0) {}
+ClocksPlugin::ClocksPlugin() : state(StateStore::instance()) {}
 
 ClocksPlugin& ClocksPlugin::instance() {
   static ClocksPlugin instance;
@@ -11,10 +11,10 @@ ClocksPlugin& ClocksPlugin::instance() {
 }
 
 IPluginItem* ClocksPlugin::GetItem(int index) {
-  if (index == item_count)
-    return nullptr;
-  else
+  if (index < clocks.size())
     return &clocks[index];
+  else
+    return nullptr;
 }
 
 void ClocksPlugin::DataRequired() { state.refresh(); }
@@ -41,7 +41,17 @@ const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
 void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
   if (index == ITMPlugin::EI_CONFIG_DIR) {
     state.set_config_dir(data);
-    sync();
+
+    if (state.first_time) {
+      ClocksConfig window{state.get_configuration(), state.get_log_file()};
+
+      auto no_parent = (void*)nullptr;
+
+      auto configuration = window.open(no_parent);
+      if (configuration) state.set_configuration(*configuration);
+    }
+
+    for (Index i; i < state.clock_count(); i++) clocks.push_back(ClockItem{i, state});
   }
 }
 
@@ -52,7 +62,6 @@ ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* parent) {
 
   if (configuration) {
     state.set_configuration(*configuration);
-    sync();
     return OptionReturn::OR_OPTION_CHANGED;
 
   } else {
@@ -61,18 +70,3 @@ ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* parent) {
 }
 
 ITMPlugin* TMPluginGetInstance() { return &ClocksPlugin::instance(); }
-
-void ClocksPlugin::sync() {
-  auto count = state.item_count();
-
-  if (count != item_count) {
-    if (count > item_count) {
-      clocks.reserve(count);
-      for (Index index = item_count; index < count; index++) clocks.push_back(ClockItem{index, state});
-    } else {
-      clocks.erase(clocks.begin() + item_count, clocks.end());
-    }
-
-    item_count = count;
-  }
-}

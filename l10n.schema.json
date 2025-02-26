@@ -76,6 +76,9 @@
         "contexts": {
           "$ref": "#/$defs/L10N::StateStore::Contexts"
         },
+        "dummy_clock": {
+          "$ref": "#/$defs/std::string"
+        },
         "messages": {
           "$ref": "#/$defs/L10N::StateStore::Messages"
         }
@@ -83,6 +86,7 @@
       "additionalProperties": false,
       "required": [
         "contexts",
+        "dummy_clock",
         "messages"
       ]
     },
@@ -245,12 +249,20 @@
         "object"
       ],
       "properties": {
+        "config_closed": {
+          "$ref": "#/$defs/std::string"
+        },
+        "config_opened": {
+          "$ref": "#/$defs/std::string"
+        },
         "setup_complete": {
           "$ref": "#/$defs/std::string"
         }
       },
       "additionalProperties": false,
       "required": [
+        "config_closed",
+        "config_opened",
         "setup_complete"
       ]
     },

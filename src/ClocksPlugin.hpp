@@ -15,9 +15,6 @@ class ClocksPlugin : public ITMPlugin {
 
   StateStore &state;
   vector<ClockItem> clocks;
-  ItemCount item_count;
-
-  void sync();
 
  public:
   static ClocksPlugin &instance();

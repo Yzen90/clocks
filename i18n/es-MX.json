@@ -14,6 +14,7 @@
       "configuration": "Configuración",
       "initialization": "Inicialización"
     },
+    "dummy_clock": "BORRADO",
     "messages": {
       "config_file": "Archivo de configuración:",
       "config_loaded": "🕜Clocks cargó {} reloj(es).",
@@ -41,6 +42,8 @@
       "sdl_set_parent": "No se pudo establecer el padre de la ventana de SDL."
     },
     "messages": {
+      "config_closed": "Se cerró la ventana de configuración, no se realizarón cambios.",
+      "config_opened": "Se abrió la ventana de configuración.",
       "setup_complete": "SDL y Dear ImGui están listos. Driver: {}, escala de visualización: {}"
     },
     "sections": {
