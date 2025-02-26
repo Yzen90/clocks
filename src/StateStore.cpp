@@ -269,6 +269,8 @@ void StateStore::set_config_dir(const wchar_t* config_dir) {
   load_configuration(nullopt);
 }
 
+string StateStore::get_log_file() { return (state.configuration_location / LOG_FILENAME).string(); }
+
 void StateStore::refresh() {
   auto now = system_clock::now();
   auto minutes = hh_mm_ss{now - floor<days>(now)}.minutes();

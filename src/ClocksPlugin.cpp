@@ -46,7 +46,7 @@ void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
 }
 
 ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* parent) {
-  ClocksConfig window{state.get_configuration()};
+  ClocksConfig window{state.get_configuration(), state.get_log_file()};
 
   auto configuration = window.open(parent);
 

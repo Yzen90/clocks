@@ -63,7 +63,7 @@
           "error": "Error",
           "fatal": "Fatal",
           "info": "Info",
-          "title": "Log level",
+          "title": "Level",
           "trace": "Trace",
           "verbose": "Verbose",
           "warning": "Warning"

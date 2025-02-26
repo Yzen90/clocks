@@ -63,7 +63,7 @@
           "error": "Error",
           "fatal": "Fatal",
           "info": "Informativo",
-          "title": "Nivel de registro",
+          "title": "Nivel",
           "trace": "Traza",
           "verbose": "Detallado",
           "warning": "Advertencia"

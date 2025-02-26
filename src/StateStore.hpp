@@ -127,6 +127,7 @@ class StateStore {
   ItemCount item_count();
   Configuration get_configuration();
   void set_configuration(Configuration configuration);
+  string get_log_file();
 
   static wstring get_time(
       const time_zone*& tz, const wstring& timezone, const Configuration& configuration,

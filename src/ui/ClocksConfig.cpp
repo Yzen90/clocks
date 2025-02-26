@@ -29,9 +29,10 @@ const short BASE_SIZE = 20;
 const float SCALE_L = 1.24;
 const short RESPONSIVE_BREAKPOINT = 480;
 
-ClocksConfig::ClocksConfig(Configuration configuration)
+ClocksConfig::ClocksConfig(Configuration configuration, string log_file)
     : configuration(configuration),
       original(configuration),
+      log_file(log_file),
       formatter(StateStore::get_time_formatter(configuration.clock_type)) {}
 
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
@@ -43,7 +44,6 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       locale_changed = true;
 
       current_theme = configuration.theme;
-      debug_level = configuration.log_level == LogLevel::DEBUG;
 
       refresh_sample();
 
@@ -186,9 +186,9 @@ void ClocksConfig::ui_section_options(ImVec2& size) {
 
   ui_clock_sample();
 
+  ImGui::Dummy(button_padding);
   ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextPadding, ImVec2(0, gap));
   ImGui::SeparatorText(l10n->ui.sections.configuration.options.data());
-  ImGui::PopStyleVar();
 
   if (ImGui::Toggle(
           (" " + l10n->ui.sections.configuration.show_day_difference).data(), &configuration.show_day_difference,
@@ -199,6 +199,12 @@ void ClocksConfig::ui_section_options(ImVec2& size) {
 
   ImGui::Dummy(button_padding);
   ui_clock_type_select();
+
+  ImGui::Dummy(button_padding);
+  ImGui::SeparatorText(l10n->ui.sections.log.title.data());
+  ImGui::PopStyleVar();
+
+  ui_log_level_select();
 
   ImGui::EndChild();
 }
@@ -449,7 +455,8 @@ void ClocksConfig::ui_clock_type_select() {
   bool changed = false;
 
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
-  if (ImGui::BeginCombo("##ClockType", selected_clock_type.data(), ImGuiComboFlags_WidthFitPreview)) {
+  ImGui::SetNextItemWidth(panel_large ? breakpoint / 2 : available_x());
+  if (ImGui::BeginCombo("##ClockType", selected_clock_type.data(), ImGuiComboFlags_None)) {
     bool selected = configuration.clock_type == ClockType::FormatAuto;
     if (ImGui::Selectable(l10n->ui.sections.configuration.clock_type_auto.data(), selected)) {
       configuration.clock_type = ClockType::FormatAuto;
@@ -480,8 +487,47 @@ void ClocksConfig::ui_clock_type_select() {
     ImGui::EndCombo();
   }
   ImGui::PopStyleVar();
+}
+
+void ClocksConfig::refresh_log_levels() {
+  log_levels = {{LogLevel::FATAL, {l10n->ui.sections.log.level.fatal}},
+                {LogLevel::ERROR, {l10n->ui.sections.log.level.error}},
+                {LogLevel::WARNING, {l10n->ui.sections.log.level.warning}},
+                {LogLevel::INFO, {l10n->ui.sections.log.level.info}},
+                {LogLevel::VERBOSE, {l10n->ui.sections.log.level.verbose}},
+                {LogLevel::DEBUG, {l10n->ui.sections.log.level.debug}}};
+}
+
+void ClocksConfig::refresh_log_level() {
+  selected_log_level = DVR + " " + l10n->ui.sections.log.level.title + ": ";
+  selected_log_level.append(log_levels[configuration.log_level]);
+
+  debug_level = configuration.log_level == LogLevel::DEBUG;
+}
+
+void ClocksConfig::ui_log_level_select() {
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+  ImGui::SetNextItemWidth(panel_large ? breakpoint / 2 : (available_x() - (icon_button_width + gap)));
+  if (ImGui::BeginCombo("##LogLevel", selected_log_level.data())) {
+    bool selected = false;
+
+    for (auto& [level, label] : log_levels) {
+      selected = configuration.log_level == level;
+      if (ImGui::Selectable(label.data(), selected)) {
+        configuration.log_level = level;
+        refresh_log_level();
+      }
+      if (selected) ImGui::SetItemDefaultFocus();
+    }
+
+    ImGui::EndCombo();
+  }
+  ImGui::PopStyleVar();
 
   ImGui::SameLine();
+  if (!panel_large) move_x(end_x() - icon_button_width);
+  if (ui_icon_button(OPEN_IN_NEW))
+    ImGui::GetPlatformIO().Platform_OpenInShellFn(ImGui::GetCurrentContext(), log_file.data());
 }
 
 void ClocksConfig::change_locale() {
@@ -506,6 +552,8 @@ void ClocksConfig::change_locale() {
   cancel_button_size.y += gap * 2;
 
   refresh_clock_type();
+  refresh_log_levels();
+  refresh_log_level();
 }
 
 void ClocksConfig::ui_section_header() {

@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui.hpp"
 
+using std::map;
 using std::nullopt;
 using std::optional;
 using std::string_view;
@@ -15,6 +16,7 @@ class ClocksConfig {
  private:
   Configuration configuration;
   Configuration original;
+  string log_file;
 
   Resources resources;
   Logger* logger = Loggers::getLogger("ClocksConfig");
@@ -22,6 +24,8 @@ class ClocksConfig {
   bool is_changed = false;
   bool show_metrics = false;
   bool debug_level = false;
+  map<LogLevel, string_view> log_levels;
+  string selected_log_level;
 
   string locale;
   bool locale_changed;
@@ -89,6 +93,9 @@ class ClocksConfig {
   void ui_clock_sample();
   void refresh_clock_type();
   void ui_clock_type_select();
+  void refresh_log_levels();
+  void refresh_log_level();
+  void ui_log_level_select();
 
   bool ui_primary_button(
       const string& text, optional<float> font_scale = nullopt, optional<ImVec2> size = nullopt,
@@ -97,7 +104,7 @@ class ClocksConfig {
   bool ui_icon_button(const string& icon, optional<float> font_scale = nullopt);
 
  public:
-  ClocksConfig(Configuration configuration);
+  ClocksConfig(Configuration configuration, string log_file);
 
   optional<Configuration> open(void*& window_handle);
 };
