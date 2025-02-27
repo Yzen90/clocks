@@ -38,35 +38,54 @@ const wchar_t* ClocksPlugin::GetInfo(PluginInfoIndex index) {
   }
 }
 
+bool ClocksPlugin::open_configuration(void*& window_handle) {
+  ClocksConfig window{state.get_configuration(), state.get_log_file()};
+
+  auto configuration = window.open(window_handle);
+  if (configuration) {
+    state.set_configuration(*configuration);
+    sync();
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void ClocksPlugin::sync() {
+  auto count = state.clock_count();
+  auto current = clocks.size();
+
+  if (count != current) {
+    if (count > current)
+      for (Index index = current; index < count; index++) clocks.push_back(ClockItem{index, state});
+    /*
+    else clocks.erase(clocks.begin() + count, clocks.end());
+
+    TrafficMonitor does not call GetItem after ShowOptionsDialog
+    so cannot remove items as that should invalidate the pointers
+    to the removed items. If this changes in the future, deque<ClockItem> clocks
+    can be changed back to vector<ClockItem> clocks.
+    */
+  }
+}
+
 void ClocksPlugin::OnExtenedInfo(ExtendedInfoIndex index, const wchar_t* data) {
   if (index == ITMPlugin::EI_CONFIG_DIR) {
     state.set_config_dir(data);
+    sync();
 
     if (state.first_time) {
-      ClocksConfig window{state.get_configuration(), state.get_log_file()};
-
-      auto no_parent = (void*)nullptr;
-
-      auto configuration = window.open(no_parent);
-      if (configuration) state.set_configuration(*configuration);
+      auto parent = static_cast<void*>(GetActiveWindow());
+      open_configuration(parent);
     }
-
-    for (Index i; i < state.clock_count(); i++) clocks.push_back(ClockItem{i, state});
   }
 }
 
 ITMPlugin::OptionReturn ClocksPlugin::ShowOptionsDialog(void* parent) {
-  ClocksConfig window{state.get_configuration(), state.get_log_file()};
-
-  auto configuration = window.open(parent);
-
-  if (configuration) {
-    state.set_configuration(*configuration);
+  if (open_configuration(parent))
     return OptionReturn::OR_OPTION_CHANGED;
-
-  } else {
+  else
     return OptionReturn::OR_OPTION_UNCHANGED;
-  }
 }
 
 ITMPlugin* TMPluginGetInstance() { return &ClocksPlugin::instance(); }

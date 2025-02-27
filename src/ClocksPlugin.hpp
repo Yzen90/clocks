@@ -1,10 +1,11 @@
 #include <PluginInterface.h>
 
-#include <vector>
+#include <deque>
 
 #include "ClockItem.hpp"
 #include "StateStore.hpp"
 
+using std::deque;
 using std::vector;
 
 class ClocksPlugin : public ITMPlugin {
@@ -14,7 +15,12 @@ class ClocksPlugin : public ITMPlugin {
   ClocksPlugin &operator=(const ClocksPlugin &) = delete;
 
   StateStore &state;
-  vector<ClockItem> clocks;
+  deque<ClockItem> clocks;
+
+  // Logger *logger = Loggers::getLogger("ClocksPlugin");
+
+  bool open_configuration(void *&window_handle);
+  void sync();
 
  public:
   static ClocksPlugin &instance();
