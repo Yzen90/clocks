@@ -37,7 +37,8 @@ ClocksConfig::ClocksConfig(Configuration configuration, string log_file)
 
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
-    if (auto setup_resources = setup(window_handle, configuration.theme, BASE_SIZE, MIN_WIDTH, MIN_HEIGHT)) {
+    if (auto setup_resources =
+            setup(window_handle, configuration.theme, BASE_SIZE, MIN_WIDTH, MIN_HEIGHT, configuration.locale)) {
       resources = std::move(*setup_resources);
       setup_resources.reset();
 

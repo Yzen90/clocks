@@ -17,7 +17,7 @@
     "dummy_clock": "BORRADO",
     "messages": {
       "config_file": "Archivo de configuración:",
-      "config_loaded": "🕜Clocks cargó {} reloj(es).",
+      "config_loaded": "🕜Clocks cargó {} relojes.",
       "config_saved": "La configuración fue guardada.",
       "invalid_timezone": "La zona horaria \"{}\" es inválida, el reloj fue ignorado.",
       "too_many_clocks": "Mas de {} relojes fueron proporcionados, se ignorará el resto.",

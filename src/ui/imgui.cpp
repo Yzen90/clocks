@@ -20,7 +20,9 @@ using std::filesystem::exists;
 static el::Logger* logger;
 static HWND splash;
 
-optional<Resources> setup(void*& window_handle, Theme theme, const short base_size, short min_width, short min_height) {
+optional<Resources> setup(
+    void*& window_handle, Theme theme, const short base_size, short min_width, short min_height, Locale locale
+) {
   if (logger == nullptr) logger = el::Loggers::getLogger("imgui");
   Resources resources{.parent = static_cast<HWND>(window_handle)};
 
@@ -114,26 +116,8 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
   io.LogFilename = nullptr;
 
   io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
-  static constexpr const ImWchar bmp_emoji_range[] = {0x00001, 0x1FFFF, 0};
 
-  ImFontConfig font_config;
-  font_config.FontDataOwnedByAtlas = false;
-  io.Fonts->AddFontFromMemoryTTF(
-      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, base_size * 2, &font_config, bmp_emoji_range
-  );
-
-  static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";
-  if (exists(emoji_font)) {
-    ImFontConfig emoji_config;
-    emoji_config.MergeMode = true;
-    emoji_config.GlyphOffset = ImVec2{-3, 0};
-    emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
-    io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &emoji_config, bmp_emoji_range);
-  }
-
-  font_config.MergeMode = true;
-  font_config.GlyphOffset = ImVec2{0, 8};
-  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &font_config, bmp_emoji_range);
+  set_locale(io, locale, base_size);
 
   resources.scale_factor = scale;
   resources.real_scale = 0.5 * resources.scale_factor;
@@ -160,6 +144,32 @@ optional<Resources> setup(void*& window_handle, Theme theme, const short base_si
       0, vformat(l10n->ui.messages.setup_complete, make_format_args(resources.driver, resources.scale_factor))
   );
   return {resources};
+}
+
+void set_locale(ImGuiIO& io, const Locale locale, const short base_size) {
+  io.Fonts->Clear();
+
+  static constexpr const ImWchar bmp_emoji_range[] = {0x00001, 0x1FFFF, 0};
+
+  ImFontConfig font_config;
+  font_config.FontDataOwnedByAtlas = false;
+
+  io.Fonts->AddFontFromMemoryTTF(
+      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, base_size * 2, &font_config, bmp_emoji_range
+  );
+
+  static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";
+  if (exists(emoji_font)) {
+    ImFontConfig emoji_config;
+    emoji_config.MergeMode = true;
+    emoji_config.GlyphOffset = ImVec2{-3, 0};
+    emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+    io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &emoji_config, bmp_emoji_range);
+  }
+
+  font_config.MergeMode = true;
+  font_config.GlyphOffset = ImVec2{0, 8};
+  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &font_config, bmp_emoji_range);
 }
 
 void set_theme(Theme theme, Resources* resources) {

@@ -38,7 +38,9 @@ static const L10N::StateStore::Messages** ss_messages;
 
 const Locale DEFAULT_LOCALE = Locale::EN;
 
-LocaleNames locales = {{Locale::EN, "English"}, {Locale::ES, "Español"}};
+LocaleNames locales = {
+    {Locale::EN, "English"}, {Locale::ES, "Español"}, {Locale::JA, "日本語🤖"}, {Locale::ZH, "简体中文🤖"}
+};
 
 tuple<Locale, unsigned short> get_prefered_locale() {
   auto languages = GlobalizationPreferences::Languages();
@@ -46,7 +48,12 @@ tuple<Locale, unsigned short> get_prefered_locale() {
 
   if (prefered > 0) {
     for (const auto language : languages) {
-      if (language.starts_with(L"es")) return {Locale::ES, prefered};
+      if (language.starts_with(L"es"))
+        return {Locale::ES, prefered};
+      else if (language.starts_with(L"ja"))
+        return {Locale::JA, prefered};
+      else if (language.starts_with(L"zh"))
+        return {Locale::ZH, prefered};
     }
   }
   return {DEFAULT_LOCALE, prefered};
@@ -58,6 +65,12 @@ string_view get_localization(Locale locale) {
       throw invalid_argument("Unexpected Locale::Auto @ get_localization");
     case Locale::ES:
       return string_view{reinterpret_cast<const char*>(es_MX), es_MX_size};
+      break;
+    case Locale::JA:
+      return string_view{reinterpret_cast<const char*>(ja_JP), ja_JP_size};
+      break;
+    case Locale::ZH:
+      return string_view{reinterpret_cast<const char*>(zh_CN), zh_CN_size};
       break;
     case DEFAULT_LOCALE:
       return string_view{reinterpret_cast<const char*>(en_US), en_US_size};

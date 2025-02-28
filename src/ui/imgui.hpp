@@ -26,9 +26,12 @@ struct Resources {
   short real_min_height;
 };
 
+void set_locale(ImGuiIO& io, const Locale locale, const short base_size);
 void set_theme(Theme theme, Resources* resources);
 
-optional<Resources> setup(void*& window_handle, Theme theme, const short base_size, short min_width, short min_height);
+optional<Resources> setup(
+    void*& window_handle, Theme theme, const short base_size, short min_width, short min_height, Locale locale
+);
 bool keep_open(const Resources& resources);
 bool is_minimized(const Resources& resources);
 

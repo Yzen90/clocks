@@ -9,7 +9,7 @@ using std::unique_ptr;
 
 extern unique_ptr<L10N> l10n;
 
-enum class Locale { Auto, EN, ES };
+enum class Locale { Auto, EN, ES, JA, ZH };
 typedef std::map<Locale, const string> LocaleNames;
 
 extern LocaleNames locales;

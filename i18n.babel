@@ -35,6 +35,14 @@
 										<language>es-MX</language>
 										<approved>false</approved>
 									</translation>
+									<translation>
+										<language>ja-JP</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>zh-CN</language>
+										<approved>false</approved>
+									</translation>
 								</translations>
 							</concept_node>
 							<concept_node>
@@ -48,6 +56,14 @@
 									</translation>
 									<translation>
 										<language>es-MX</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>ja-JP</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>zh-CN</language>
 										<approved>false</approved>
 									</translation>
 								</translations>
@@ -73,6 +89,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -86,6 +110,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -113,6 +145,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -126,6 +166,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -143,6 +191,14 @@
 									</translation>
 									<translation>
 										<language>es-MX</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>ja-JP</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>zh-CN</language>
 										<approved>false</approved>
 									</translation>
 								</translations>
@@ -163,6 +219,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -176,6 +240,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -193,6 +265,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -206,6 +286,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -223,6 +311,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -236,6 +332,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -253,6 +357,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -268,6 +380,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -281,6 +401,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -308,6 +436,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -321,6 +457,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -338,6 +482,14 @@
 									</translation>
 									<translation>
 										<language>es-MX</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>ja-JP</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>zh-CN</language>
 										<approved>false</approved>
 									</translation>
 								</translations>
@@ -358,6 +510,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -371,6 +531,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -388,6 +556,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -401,6 +577,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -418,6 +602,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -431,6 +623,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -453,6 +653,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -468,6 +676,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -481,6 +697,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -506,6 +730,14 @@
 														<language>es-MX</language>
 														<approved>false</approved>
 													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
+														<approved>false</approved>
+													</translation>
 												</translations>
 											</concept_node>
 											<concept_node>
@@ -521,6 +753,14 @@
 														<language>es-MX</language>
 														<approved>false</approved>
 													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
+														<approved>false</approved>
+													</translation>
 												</translations>
 											</concept_node>
 											<concept_node>
@@ -534,6 +774,14 @@
 													</translation>
 													<translation>
 														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
 														<approved>false</approved>
 													</translation>
 												</translations>
@@ -556,6 +804,14 @@
 														<language>es-MX</language>
 														<approved>false</approved>
 													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
+														<approved>false</approved>
+													</translation>
 												</translations>
 											</concept_node>
 											<concept_node>
@@ -569,6 +825,14 @@
 													</translation>
 													<translation>
 														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
 														<approved>false</approved>
 													</translation>
 												</translations>
@@ -586,6 +850,14 @@
 														<language>es-MX</language>
 														<approved>false</approved>
 													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
+														<approved>false</approved>
+													</translation>
 												</translations>
 											</concept_node>
 											<concept_node>
@@ -599,6 +871,14 @@
 													</translation>
 													<translation>
 														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
 														<approved>false</approved>
 													</translation>
 												</translations>
@@ -616,6 +896,14 @@
 														<language>es-MX</language>
 														<approved>false</approved>
 													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
+														<approved>false</approved>
+													</translation>
 												</translations>
 											</concept_node>
 											<concept_node>
@@ -629,6 +917,14 @@
 													</translation>
 													<translation>
 														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
 														<approved>false</approved>
 													</translation>
 												</translations>
@@ -654,6 +950,14 @@
 																<language>es-MX</language>
 																<approved>false</approved>
 															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
+																<approved>false</approved>
+															</translation>
 														</translations>
 													</concept_node>
 													<concept_node>
@@ -667,6 +971,14 @@
 															</translation>
 															<translation>
 																<language>es-MX</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
 																<approved>false</approved>
 															</translation>
 														</translations>
@@ -684,6 +996,14 @@
 																<language>es-MX</language>
 																<approved>false</approved>
 															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
+																<approved>false</approved>
+															</translation>
 														</translations>
 													</concept_node>
 													<concept_node>
@@ -697,6 +1017,14 @@
 															</translation>
 															<translation>
 																<language>es-MX</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
 																<approved>false</approved>
 															</translation>
 														</translations>
@@ -714,6 +1042,14 @@
 																<language>es-MX</language>
 																<approved>false</approved>
 															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
+																<approved>false</approved>
+															</translation>
 														</translations>
 													</concept_node>
 													<concept_node>
@@ -727,6 +1063,14 @@
 															</translation>
 															<translation>
 																<language>es-MX</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
 																<approved>false</approved>
 															</translation>
 														</translations>
@@ -744,6 +1088,14 @@
 																<language>es-MX</language>
 																<approved>false</approved>
 															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
+																<approved>false</approved>
+															</translation>
 														</translations>
 													</concept_node>
 													<concept_node>
@@ -757,6 +1109,14 @@
 															</translation>
 															<translation>
 																<language>es-MX</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>ja-JP</language>
+																<approved>false</approved>
+															</translation>
+															<translation>
+																<language>zh-CN</language>
 																<approved>false</approved>
 															</translation>
 														</translations>
@@ -774,6 +1134,14 @@
 													</translation>
 													<translation>
 														<language>es-MX</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>ja-JP</language>
+														<approved>false</approved>
+													</translation>
+													<translation>
+														<language>zh-CN</language>
 														<approved>false</approved>
 													</translation>
 												</translations>
@@ -798,6 +1166,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -813,6 +1189,14 @@
 												<language>es-MX</language>
 												<approved>false</approved>
 											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
+												<approved>false</approved>
+											</translation>
 										</translations>
 									</concept_node>
 									<concept_node>
@@ -826,6 +1210,14 @@
 											</translation>
 											<translation>
 												<language>es-MX</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>ja-JP</language>
+												<approved>false</approved>
+											</translation>
+											<translation>
+												<language>zh-CN</language>
 												<approved>false</approved>
 											</translation>
 										</translations>
@@ -845,6 +1237,14 @@
 										<language>es-MX</language>
 										<approved>false</approved>
 									</translation>
+									<translation>
+										<language>ja-JP</language>
+										<approved>false</approved>
+									</translation>
+									<translation>
+										<language>zh-CN</language>
+										<approved>false</approved>
+									</translation>
 								</translations>
 							</concept_node>
 						</children>
@@ -862,6 +1262,12 @@
 		<language>
 			<code>es-MX</code>
 		</language>
+		<language>
+			<code>ja-JP</code>
+		</language>
+		<language>
+			<code>zh-CN</code>
+		</language>
 	</languages>
 	<translation_packages>
 		<translation_package>
@@ -874,6 +1280,14 @@
 				<translation_url>
 					<path>i18n/es-MX.json</path>
 					<language>es-MX</language>
+				</translation_url>
+				<translation_url>
+					<path>i18n/ja-JP.json</path>
+					<language>ja-JP</language>
+				</translation_url>
+				<translation_url>
+					<path>i18n/zh-CN.json</path>
+					<language>zh-CN</language>
 				</translation_url>
 			</translation_urls>
 		</translation_package>

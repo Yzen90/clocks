@@ -1,0 +1,84 @@
+{
+  "generic": {
+    "auto_option": "自動",
+    "cause": "原因:"
+  },
+  "l10n": {
+    "messages": {
+      "loaded": "言語が読み込みられました: {}。",
+      "loaded_system": "システムの優先言語: {}, 読み込まれた言語: {}。"
+    }
+  },
+  "state_store": {
+    "contexts": {
+      "configuration": "設定",
+      "initialization": "初期化"
+    },
+    "dummy_clock": "※削除済み",
+    "messages": {
+      "config_file": "設定ファイル:",
+      "config_loaded": "🕜Clocks プラグインが {} 個の時計を読み込みました。",
+      "config_saved": "設定が保存されました。",
+      "invalid_timezone": "無効なタイムゾーン 「{}」 の時計は無視されます。",
+      "too_many_clocks": "{} 個以上の時計が提供されたため、残りの時計は無視されます。",
+      "using_default_config": "デフォルト設定を使用します。",
+      "warn_default_config": "デフォルトの設定値が使用されます。",
+      "warn_no_clocks": "設定に時計が定義されていません。デフォルトの時計が使用されます。",
+      "warn_no_valid_clocks": "有効な時計が設定に定義されていません。デフォルトの時計が使用されます。"
+    }
+  },
+  "ui": {
+    "actions": {
+      "cancel": "キャンセル",
+      "save": "保存"
+    },
+    "app_title": "🕜Clocks",
+    "errors": {
+      "sdl_claim_window": "SDL が GPU デバイス用のウィンドウを要求できませんでした:",
+      "sdl_create_gpu_device": "SDL が GPU デバイスを作成できませんでした:",
+      "sdl_create_window": "SDL がウィンドウを作成できませんでした:",
+      "sdl_get_handle": "SDL ウィンドウのハンドルを取得できませんでした。",
+      "sdl_init": "SDL の初期化に失敗しました:",
+      "sdl_set_parent": "SDL ウィンドウの親を設定できませんでした。"
+    },
+    "messages": {
+      "config_closed": "設定ウィンドウが閉じられ、変更は行われませんでした。",
+      "config_opened": "設定ウィンドウが開かれました。",
+      "setup_complete": "SDL と Dear ImGui が準備完了しました。ドライバー: {}, 表示スケール: {}"
+    },
+    "sections": {
+      "clocks": {
+        "filter": "フィルター",
+        "label": "ラベル",
+        "timezone": "タイムゾーン"
+      },
+      "configuration": {
+        "clock_type_12h": "12 時間形式",
+        "clock_type_24h": "24 時間形式",
+        "clock_type_auto": "自動形式",
+        "options": "一般オプション",
+        "sample": "サンプル",
+        "show_day_difference": "異なる日の表示"
+      },
+      "log": {
+        "level": {
+          "debug": "デバッグ",
+          "error": "エラー",
+          "fatal": "致命的",
+          "info": "情報",
+          "title": "レベル",
+          "trace": "トレース",
+          "verbose": "詳細",
+          "warning": "警告"
+        },
+        "title": "ログ"
+      }
+    },
+    "theme": {
+      "dark": "ダーク",
+      "light": "ライト",
+      "title": "テーマ"
+    },
+    "title": "時計"
+  }
+}

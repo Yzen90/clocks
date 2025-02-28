@@ -1,0 +1,84 @@
+{
+  "generic": {
+    "auto_option": "自动",
+    "cause": "原因："
+  },
+  "l10n": {
+    "messages": {
+      "loaded": "已加载语言：{}",
+      "loaded_system": "系统首选语言：{}，已加载语言：{}。"
+    }
+  },
+  "state_store": {
+    "contexts": {
+      "configuration": "配置",
+      "initialization": "初始化"
+    },
+    "dummy_clock": "已删除",
+    "messages": {
+      "config_file": "配置文件：",
+      "config_loaded": "🕜Clocks 已加载 {} 个时钟。",
+      "config_saved": "配置已保存。",
+      "invalid_timezone": "忽略时区无效的时钟\"{}\"。",
+      "too_many_clocks": "提供的时钟数量超过 {}，忽略剩余的时钟。",
+      "using_default_config": "使用默认配置。",
+      "warn_default_config": "将使用默认配置值。",
+      "warn_no_clocks": "配置中未定义时钟，将使用默认时钟。",
+      "warn_no_valid_clocks": "配置中未定义有效的时钟，将使用默认时钟。"
+    }
+  },
+  "ui": {
+    "actions": {
+      "cancel": "取消",
+      "save": "保存"
+    },
+    "app_title": "🕜Clocks",
+    "errors": {
+      "sdl_claim_window": "SDL 无法为 GPU 设备声明窗口：",
+      "sdl_create_gpu_device": "SDL 无法创建 GPU 设备：",
+      "sdl_create_window": "SDL 无法创建窗口：",
+      "sdl_get_handle": "无法获取 SDL 窗口句柄。",
+      "sdl_init": "无法初始化 SDL：",
+      "sdl_set_parent": "无法设置 SDL 窗口的父窗口。"
+    },
+    "messages": {
+      "config_closed": "配置窗口已关闭，未进行任何更改。",
+      "config_opened": "配置窗口已打开。",
+      "setup_complete": "SDL 和 Dear ImGui 已就绪。驱动程序：{}，显示缩放：{}"
+    },
+    "sections": {
+      "clocks": {
+        "filter": "过滤器",
+        "label": "标签",
+        "timezone": "时区"
+      },
+      "configuration": {
+        "clock_type_12h": "12 小时格式",
+        "clock_type_24h": "24 小时格式",
+        "clock_type_auto": "自动格式",
+        "options": "通用选项",
+        "sample": "示例",
+        "show_day_difference": "显示不同日期"
+      },
+      "log": {
+        "level": {
+          "debug": "调试",
+          "error": "错误",
+          "fatal": "致命",
+          "info": "信息",
+          "title": "级别",
+          "trace": "跟踪",
+          "verbose": "详细",
+          "warning": "警告"
+        },
+        "title": "日志"
+      }
+    },
+    "theme": {
+      "dark": "暗色",
+      "light": "亮色",
+      "title": "主题"
+    },
+    "title": "时钟"
+  }
+}
