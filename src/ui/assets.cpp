@@ -13,3 +13,8 @@ static constexpr const unsigned char ICON_FONT[] = {
 #embed "icons.ttf"
 };
 static constexpr const size_t ICON_SIZE = sizeof(ICON_FONT);
+
+static constexpr const unsigned char SUPPORT_FONT[] = {
+#embed "support.ttf"
+};
+static constexpr const size_t SUPPORT_SIZE = sizeof(SUPPORT_FONT);

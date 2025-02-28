@@ -737,6 +737,10 @@ void ClocksConfig::ui_graphics_metrics() {
     ImGui::Text("%ddpi %d%%", resources.dpi, resources.scale);
 
     ImGui::End();
+
+#ifdef NOT_RELEASE_MODE
+    ImGui::ShowMetricsWindow();
+#endif
   }
 
   ImGui::SameLine();

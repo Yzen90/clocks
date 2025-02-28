@@ -158,6 +158,11 @@ void set_locale(ImGuiIO& io, const Locale locale, const short base_size) {
       const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, base_size * 2, &font_config, bmp_emoji_range
   );
 
+  font_config.MergeMode = true;
+  io.Fonts->AddFontFromMemoryTTF(
+      const_cast<unsigned char*>(SUPPORT_FONT), SUPPORT_SIZE, base_size * 2, &font_config, bmp_emoji_range
+  );
+
   static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";
   if (exists(emoji_font)) {
     ImFontConfig emoji_config;
@@ -167,7 +172,6 @@ void set_locale(ImGuiIO& io, const Locale locale, const short base_size) {
     io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &emoji_config, bmp_emoji_range);
   }
 
-  font_config.MergeMode = true;
   font_config.GlyphOffset = ImVec2{0, 8};
   io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &font_config, bmp_emoji_range);
 }

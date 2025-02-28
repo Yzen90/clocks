@@ -39,7 +39,10 @@ static const L10N::StateStore::Messages** ss_messages;
 const Locale DEFAULT_LOCALE = Locale::EN;
 
 LocaleNames locales = {
-    {Locale::EN, "English"}, {Locale::ES, "Español"}, {Locale::JA, "日本語🤖"}, {Locale::ZH, "简体中文🤖"}
+    {Locale::EN, "English"},
+    {Locale::ES, "Español"},
+    {Locale::JA, "\uE000\uE001\uE002 🤖"},
+    {Locale::ZH, "\uE010\uE011\uE012\uE013 🤖"}
 };
 
 tuple<Locale, unsigned short> get_prefered_locale() {

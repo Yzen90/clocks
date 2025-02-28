@@ -6,3 +6,6 @@ extern const size_t LATIN_SIZE;
 
 extern const unsigned char ICON_FONT[];
 extern const size_t ICON_SIZE;
+
+extern const unsigned char SUPPORT_FONT[];
+extern const size_t SUPPORT_SIZE;
