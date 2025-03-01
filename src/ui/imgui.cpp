@@ -20,13 +20,15 @@ using std::filesystem::exists;
 
 static el::Logger* logger;
 static HWND splash;
+static Locale loaded;
 
 optional<Resources> setup(
     void*& window_handle, Theme theme, const short base_size, short min_width, short min_height, Locale locale
 ) {
   if (logger == nullptr) logger = el::Loggers::getLogger("imgui");
-  Resources resources{.parent = static_cast<HWND>(window_handle)};
+  loaded = Locale::Auto;
 
+  Resources resources{.parent = static_cast<HWND>(window_handle)};
   SDL_WindowFlags flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
   short dpi;
@@ -147,8 +149,6 @@ optional<Resources> setup(
   return {resources};
 }
 
-static auto loaded = Locale::Auto;
-
 bool is_latin(const Locale& locale) { return locale == Locale::ES || locale == Locale::EN; }
 
 void load_fonts(ImGuiIO& io, const Locale locale, const short base_size, bool create_texture) {
@@ -159,7 +159,7 @@ void load_fonts(ImGuiIO& io, const Locale locale, const short base_size, bool cr
     return;
   }
 
-  io.Fonts->Clear();
+  if (create_texture) io.Fonts->Clear();
 
   static constexpr const ImWchar bmp_emoji_range[] = {0x00001, 0x1FFFF, 0};
 
@@ -234,7 +234,6 @@ void load_fonts(ImGuiIO& io, const Locale locale, const short base_size, bool cr
   io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &embedded_font, bmp_emoji_range);
 
   if (create_texture) ImGui_ImplSDLGPU3_CreateFontsTexture();
-
   loaded = locale;
 }
 
