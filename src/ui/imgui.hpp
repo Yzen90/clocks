@@ -26,7 +26,7 @@ struct Resources {
   short real_min_height;
 };
 
-void set_locale(ImGuiIO& io, const Locale locale, const short base_size);
+void load_fonts(ImGuiIO& io, const Locale locale, const short base_size, bool create_texture = true);
 void set_theme(Theme theme, Resources* resources);
 
 optional<Resources> setup(

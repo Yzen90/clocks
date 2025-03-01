@@ -38,7 +38,7 @@ ClocksConfig::ClocksConfig(Configuration configuration, string log_file)
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
   std::thread ui{[&]() {
     if (auto setup_resources =
-            setup(window_handle, configuration.theme, BASE_SIZE, MIN_WIDTH, MIN_HEIGHT, configuration.locale)) {
+            setup(window_handle, configuration.theme, BASE_SIZE, MIN_WIDTH, MIN_HEIGHT, loaded_locale())) {
       resources = std::move(*setup_resources);
       setup_resources.reset();
 
@@ -67,6 +67,11 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
           set_theme(current_theme, &resources);
         }
 
+        if (locale_changed) {
+          load_locale(configuration.locale);
+          load_fonts(*resources.io, loaded_locale(), BASE_SIZE);
+        }
+
         new_frame();
 
         if (first_frame) {
@@ -80,7 +85,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
           clock_entry_adjustment = frame_padding.y * 3;
         }
 
-        if (locale_changed) change_locale();
+        if (locale_changed) refresh_locale();
 
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 12 * resources.scale_factor);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2 * resources.scale_factor);
@@ -604,11 +609,9 @@ void ClocksConfig::ui_log_level_select() {
     ImGui::GetPlatformIO().Platform_OpenInShellFn(ImGui::GetCurrentContext(), log_file.data());
 }
 
-void ClocksConfig::change_locale() {
-  load_locale(configuration.locale);
-
+void ClocksConfig::refresh_locale() {
   locale = LANGUAGE + " ";
-  locale += locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale];
+  locale += locales[configuration.locale == Locale::Auto ? loaded_locale() : configuration.locale].display_name;
   locale += " ";
   locale_space = round(ImGui::CalcTextSize(locale.data()).x + (BASE_SIZE * resources.scale_factor) + (gap * 5));
   locale_changed = false;
@@ -675,7 +678,7 @@ void ClocksConfig::ui_locale_select() {
 
     for (const auto& [locale, name] : locales) {
       selected = configuration.locale == locale;
-      if (ImGui::Selectable(name.data(), selected)) {
+      if (ImGui::Selectable(name.display_name.data(), selected)) {
         configuration.locale = locale;
         locale_changed = true;
         refresh_changed();

@@ -39,10 +39,10 @@ static const L10N::StateStore::Messages** ss_messages;
 const Locale DEFAULT_LOCALE = Locale::EN;
 
 LocaleNames locales = {
-    {Locale::EN, "English"},
-    {Locale::ES, "Español"},
-    {Locale::JA, "\uE000\uE001\uE002 🤖"},
-    {Locale::ZH, "\uE010\uE011\uE012\uE013 🤖"}
+    {Locale::EN, {"English", "English"}},
+    {Locale::ES, {"Español", "Español"}},
+    {Locale::JA, {"日本語", "\uE000\uE001\uE002 🤖"}},
+    {Locale::ZH, {"简体中文", "\uE010\uE011\uE012\uE013 🤖"}}
 };
 
 tuple<Locale, unsigned short> get_prefered_locale() {
@@ -101,9 +101,9 @@ void load_locale(Locale locale) {
     if (ss_messages) *ss_messages = &l10n->state_store.messages;
 
     if (prefered != -1)
-      logger->verbose(0, vformat(l10n->l10n.messages.loaded_system, make_format_args(prefered, locales[locale])));
+      logger->verbose(0, vformat(l10n->l10n.messages.loaded_system, make_format_args(prefered, locales[locale].name)));
     else
-      logger->verbose(0, vformat(l10n->l10n.messages.loaded, make_format_args(locales[locale])));
+      logger->verbose(0, vformat(l10n->l10n.messages.loaded, make_format_args(locales[locale].name)));
   } else {
     halt(logger, "Unable to load localization. Cause: " + glz::format_error(result.error(), localization));
   }

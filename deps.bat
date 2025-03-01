@@ -8,4 +8,5 @@ xmake config --arch=x64
 xmake build schemagen
 pip install fonttools
 py icons.py
+py fonts.py
 npm install

@@ -59,7 +59,7 @@ struct glz::meta<ClockType> {
 template <>
 struct glz::meta<Locale> {
   using enum Locale;
-  static constexpr auto value = enumerate(Auto, EN, ES);
+  static constexpr auto value = enumerate(Auto, EN, ES, JA, ZH);
 };
 
 StateStore::StateStore() {

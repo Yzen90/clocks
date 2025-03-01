@@ -84,7 +84,7 @@ class ClocksConfig {
   void ui_section_options(ImVec2& size);
   void ui_section_footer();
 
-  void change_locale();
+  void refresh_locale();
   void ui_locale_select();
   void refresh_theme_list();
   void ui_theme_menu();

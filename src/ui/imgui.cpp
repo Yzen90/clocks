@@ -12,6 +12,7 @@
 
 using namespace winrt::Windows::Storage;
 
+using std::invalid_argument;
 using std::make_format_args;
 using std::nullopt;
 using std::vformat;
@@ -117,7 +118,7 @@ optional<Resources> setup(
 
   io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
 
-  set_locale(io, locale, base_size);
+  load_fonts(io, locale, base_size, false);
 
   resources.scale_factor = scale;
   resources.real_scale = 0.5 * resources.scale_factor;
@@ -146,34 +147,95 @@ optional<Resources> setup(
   return {resources};
 }
 
-void set_locale(ImGuiIO& io, const Locale locale, const short base_size) {
+static auto loaded = Locale::Auto;
+
+bool is_latin(const Locale& locale) { return locale == Locale::ES || locale == Locale::EN; }
+
+void load_fonts(ImGuiIO& io, const Locale locale, const short base_size, bool create_texture) {
+  if (locale == Locale::Auto) throw invalid_argument("Unexpected Locale::Auto @ load_fonts");
+
+  if (locale == loaded || (is_latin(locale) && is_latin(loaded))) {
+    loaded = locale;
+    return;
+  }
+
   io.Fonts->Clear();
 
   static constexpr const ImWchar bmp_emoji_range[] = {0x00001, 0x1FFFF, 0};
 
-  ImFontConfig font_config;
-  font_config.FontDataOwnedByAtlas = false;
+  ImFontConfig embedded_font;
+  embedded_font.FontDataOwnedByAtlas = false;
 
   io.Fonts->AddFontFromMemoryTTF(
-      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, base_size * 2, &font_config, bmp_emoji_range
+      const_cast<unsigned char*>(LATIN_FONT), LATIN_SIZE, base_size * 2, &embedded_font, bmp_emoji_range
   );
 
-  font_config.MergeMode = true;
+  embedded_font.MergeMode = true;
+  embedded_font.GlyphOffset = ImVec2{0, 1};
   io.Fonts->AddFontFromMemoryTTF(
-      const_cast<unsigned char*>(SUPPORT_FONT), SUPPORT_SIZE, base_size * 2, &font_config, bmp_emoji_range
+      const_cast<unsigned char*>(SUPPORT_FONT), SUPPORT_SIZE, 52, &embedded_font, bmp_emoji_range
   );
 
-  static const path emoji_font = path{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())} / "seguiemj.ttf";
-  if (exists(emoji_font)) {
-    ImFontConfig emoji_config;
-    emoji_config.MergeMode = true;
-    emoji_config.GlyphOffset = ImVec2{-3, 0};
-    emoji_config.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
-    io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &emoji_config, bmp_emoji_range);
+  static const path system_fonts{static_cast<wstring>(SystemDataPaths::GetDefault().Fonts())};
+  ImFontConfig external_fonts;
+  external_fonts.MergeMode = true;
+  external_fonts.GlyphOffset = ImVec2{0, 2};
+
+  if (locale == Locale::JA) {
+    path ja_font;
+    {
+      auto meiryo = system_fonts / "meiryo.ttc";
+      path custom{"ja.ttf"};
+      if (exists(meiryo)) {
+        external_fonts.FontNo = 2;  // Meiryo UI
+        ja_font = meiryo;
+      } else if (exists(custom)) {
+        ja_font = custom;
+      }
+    }
+
+    if (ja_font.empty()) {
+      logger->error(
+          "🤖 「Meiryo UI」システムフォント、「ja.ttf」フォントファイルのどちらも見つかりませんでした。日本語テキストは正しく表示されません。"
+      );
+    } else {
+      io.Fonts->AddFontFromFileTTF(ja_font.string().data(), 46, &external_fonts, bmp_emoji_range);
+    }
+  } else if (locale == Locale::ZH) {
+    path zh_font;
+    {
+      auto yahei = system_fonts / "msyh.ttc";
+      path custom{"zh.ttf"};
+      if (exists(yahei)) {
+        external_fonts.FontNo = 1;  // Microsoft YaHei UI
+        zh_font = yahei;
+      } else if (exists(custom)) {
+        zh_font = custom;
+      }
+    }
+
+    if (zh_font.empty()) {
+      logger->error("🤖 既未找到系统字体“Microsoft YaHei UI”，也未找到字体文件“zh.ttf”，简体中文文本将无法正确显示。");
+    } else {
+      io.Fonts->AddFontFromFileTTF(zh_font.string().data(), 46, &external_fonts, bmp_emoji_range);
+    }
   }
 
-  font_config.GlyphOffset = ImVec2{0, 8};
-  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &font_config, bmp_emoji_range);
+  external_fonts.FontNo = 0;
+
+  static const auto emoji_font = system_fonts / "seguiemj.ttf";
+  if (exists(emoji_font)) {
+    external_fonts.GlyphOffset = ImVec2{-3, 0};
+    external_fonts.FontBuilderFlags |= ImGuiFreeTypeBuilderFlags_LoadColor;
+    io.Fonts->AddFontFromFileTTF(emoji_font.string().data(), 32, &external_fonts, bmp_emoji_range);
+  }
+
+  embedded_font.GlyphOffset = ImVec2{0, 8};
+  io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(ICON_FONT), ICON_SIZE, 48, &embedded_font, bmp_emoji_range);
+
+  if (create_texture) ImGui_ImplSDLGPU3_CreateFontsTexture();
+
+  loaded = locale;
 }
 
 void set_theme(Theme theme, Resources* resources) {
