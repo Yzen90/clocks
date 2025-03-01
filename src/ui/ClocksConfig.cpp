@@ -51,9 +51,11 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
       gap = ceil(GAP * resources.scale_factor);
       icon_button_width = (BASE_SIZE * resources.scale_factor) + (gap * 2);
       icon_button_size = {icon_button_width, icon_button_width};
-
       button_space = icon_button_width + gap;
       button_padding = {gap, gap};
+      combo_spacing = ImVec2(8 * resources.scale_factor, 8 * resources.scale_factor);
+      combo_padding = ImVec2(0, combo_spacing.y);
+
       breakpoint = RESPONSIVE_BREAKPOINT * resources.scale_factor;
       timezone_select_size = {ceil(resources.real_min_width * 0.6f), ceil(resources.real_min_height * 0.5f)};
 
@@ -81,8 +83,8 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
           refresh_clocks_state();
           frame_height = ImGui::GetFrameHeight();
           frame_padding = ImGui::GetStyle().FramePadding;
+
           icon_button_size_split = {icon_button_width, floor((icon_button_width - frame_padding.y) / 2)};
-          clock_entry_adjustment = frame_padding.y * 3;
         }
 
         if (locale_changed) refresh_locale();
@@ -336,53 +338,57 @@ void ClocksConfig::ui_add_clock_button() {
 void ClocksConfig::ui_clock_entry(Clock& clock, const Index& index) {
   ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, button_padding);
 
-  auto id = to_string(index);
+  auto idx = to_string(index);
 
   if (moved_up && index == selected_clock) {
     moved_up = false;
     ImGui::SetScrollHereY();
   }
 
-  if (ImGui::BeginTable(("ClockContainer" + id).data(), 2)) {
+  if (ImGui::BeginTable(("ClockContainer" + idx).data(), 2)) {
     ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed, frame_height);
 
     ImGui::TableNextRow();
 
     ImGui::TableNextColumn();
-    ImGui::Dummy(panel_large ? button_padding : frame_padding);
-    if (ImGui::RadioButton(("##Clock" + id).data(), &selected_clock, index)) refresh_sample();
+    if (ImGui::RadioButton(("##Clock" + idx).data(), &selected_clock, index)) refresh_sample();
 
     ImGui::TableNextColumn();
     ImGui::PopStyleVar();
-    if (ImGui::BeginTable(("ClockParams" + id).data(), panel_large ? 2 : 1)) {
+    if (ImGui::BeginTable(("ClockParams" + idx).data(), panel_large ? 2 : 1)) {
       ImGui::TableNextRow();
 
       ImGui::TableNextColumn();
-      if (panel_large) ImGui::Dummy({1, clock_entry_adjustment});
-      ImGui::TextDisabled("%s", l10n->ui.sections.clocks.timezone.data());
       ImVec2 size{available_x(), 0};
+
+      ImGui::BeginChild(("ClockTz" + idx).data(), size, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoScrollbar);
+      ImGui::TextDisabled("%s", l10n->ui.sections.clocks.timezone.data());
+
       if (ui_primary_button(clock.timezone, nullopt, size)) {
         selected_clock = index;
         open_timezone_select = true;
       }
+      ImGui::EndChild();
 
       if (!panel_large) ImGui::TableNextRow();
 
       ImGui::TableNextColumn();
       if (!panel_large) ImGui::Dummy(button_padding);
+
+      ImGui::BeginChild(("ClockLabel" + idx).data(), size, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoScrollbar);
       ImGui::TextDisabled("%s", l10n->ui.sections.clocks.label.data());
 
       ImGui::SetNextItemWidth(size.x);
       ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
-      ImGui::InputText("", &clock.label, ImGuiInputTextFlags_EnterReturnsTrue);
+      ImGui::InputText(("##LabelInput" + idx).data(), &clock.label, ImGuiInputTextFlags_EnterReturnsTrue);
       if (ImGui::IsItemActivated()) selected_clock = index;
       if (ImGui::IsItemDeactivated()) refresh_changed();
-
       ImGui::PopStyleVar();
-      if (!panel_large) ImGui::Dummy({1, clock_entry_adjustment});
+      ImGui::EndChild();
 
       ImGui::EndTable();
     }
+    ImGui::Dummy(button_padding);
 
     ImGui::EndTable();
   }
@@ -545,8 +551,11 @@ void ClocksConfig::refresh_clock_types() {
 
 void ClocksConfig::ui_clock_type_select() {
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, combo_padding);
   ImGui::SetNextItemWidth(panel_large ? breakpoint / 2 : available_x());
   if (ImGui::BeginCombo("##ClockType", selected_clock_type.data(), ImGuiComboFlags_None)) {
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, combo_spacing);
+
     bool selected;
 
     for (const auto& [type, label] : clock_types) {
@@ -562,9 +571,10 @@ void ClocksConfig::ui_clock_type_select() {
       if (selected) ImGui::SetItemDefaultFocus();
     }
 
+    ImGui::PopStyleVar();
     ImGui::EndCombo();
   }
-  ImGui::PopStyleVar();
+  ImGui::PopStyleVar(2);
 }
 
 void ClocksConfig::refresh_log_levels() {
@@ -585,8 +595,11 @@ void ClocksConfig::refresh_log_level() {
 
 void ClocksConfig::ui_log_level_select() {
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, combo_padding);
   ImGui::SetNextItemWidth(panel_large ? breakpoint / 2 : (available_x() - (icon_button_width + gap)));
   if (ImGui::BeginCombo("##LogLevel", selected_log_level.data())) {
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, combo_spacing);
+
     bool selected = false;
 
     for (auto& [level, label] : log_levels) {
@@ -599,9 +612,10 @@ void ClocksConfig::ui_log_level_select() {
       if (selected) ImGui::SetItemDefaultFocus();
     }
 
+    ImGui::PopStyleVar();
     ImGui::EndCombo();
   }
-  ImGui::PopStyleVar();
+  ImGui::PopStyleVar(2);
 
   ImGui::SameLine();
   if (!panel_large) move_x(end_x() - icon_button_width);
@@ -667,7 +681,10 @@ void ClocksConfig::ui_section_header() {
 
 void ClocksConfig::ui_locale_select() {
   ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, button_padding);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, combo_padding);
   if (ImGui::BeginCombo("##Locale", locale.data(), ImGuiComboFlags_WidthFitPreview)) {
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, combo_spacing);
+
     bool selected = configuration.locale == Locale::Auto;
     if (ImGui::Selectable(l10n->generic.auto_option.data(), selected)) {
       configuration.locale = Locale::Auto;
@@ -686,9 +703,10 @@ void ClocksConfig::ui_locale_select() {
       if (selected) ImGui::SetItemDefaultFocus();
     }
 
+    ImGui::PopStyleVar();
     ImGui::EndCombo();
   }
-  ImGui::PopStyleVar();
+  ImGui::PopStyleVar(2);
 
   ImGui::SameLine();
 }
@@ -708,7 +726,7 @@ void ClocksConfig::ui_theme_menu() {
   if (ui_icon_button(icon)) ImGui::OpenPopup("ThemeMenu");
 
   if (ImGui::BeginPopup("ThemeMenu")) {
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(12, 12));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, combo_spacing);
     ImGui::TextDisabled("%s", l10n->ui.theme.title.data());
 
     for (const auto& [theme, item] : theme_list) {

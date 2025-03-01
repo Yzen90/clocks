@@ -74,10 +74,11 @@ class ClocksConfig {
   ImVec2 icon_button_size_split;
   float button_space;
   ImVec2 button_padding;
+  ImVec2 combo_spacing;
+  ImVec2 combo_padding;
   float panel_width;
   float breakpoint;
   bool panel_large;
-  float clock_entry_adjustment;
 
   void ui_section_header();
   void ui_section_clocks(ImVec2& size);

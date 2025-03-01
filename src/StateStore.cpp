@@ -11,9 +11,10 @@
 #pragma clang diagnostic ignored "-Wc++26-extensions"
 #include <glaze/glaze.hpp>
 #pragma clang diagnostic pop
-
 #include <format>
+#include <iomanip>
 #include <nowide/convert.hpp>
+#include <sstream>
 
 #include "i18n/l10n.hpp"
 #include "i18n/schema.hpp"
@@ -24,11 +25,14 @@ using namespace std::filesystem;
 
 using el::ConfigurationType;
 
+using nowide::narrow;
 using nowide::widen;
 using std::format;
 using std::make_format_args;
 using std::nullopt;
+using std::ostringstream;
 using std::string;
+using std::to_string;
 using std::vformat;
 using winrt::clock;
 
@@ -301,7 +305,54 @@ ClockData* StateStore::get_clock(Index index) { return index < state.clock_count
 
 ClockCount StateStore::clock_count() { return state.clock_count; }
 
+string get_code_points(const wstring& ws) {
+  ostringstream result;
+  result.imbue(std::locale("C"));
+
+  size_t i = 0;
+  while (i < ws.size()) {
+    wchar_t current = ws[i];
+    bool processedSurrogate = false;
+
+    // Check if wchar_t is 16-bit (UTF-16) and handle surrogate pairs
+    if (sizeof(wchar_t) == 2) {
+      if (current >= 0xD800 && current <= 0xDBFF) {  // High surrogate
+        if (i + 1 < ws.size()) {
+          wchar_t next = ws[i + 1];
+          if (next >= 0xDC00 && next <= 0xDFFF) {  // Low surrogate
+            uint32_t codePoint = 0x10000 + ((current - 0xD800) << 10) + (next - 0xDC00);
+            result << "U+" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << codePoint << " ";
+            i += 2;
+            processedSurrogate = true;
+          }
+        }
+      }
+    }
+
+    if (!processedSurrogate) {
+      uint32_t codePoint = static_cast<uint32_t>(current);
+      result << "U+" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << codePoint << " ";
+      ++i;
+    }
+  }
+
+  string output = result.str();
+  if (!output.empty()) {
+    output.pop_back();  // Remove trailing space
+  }
+  return output;
+}
+
 Configuration StateStore::get_configuration() {
+  if (state.configuration.log_level == LogLevel::DEBUG) {
+    for (auto& [index, clock] : clocks) {
+      logger->debug(
+          to_string(index) + " - " + narrow(clock.label) + " [" + narrow(clock.time) + "] " +
+          get_code_points(clock.time)
+      );
+    }
+  }
+
   Configuration copy = state.configuration;
   return copy;
 }
