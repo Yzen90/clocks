@@ -1,7 +1,7 @@
 set_project('clocks')
 
-clocks_version_major = 0
-clocks_version_minor = 9
+clocks_version_major = 1
+clocks_version_minor = 0
 clocks_version_patch = 0
 set_version(clocks_version_major .. '.' .. clocks_version_minor .. '.' .. clocks_version_patch)
 
@@ -79,7 +79,7 @@ target('imgui')
 package('sdl')
   add_deps('cmake')
   set_sourcedir('extern/SDL')
-  add_versions("3.2.5", "deadfe0c98c3d0d047a0ef6d4effa48eb99a4afb")
+  add_versions("3.2.5-f0cb78e0", "f0cb78e082ac094bb8b209cdcc9dd9f414726d88")
   on_install(function (package) 
     import('package.tools.cmake').install(package, {
       shared = false,

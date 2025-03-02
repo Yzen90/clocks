@@ -1,30 +1,33 @@
 {
-	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-	"vcpkg-configuration": {
-		"default-registry": {
-			"kind": "git",
-			"baseline": "d8f4a4703a8b5e80f56f4978c72b3d2f21d312ff",
-			"repository": "https://github.com/microsoft/vcpkg"
-		},
-		"registries": [
-			{
-				"kind": "artifact",
-				"location": "https://github.com/microsoft/vcpkg-ce-catalog/archive/refs/heads/main.zip",
-				"name": "microsoft"
-			}
-		]
-	},
-	"dependencies": [
-		"cppwinrt",
-		"easyloggingpp",
-		{
-			"name": "freetype",
-			"default-features": false,
-			"features": ["error-strings", "subpixel-rendering"]
-		},
-		"glaze",
-		"nowide",
-		"rapidfuzz",
-		"xxhash"
-	]
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "vcpkg-configuration": {
+    "default-registry": {
+      "kind": "git",
+      "baseline": "efb1e7436979a30c4d3e5ab2375fd8e2e461d541",
+      "repository": "https://github.com/microsoft/vcpkg"
+    },
+    "registries": [
+      {
+        "kind": "artifact",
+        "location": "https://github.com/microsoft/vcpkg-ce-catalog/archive/refs/heads/main.zip",
+        "name": "microsoft"
+      }
+    ]
+  },
+  "dependencies": [
+    "cppwinrt",
+    "easyloggingpp",
+    {
+      "name": "freetype",
+      "default-features": false,
+      "features": [
+        "error-strings",
+        "subpixel-rendering"
+      ]
+    },
+    "glaze",
+    "nowide",
+    "rapidfuzz",
+    "xxhash"
+  ]
 }
