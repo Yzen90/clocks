@@ -39,6 +39,8 @@ void new_frame();
 void render(const Resources& resources);
 void cleanup(Resources* resources);
 
+void try_bring_to_front(SDL_Window* window);
+
 void with_font_scale(float scale, function<void()> imgui_ops, float reset_scale = 1);
 float current_x();
 float available_x();

@@ -251,9 +251,11 @@ bool keep_open(const Resources& resources) {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     ImGui_ImplSDL3_ProcessEvent(&event);
-    if (event.type == SDL_EVENT_QUIT ||
-        (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(resources.window)))
+    if (event.type == SDL_EVENT_QUIT || (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
+                                         event.window.windowID == SDL_GetWindowID(resources.window))) {
+      SDL_HideWindow(resources.window);
       return false;
+    }
   }
 
   return true;
@@ -327,6 +329,16 @@ void cleanup(Resources* resources) {
   SetFocus(resources->parent);
   *resources = Resources{};
   SDL_Quit();
+}
+
+void try_bring_to_front(SDL_Window* window) {
+  HWND handle = static_cast<HWND>(
+      SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL)
+  );
+  if (handle) {
+    SetForegroundWindow(handle);
+    SetFocus(handle);
+  }
 }
 
 // ANCHOR - UI

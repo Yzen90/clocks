@@ -2,7 +2,7 @@ set_project('clocks')
 
 clocks_version_major = 1
 clocks_version_minor = 0
-clocks_version_patch = 0
+clocks_version_patch = 1
 set_version(clocks_version_major .. '.' .. clocks_version_minor .. '.' .. clocks_version_patch)
 
 add_configfiles('src/config.hpp.in')

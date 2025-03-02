@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../StateStore.hpp"
-#include "imgui.h"
 #include "imgui.hpp"
 
 using std::map;
@@ -18,6 +17,9 @@ class ClocksConfig {
 
   Resources resources;
   Logger* logger = Loggers::getLogger("ClocksConfig");
+
+  static bool opened;
+  static SDL_Window* current_window;
 
   bool was_opened = false;
   bool is_changed = false;

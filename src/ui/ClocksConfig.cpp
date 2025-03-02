@@ -35,12 +35,23 @@ ClocksConfig::ClocksConfig(Configuration configuration, string log_file)
       log_file(log_file),
       formatter(StateStore::get_time_formatter(configuration.clock_type)) {}
 
+bool ClocksConfig::opened;
+SDL_Window* ClocksConfig::current_window;
+
 optional<Configuration> ClocksConfig::open(void*& window_handle) {
+  if (ClocksConfig::opened) {
+    if (current_window) try_bring_to_front(current_window);
+    return nullopt;
+  }
+
+  opened = true;
+
   std::thread ui{[&]() {
     if (auto setup_resources =
             setup(window_handle, configuration.theme, BASE_SIZE, MIN_WIDTH, MIN_HEIGHT, loaded_locale())) {
       resources = std::move(*setup_resources);
       setup_resources.reset();
+      current_window = resources.window;
 
       logger->info(l10n->ui.messages.config_opened);
 
@@ -118,7 +129,10 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         ui_timezone_select();
 
         ui_section_footer();
-        if (save) break;
+        if (save) {
+          SDL_HideWindow(resources.window);
+          break;
+        }
 
         ImGui::End();
         ImGui::PopStyleVar(3);
@@ -126,6 +140,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
         render(resources);
       }
 
+      current_window = nullptr;
       cleanup(&resources);
     }
   }};
@@ -149,6 +164,7 @@ optional<Configuration> ClocksConfig::open(void*& window_handle) {
     }
   }
   ui.join();
+  opened = false;
 
   if (save) return {configuration};
 
