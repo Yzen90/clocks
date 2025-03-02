@@ -18,8 +18,8 @@
 ### 安装步骤
 
 1. 下载预编译二进制文件或从源代码构建（构建说明待定）。
-    - [x64](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x64.zip)
-    - [x86](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x86.zip)
+    - [x64架构的Clocks](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x64.zip)
+    - [x86架构的Clocks](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x86.zip)
 2. 将clocks.dll文件放入TrafficMonitor的插件目录。
 3. 打开或重启TrafficMonitor以加载插件。
 4. 如果没有找到现有设置，时钟配置窗口将自动弹出：

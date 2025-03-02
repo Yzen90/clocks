@@ -18,8 +18,8 @@ Clocks es un plugin para [TrafficMonitor](https://github.com/zhongyang219/Traffi
 ### Pasos de instalación
 
 1. Descarga un binario precompilado o compílalo a partir del código fuente (las instrucciones de compilación están pendientes).
-    - [x64](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x64.zip)
-    - [x86](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x86.zip)
+    - [Clocks para la arquitectura x64](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x64.zip)
+    - [Clocks para la arquitectura x86](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x86.zip)
 2. Coloca el archivo `clocks.dll` en el directorio "plugins" de TrafficMonitor.
 3. Abre o reinicia TrafficMonitor para cargar el plugin.
 4. La ventana de configuración de Clocks se abrirá automáticamente si no hay un archivo de configuración existente:

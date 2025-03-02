@@ -18,8 +18,8 @@ Clocksは、[TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/blob
 ### インストール手順
 
 1. 事前コンパイルされたバイナリをダウンロードするか、ソースコードからビルドします（ビルド手順はまだ用意されていません）。
-    - [x64](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x64.zip)
-    - [x86](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x86.zip)
+    - [x64アーキテクチャ用のClocks](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x64.zip)
+    - [x86アーキテクチャ用のClocks](https://github.com/Yzen90/clocks/releases/latest/download/clocks-x86.zip)
 2. `clocks.dll` ファイルをTrafficMonitorの「plugins」ディレクトリに配置します。
 3. TrafficMonitorを開くか再起動してプラグインを読み込みます。
 4. 設定ファイルが存在しない場合、Clocksの設定ウィンドウが自動的に開きます：
