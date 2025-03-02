@@ -10,6 +10,11 @@
 
 ![](images/taskbar-sample.png)
 
+### 要求
+
+- [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/releases)
+- Windows 10 1803 或更高版本
+
 ### 安装步骤
 
 1. 下载预编译二进制文件或从源代码构建（构建说明待定）。

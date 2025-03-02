@@ -6,9 +6,14 @@
 
 ### Overview
 
-Clocks is a plugin for [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor) that allows you to display clocks from various time zones directly in your Windows taskbar, so you can keep track of the time at different locations with ease.
+Clocks is a plugin for [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/blob/master/README_en-us.md) that allows you to display clocks from various time zones directly in your Windows taskbar, so you can keep track of the time at different locations with ease.
 
 ![](images/taskbar-sample.png)
+
+### Requirements
+
+- [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/releases)
+- Windows 10 1803 or superior
 
 ### Installation steps
 

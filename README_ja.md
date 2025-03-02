@@ -6,9 +6,14 @@
 
 ### 概要
 
-Clocksは、[TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor)用のプラグインで、さまざまなタイムゾーンの時計をWindowsタスクバーに直接表示できるようにします。これにより、異なる場所の時間を簡単に追跡できます。
+Clocksは、[TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/blob/master/README_en-us.md)用のプラグインで、さまざまなタイムゾーンの時計をWindowsタスクバーに直接表示できるようにします。これにより、異なる場所の時間を簡単に追跡できます。
 
 ![](images/taskbar-sample.png)
+
+### 要件
+
+- [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/releases)
+- Windows 10 1803 以降
 
 ### インストール手順
 

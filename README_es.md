@@ -6,9 +6,14 @@
 
 ### Descripción general
 
-Clocks es un plugin para [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor) que te permite mostrar relojes de diferentes zonas horarias directamente en la barra de tareas de Windows, para que puedas mantener un seguimiento sencillo de la hora en distintos lugares.
+Clocks es un plugin para [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/blob/master/README_en-us.md) que te permite mostrar relojes de diferentes zonas horarias directamente en la barra de tareas de Windows, para que puedas mantener un seguimiento sencillo de la hora en distintos lugares.
 
 ![](images/taskbar-sample.png)
+
+### Requisitos
+
+- [TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor/releases)
+- Windows 10 1803 o superior
 
 ### Pasos de instalación
 
