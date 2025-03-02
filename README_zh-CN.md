@@ -32,8 +32,9 @@
 注意：目前还没有详细的构建说明。然而，您可以打开问题请求在此处添加构建说明。
 
 ---
-<center>
+<p align="center" width="100%">
 ©2025 Edgar Montiel Cruz
-
-![](images/hecho-en-mexico.png)
-</center>
+</p>
+<p align="center" width="100%">
+  <img src="images/hecho-en-mexico.png" />
+</p>

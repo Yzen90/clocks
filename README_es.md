@@ -32,8 +32,9 @@ Clocks es un plugin para [TrafficMonitor](https://github.com/zhongyang219/Traffi
 Nota: Actualmente, no se proporcionan instrucciones detalladas de compilación. Sin embargo, puedes abrir issue para solicitar que se agreguen las instrucciones de compilación aquí.
 
 ---
-<center>
+<p align="center" width="100%">
 ©2025 Edgar Montiel Cruz
-
-![](images/hecho-en-mexico.png)
-</center>
+</p>
+<p align="center" width="100%">
+  <img src="images/hecho-en-mexico.png" />
+</p>

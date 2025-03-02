@@ -32,8 +32,9 @@ Clocks is a plugin for [TrafficMonitor](https://github.com/zhongyang219/TrafficM
 Note: Currently, detailed build instructions are not available. However, you can open an issue to request the build instructions to be added here.
 
 ---
-<center>
+<p align="center" width="100%">
 ©2025 Edgar Montiel Cruz
-
-![](images/hecho-en-mexico.png)
-</center>
+</p>
+<p align="center" width="100%">
+  <img src="images/hecho-en-mexico.png" />
+</p>

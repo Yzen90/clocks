@@ -32,8 +32,9 @@ Clocksは、[TrafficMonitor](https://github.com/zhongyang219/TrafficMonitor)用�
 注記: 現在、詳細なビルド手順は提供されていません。しかし、ここにビルド手順を追加するようリクエストするissueを開くことができます。
 
 ---
-<center>
+<p align="center" width="100%">
 ©2025 Edgar Montiel Cruz
-
-![](images/hecho-en-mexico.png)
-</center>
+</p>
+<p align="center" width="100%">
+  <img src="images/hecho-en-mexico.png" />
+</p>
